@@ -3,15 +3,25 @@ package nl.tudelft.in4391.da.chat;
 /**
  * Created by arkkadhiratara on 3/2/16.
  */
+import nl.tudelft.in4391.da.User;
+
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Scanner;
 
 public class ChatServer {
     public static void main (String[] argv) {
         try
         {
-            Chat obj = new Chat();
+            // Username Input
+            Scanner s=new Scanner(System.in);
+            System.out.println("Username: ");
+            String username=s.nextLine().trim();
+
+            // Init Chat Object
+            Chat obj = new Chat(new User(username));
+
             ChatInterface stub = (ChatInterface) UnicastRemoteObject.exportObject(obj, 0);
             Registry registry = LocateRegistry.getRegistry();
             registry.bind("Chat", stub);

@@ -15,8 +15,8 @@ public class ChatClient {
         try {
             Registry registry = LocateRegistry.getRegistry(host);
             ChatInterface stub = (ChatInterface) registry.lookup("Chat");
-            String response = stub.debug();
-            System.out.println("response: " + response);
+
+            System.out.println("Hello, " + stub.getClient().getUser());
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
