@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
  */
 public interface Server extends Remote {
     public Boolean connect() throws RemoteException;
-    public Player login(String username, String password) throws RemoteException;
-    public void logout() throws RemoteException;
+    public Boolean login(String username, String password) throws RemoteException;
+    public Player getPlayer() throws RemoteException;
+    public void logout(Player player) throws RemoteException;
 }

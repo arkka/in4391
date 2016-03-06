@@ -1,7 +1,5 @@
 package nl.tudelft.in4391.da;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteServer;
 import java.rmi.server.ServerNotActiveException;
@@ -10,7 +8,7 @@ import java.rmi.server.ServerNotActiveException;
  * Created by arkkadhiratara on 3/5/16.
  */
 public class ServerImpl implements Server {
-    private Client client;
+    Player player;
 
     @Override
     public Boolean connect() throws RemoteException {
@@ -23,7 +21,7 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public Player login(String username, String password) throws RemoteException {
+    public Boolean login(String username, String password) throws RemoteException {
         // Init player object
         Player player = new Player(username, password);
 
@@ -35,18 +33,27 @@ public class ServerImpl implements Server {
             } catch (ServerNotActiveException e) {
                 e.printStackTrace();
             }
+
+            this.player = player;
             System.out.println("[System] Player " + player + " has logged in.");
+            return true;
+
         } else {
             System.out.println("[Error] Bad credentials.");
         }
 
-        return player;
+        return false;
     }
 
     @Override
-    public void logout() throws RemoteException {
-        client.getPlayer().setAuthenticated(false);
-        System.out.println("[System] Player '" + client.getPlayer() + "' has logout.");
+    public Player getPlayer() throws RemoteException {
+        return this.player;
+    }
+
+    @Override
+    public void logout(Player player) throws RemoteException {
+        player.setAuthenticated(false);
+        System.out.println("[System] Player '" + player + "' has logout.");
     }
 
 }

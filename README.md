@@ -11,5 +11,6 @@ rmiregistry -J-Djava.rmi.server.codebase=file:///Users/arkkadhiratara/Workspaces
 4. Run Second GameClient, please follow step 3 but use another username (TO-DO: username conflict avoidance)
 
 # Server and Client Port (on localhost implementation)
-GameServer (Registry): 1101 ~ 1120
-GameClient (Callback): 1201 ~ ....
+- GameServer (Registry): 1100 ~ 1200
+- ArenaServer (Registry): 1200 ~ 1300
+- GameClient (Callback localhost): 1500 ~ ....

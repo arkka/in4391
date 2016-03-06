@@ -7,5 +7,5 @@ import java.rmi.RemoteException;
  * Created by arkkadhiratara on 3/5/16.
  */
 public interface Client extends Remote {
-    Player getPlayer() throws RemoteException;
+    String getArena() throws RemoteException;
 }

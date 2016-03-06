@@ -9,12 +9,15 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class GameServer {
-    static Integer DEFAULT_PORT = 1101; // 1101 ~ 1200
+    static String DEFAULT_REGISTRY_HOST = "127.0.0.1";
+    static Integer DEFAULT_REGISTRY_PORT = 1099;
+    static Integer DEFAULT_CALLBACK_PORT = 1100;
 
     public static void main (String[] args) {
 
         // Parameter Arguments
-        Integer server_port = (args.length < 1) ? DEFAULT_PORT : Integer.parseInt(args[1]);
+        String registry_host = (args.length < 1) ? DEFAULT_REGISTRY_HOST : args[0];
+        Integer registry_port = (args.length < 2) ? DEFAULT_REGISTRY_PORT : Integer.parseInt(args[1]);
 
         try
         {
@@ -22,12 +25,14 @@ public class GameServer {
             ServerImpl server = new ServerImpl();
 
             // Stub and Skeleton
-            Server stub = (Server) UnicastRemoteObject.exportObject(server,server_port);
-            //Registry registry = LocateRegistry.getRegistry();
-            Registry registry = LocateRegistry.createRegistry(server_port);
+            Server stub = (Server) UnicastRemoteObject.exportObject(server,registry_port);
+
+            // TO-DO: remote creation
+            Registry registry = LocateRegistry.createRegistry(registry_port);
+
             registry.bind("Server", stub);
 
-            System.out.println("[System] Game Server ready on " + InetAddress.getLocalHost().getHostAddress()+ ":" + server_port);
+            System.out.println("[System] Game Server ready on " + InetAddress.getLocalHost().getHostAddress());
 
         }
         catch (Exception e)
