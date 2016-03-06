@@ -3,9 +3,11 @@ package nl.tudelft.in4391.da;
 /**
  * Created by arkkadhiratara on 3/2/16.
  */
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RemoteServer;
 import java.rmi.server.UnicastRemoteObject;
 
 public class GameServer {
@@ -27,7 +29,7 @@ public class GameServer {
             Registry registry = LocateRegistry.createRegistry(server_port);
             registry.bind("Server", stub);
 
-            System.out.println("[System] Server is ready on " + InetAddress.getLocalHost().getHostAddress() + ":" + server_port);
+            System.out.println("[System] Game Server ready on " + InetAddress.getLocalHost().getHostAddress()+ ":" + server_port);
 
         }
         catch (Exception e)

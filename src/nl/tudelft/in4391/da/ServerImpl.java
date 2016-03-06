@@ -17,11 +17,13 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public void ping() throws RemoteException {
-        System.out.println("[System] Received ping from ...");
-
-        // Reply client's ping
-        client.pong();
+    public Boolean ping() throws RemoteException {
+        try {
+            System.out.println("[System] Incoming client connection from "+RemoteServer.getClientHost());
+        } catch (ServerNotActiveException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     @Override
@@ -35,17 +37,28 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public void connect(Client client) throws RemoteException {
+    public void login(Client client) throws RemoteException {
+        // TO-DO: Credentials Authentication
         setClient(client);
-        //System.out.println("[System] A new client has connected from "+getClient().getAddress().getHostAddress());
-        System.out.println("[System] A new client '"+client.getUsername()+"' has connected.");
 
-        // ACK success connection to client
-        client.connected(this);
+        try {
+            // Init new player object
+            Player player = new Player(client.getUsername(),RemoteServer.getClientHost());
+            System.out.println("[System] Player "+player.toString()+" has logged in.");
+
+            // ACK authentication
+            client.authenticated(this, player);
+        } catch (ServerNotActiveException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
-    public void disconnect() throws RemoteException {
+    public void logout() throws RemoteException {
+        System.out.println("[System] Player '"+client.getUsername()+"' has logout.");
+        setClient(null);
 
     }
 

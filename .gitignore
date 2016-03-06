@@ -1,5 +1,8 @@
 bin/
 
+# IDE generated files
+.idea/
+
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -8,3 +11,4 @@ bin/
 .Trashes
 ehthumbs.db
 Thumbs.db
+

@@ -21,34 +21,44 @@ public class GameClient {
         Integer callback_port = (args.length < 3) ? DEFAULT_CALLBACK_PORT : Integer.parseInt(args[2]); // 1201 ~ ...
 
         try {
-            // Username Input
-            Scanner s = new Scanner(System.in);
-            System.out.println("Username: ");
-            String username = s.nextLine().trim();
-
-            // Init Client Object
-            ClientImpl client = new ClientImpl(username);
-
-            // Register Client Stub
-            Client clientStub = (Client) UnicastRemoteObject.exportObject(client, callback_port);
-            Registry clientRegistry = LocateRegistry.getRegistry();
-            clientRegistry.bind("Client-" + UUID.randomUUID(), clientStub);
-            System.out.println("[System] Client is ready.");
-
-            // Lookup Server Stub
+            // Init server connection
             Registry serverRegistry = LocateRegistry.getRegistry(server_host,server_port);
-            Server serverStub = (Server) serverRegistry.lookup("Server");
+            Server server = (Server) serverRegistry.lookup("Server");
 
-            // Set client information
-            serverStub.connect(client);
+            // Lookup Server whether the server is available or not
+            if(server.ping()) {
+                System.out.println("[System] Connected to game server "+server_host+":"+server_port);
+                System.out.println("Welcome to Dragon Arena: Reborn!");
 
-            // Ping server
-            // serverStub.ping();
+                // Input authentication credentials
+                Scanner s = new Scanner(System.in);
+                System.out.print("Username: ");
+                String username = s.nextLine().trim();
 
+
+                // TO-DO: Implement password authentication
+                //System.out.println("Password: ");
+                //password = s.nextLine().trim();
+                String password = "";
+
+                // Init client object
+                ClientImpl client = new ClientImpl(username,password);
+
+                // Register local client stub
+                Client clientStub = (Client) UnicastRemoteObject.exportObject(client, callback_port);
+                Registry clientRegistry = LocateRegistry.getRegistry();
+                clientRegistry.bind("Client-" + UUID.randomUUID(), clientStub);
+
+                System.out.println("[System] Authenticating to server...");
+                server.login(client);
+
+            } else {
+                System.out.println("[Error] Couldn't able to reach game server "+server_host+":"+server_port+". Please try again later.");
+                return; // exit
+            }
         } catch (Exception e) {
             System.err.println("[Error] Client exception: " + e.toString());
             e.printStackTrace();
         }
-
     }
 }

@@ -9,32 +9,21 @@ import java.rmi.RemoteException;
  */
 public class ClientImpl implements Client {
     private Server server;
+    private Player player;
+
     private String username;
-    public InetAddress address;
+    private String password; // unimplemented
 
-    public ClientImpl(String username) {
+    public ClientImpl(String username, String password) {
         this.username = username;
-
-        try {
-            this.address = InetAddress.getLocalHost();
-        } catch(UnknownHostException e){
-            System.err.println("[Error] Unable to retrieve local address. Exception: " + e.toString());
-            e.printStackTrace();
-        }
-
+        this.password = password;
     }
 
     @Override
-    public void connected(Server server) throws RemoteException {
-        setSever(server);
-        //System.out.println("[System] Successfully connected to server "+getServer().getAddress().getHostAddress());
-        System.out.println("[System] Successfully connected to server as "+getUsername()+".");
-    }
-
-    @Override
-    public void pong() throws RemoteException {
-        //System.out.println("[System] Reply pong from server "+getServer().getAddress().getHostAddress());
-        System.out.println("[System] Reply pong from server");
+    public void authenticated(Server server, Player player) throws RemoteException {
+        setServer(server);
+        setPlayer(player);
+        System.out.println("[System] Successfully authenticated to server as "+player.toString()+".");
     }
 
     @Override
@@ -43,8 +32,8 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void setSever(Server server) throws RemoteException {
-        this.server = server;
+    public void setServer(Server server) throws RemoteException {
+
     }
 
     @Override
@@ -52,8 +41,11 @@ public class ClientImpl implements Client {
         return this.username;
     }
 
-    public void setUsername(String username) throws RemoteException {
-        this.username = username;
+    public Server getPlayer() throws RemoteException {
+        return this.server;
     }
 
+    public void setPlayer(Player player) throws RemoteException {
+        this.player = player;
+    }
 }
