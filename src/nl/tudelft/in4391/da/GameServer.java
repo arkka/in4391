@@ -14,7 +14,7 @@ public class GameServer {
     public static void main (String[] args) {
 
         // Parameter Arguments
-        Integer port = (args.length < 1) ? DEFAULT_PORT : Integer.parseInt(args[1]);
+        Integer server_port = (args.length < 1) ? DEFAULT_PORT : Integer.parseInt(args[1]);
 
         try
         {
@@ -22,11 +22,12 @@ public class GameServer {
             ServerImpl server = new ServerImpl();
 
             // Stub and Skeleton
-            Server stub = (Server) UnicastRemoteObject.exportObject(server,0);
-            Registry registry = LocateRegistry.getRegistry();
+            Server stub = (Server) UnicastRemoteObject.exportObject(server,server_port);
+            //Registry registry = LocateRegistry.getRegistry();
+            Registry registry = LocateRegistry.createRegistry(server_port);
             registry.bind("Server", stub);
 
-            System.out.println("[System] Server is ready on " + InetAddress.getLocalHost().getHostAddress() + ":" + port);
+            System.out.println("[System] Server is ready on " + InetAddress.getLocalHost().getHostAddress() + ":" + server_port);
 
         }
         catch (Exception e)

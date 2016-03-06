@@ -28,13 +28,13 @@ public class ClientImpl implements Client {
     public void connected(Server server) throws RemoteException {
         setSever(server);
         //System.out.println("[System] Successfully connected to server "+getServer().getAddress().getHostAddress());
-        System.out.println("[System] Successfully connected to server.");
+        System.out.println("[System] Successfully connected to server as "+getUsername()+".");
     }
 
     @Override
     public void pong() throws RemoteException {
-        //System.out.println("[System] Reply ponf from server "+getServer().getAddress().getHostAddress());
-        System.out.println("[System] Reply ponf from server");
+        //System.out.println("[System] Reply pong from server "+getServer().getAddress().getHostAddress());
+        System.out.println("[System] Reply pong from server");
     }
 
     @Override

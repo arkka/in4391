@@ -7,14 +7,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class GameClient {
     static String DEFAULT_HOST = "localhost";
     static Integer DEFAULT_CALLBACK_PORT = 1201;
-
-    private GameClient() {
-
-    };
 
     public static void main(String[] args)
     {
@@ -33,14 +30,13 @@ public class GameClient {
             ClientImpl client = new ClientImpl(username);
 
             // Register Client Stub
-            Client clientStub = (Client) UnicastRemoteObject.exportObject(client, 0);
+            Client clientStub = (Client) UnicastRemoteObject.exportObject(client, callback_port);
             Registry clientRegistry = LocateRegistry.getRegistry();
-            clientRegistry.bind("Client", clientStub);
+            clientRegistry.bind("Client-" + UUID.randomUUID(), clientStub);
             System.out.println("[System] Client is ready.");
 
             // Lookup Server Stub
-            Registry serverRegistry = LocateRegistry.getRegistry();
-            //Registry serverRegistry = LocateRegistry.getRegistry(server_port);
+            Registry serverRegistry = LocateRegistry.getRegistry(server_host,server_port);
             Server serverStub = (Server) serverRegistry.lookup("Server");
 
             // Set client information
