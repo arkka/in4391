@@ -1,7 +1,5 @@
 package nl.tudelft.in4391.da;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 
 /**
