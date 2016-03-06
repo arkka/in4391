@@ -10,15 +10,13 @@ import java.util.Scanner;
 import java.util.UUID;
 
 public class GameClient {
-    static String DEFAULT_SERVER_REGISTRY_HOST = "127.0.0.1";
-    static String DEFAULT_ARENA_REGISTRY_HOST = "127.0.0.1";
+    public static Integer CLIENT_CALLBACK_PORT = 1500;
 
     public static void main(String[] args)
     {
         // Parameter Arguments
-        String server_host = (args.length < 1) ? DEFAULT_SERVER_REGISTRY_HOST : args[0];
-        Integer server_port = (args.length < 2) ? GameServer.DEFAULT_REGISTRY_PORT : Integer.parseInt(args[1]); // 1100 ~ ... on localhost
-        Integer callback_port = (args.length < 3) ? GameServer.DEFAULT_CALLBACK_PORT : Integer.parseInt(args[2]); // 1500 ~ ... on localhost
+        String server_registry_host = (args.length < 1) ? GameServer.SERVER_REGISTRY_HOST : args[0];
+        Integer client_callback_port = (args.length < 2) ? CLIENT_CALLBACK_PORT : Integer.parseInt(args[1]); // 1500 ~ ... on localhost
 
         // Input Scanner
         Scanner s = new Scanner(System.in);
@@ -26,15 +24,16 @@ public class GameClient {
         Player player;
 
         try {
-            // Get Registry
-            Registry clientRegistry = LocateRegistry.getRegistry();
-            Registry serverRegistry = LocateRegistry.getRegistry(server_host,server_port);
-            Registry arenaRegistry = LocateRegistry.getRegistry(server_host,server_port);
+            // Get Registry, prepared for future improvement
+            Registry serverRegistry = LocateRegistry.getRegistry(server_registry_host, GameServer.SERVER_REGISTRY_PORT);
+            Registry clientRegistry = LocateRegistry.getRegistry(server_registry_host, GameServer.CLIENT_REGISTRY_PORT);
+            //Registry arenaRegistry = LocateRegistry.getRegistry(server_host,server_port);
+
             Server server = (Server) serverRegistry.lookup("Server");
 
             // Lookup Server and Authenticate
             if(server.connect()) {
-                System.out.println("[System] Connected to game server "+server_host+":"+server_port);
+                System.out.println("[System] Connected to game server "+server_registry_host);
                 System.out.println("Welcome to Dragon Arena: Distributed Reborn!");
 
                 // Authentication Logic
@@ -57,31 +56,26 @@ public class GameClient {
                 player = server.getPlayer();
 
                 // Register local client stub
-                Client clientStub = (Client) UnicastRemoteObject.exportObject(player, callback_port);
+                Client clientStub = (Client) UnicastRemoteObject.exportObject(player, client_callback_port);
                 clientRegistry.bind("Client-" + UUID.randomUUID(), clientStub);
 
                 System.out.println("[System] Successfully authenticated to server as "+player.toString()+".");
 
             } else {
-                System.out.println("[Error] Couldn't able to reach game server "+server_host+":"+server_port+". Please try again later.");
+                System.out.println("[Error] Couldn't able to reach game server "+server_registry_host+". Please try again later.");
                 return; // exit
             }
 
             // Join Arena Server
-
-            System.out.println("\nDEBUG");
-            System.out.println("[Server Registry]");
+            System.out.println("\n[Debug: Server Registry]");
             for(String sr : serverRegistry.list()) {
                 System.out.println("- "+sr);
             }
 
-            System.out.println("\n[Client Registry]");
+            System.out.println("\n[Debug: Client Registry]");
             for(String cr : clientRegistry.list()) {
                 System.out.println("- "+cr);
             }
-
-
-
 
         } catch (Exception e) {
             System.err.println("[Error] Client exception: " + e.toString());

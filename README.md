@@ -1,16 +1,9 @@
 # How to Start
-1. Start RMI Registry using this command. Change the codebase parameter with the absolute path of your project folder.
-```
-rmiregistry -J-Djava.rmi.server.codebase=file:///Users/arkkadhiratara/Workspaces/in4391/bin/
-```
-2. Run GameServer
-3. Before running GameClient, please do as follows. (Perlu dilakukan sementara belum ada implementasi ServerDiscovery) 
-- Take a note on ServerGame host and port. For example,`[System] Server is ready on 192.168.1.10:1101` means server host is `192.168.1.10` and server port `1101`.
-- Adjust run parameter (either using IDE run configuration or direct command prompt) for GameClient.java. Specified different client callback address if running on localhost. `java GameClient.java 192.168.1.10 1101 1201`
-- Set username 
-4. Run Second GameClient, please follow step 3 but use another username (TO-DO: username conflict avoidance)
+1. Run GameServer
+2. Run GameClient. `java GameClient.java 192.168.1.10 1500`
+3. Sama dengan step 2. Run GameClient. Untuk simulasi multi client di localhost, pastikan menggunakan callback port yang berbeda. `java GameClient.java 192.168.1.10 1501`
 
-# Server and Client Port (on localhost implementation)
-- GameServer (Registry): 1100 ~ 1200
-- ArenaServer (Registry): 1200 ~ 1300
-- GameClient (Callback localhost): 1500 ~ ....
+# RMI Registry Default Port
+- Server: 1099 
+- Client: 1098
+- Arena: 1097

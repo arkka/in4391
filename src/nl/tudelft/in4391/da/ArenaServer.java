@@ -12,9 +12,6 @@ public class ArenaServer {
     public static void main (String[] args) {
 
         // Parameter Arguments
-        String registry_host = (args.length < 1) ? GameServer.DEFAULT_REGISTRY_HOST : args[0];
-        Integer registry_port = (args.length < 2) ? GameServer.DEFAULT_REGISTRY_PORT : Integer.parseInt(args[1]); // 1100 ~ ...
-        Integer callback_port = (args.length < 3) ? GameServer.DEFAULT_CALLBACK_PORT : Integer.parseInt(args[2]); // 1500 ~ ...
 
         try
         {

@@ -9,28 +9,32 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class GameServer {
-    static String DEFAULT_REGISTRY_HOST = "127.0.0.1";
-    static Integer DEFAULT_REGISTRY_PORT = 1099;
-    static Integer DEFAULT_CALLBACK_PORT = 1100;
+    static String SERVER_REGISTRY_HOST = "127.0.0.1";
+    static Integer SERVER_REGISTRY_PORT = 1099;
+    static Integer CLIENT_REGISTRY_PORT = 1098;
 
     public static void main (String[] args) {
 
         // Parameter Arguments
-        String registry_host = (args.length < 1) ? DEFAULT_REGISTRY_HOST : args[0];
-        Integer registry_port = (args.length < 2) ? DEFAULT_REGISTRY_PORT : Integer.parseInt(args[1]);
+        String server_registry_host = (args.length < 1) ? SERVER_REGISTRY_HOST : args[0];
+        Integer server_registry_port = (args.length < 2) ? SERVER_REGISTRY_PORT : Integer.parseInt(args[1]);
+        Integer client_registry_port = (args.length < 3) ? CLIENT_REGISTRY_PORT : Integer.parseInt(args[2]);
 
         try
         {
             // Init Server Object
             ServerImpl server = new ServerImpl();
 
+            // Create Registry. TO-DO: remote creation
+            Registry serverRegistry = LocateRegistry.createRegistry(server_registry_port);
+            Registry clientRegistry = LocateRegistry.createRegistry(client_registry_port);
+
             // Stub and Skeleton
-            Server stub = (Server) UnicastRemoteObject.exportObject(server,registry_port);
+            Server stub = (Server) UnicastRemoteObject.exportObject(server,server_registry_port);
 
-            // TO-DO: remote creation
-            Registry registry = LocateRegistry.createRegistry(registry_port);
 
-            registry.bind("Server", stub);
+
+            serverRegistry.bind("Server", stub);
 
             System.out.println("[System] Game Server ready on " + InetAddress.getLocalHost().getHostAddress());
 
