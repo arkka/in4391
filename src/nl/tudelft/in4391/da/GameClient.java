@@ -20,42 +20,53 @@ public class GameClient {
         Integer server_port = (args.length < 2) ? GameServer.DEFAULT_PORT : Integer.parseInt(args[1]); // 1101 ~ ...
         Integer callback_port = (args.length < 3) ? DEFAULT_CALLBACK_PORT : Integer.parseInt(args[2]); // 1201 ~ ...
 
+        Scanner s = new Scanner(System.in);
+
         try {
             // Init server connection
             Registry serverRegistry = LocateRegistry.getRegistry(server_host,server_port);
             Server server = (Server) serverRegistry.lookup("Server");
 
             // Lookup Server whether the server is available or not
-            if(server.ping()) {
+            if(server.connect()) {
                 System.out.println("[System] Connected to game server "+server_host+":"+server_port);
-                System.out.println("Welcome to Dragon Arena: Reborn!");
+                System.out.println("Welcome to Dragon Arena: Distributed Reborn!");
 
-                // Input authentication credentials
-                Scanner s = new Scanner(System.in);
-                System.out.print("Username: ");
-                String username = s.nextLine().trim();
-
-
-                // TO-DO: Implement password authentication
-                //System.out.println("Password: ");
-                //password = s.nextLine().trim();
-                String password = "";
-
-                // Init client object
-                ClientImpl client = new ClientImpl(username,password);
+                // Init client object & register client
+                ClientImpl client = new ClientImpl();
 
                 // Register local client stub
                 Client clientStub = (Client) UnicastRemoteObject.exportObject(client, callback_port);
                 Registry clientRegistry = LocateRegistry.getRegistry();
                 clientRegistry.bind("Client-" + UUID.randomUUID(), clientStub);
 
-                System.out.println("[System] Authenticating to server...");
-                server.login(client);
+
+                // Authentication Logic
+                String username = "";
+                String password = "";
+                Player player;
+
+                do {
+                    // Input authentication credentials
+                    System.out.print("Username: ");
+                    username = s.nextLine().trim();
+
+                    // TO-DO: Implement password authentication
+                    //System.out.println("Password: ");
+                    //password = s.nextLine().trim();
+
+                    System.out.println("[System] Authenticating to server...");
+                    player = server.login(username,password);
+                } while(!player.isAuthenticated());
+                System.out.println("[System] Successfully authenticated to server as "+player.toString()+".");
 
             } else {
                 System.out.println("[Error] Couldn't able to reach game server "+server_host+":"+server_port+". Please try again later.");
                 return; // exit
             }
+
+
+
         } catch (Exception e) {
             System.err.println("[Error] Client exception: " + e.toString());
             e.printStackTrace();

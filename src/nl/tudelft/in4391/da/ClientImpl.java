@@ -11,41 +11,12 @@ public class ClientImpl implements Client {
     private Server server;
     private Player player;
 
-    private String username;
-    private String password; // unimplemented
-
-    public ClientImpl(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public ClientImpl() {
+        //this.player = new Player(username,password);
     }
 
     @Override
-    public void authenticated(Server server, Player player) throws RemoteException {
-        setServer(server);
-        setPlayer(player);
-        System.out.println("[System] Successfully authenticated to server as "+player.toString()+".");
-    }
-
-    @Override
-    public Server getServer() throws RemoteException {
-        return this.server;
-    }
-
-    @Override
-    public void setServer(Server server) throws RemoteException {
-
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
-    }
-
-    public Server getPlayer() throws RemoteException {
-        return this.server;
-    }
-
-    public void setPlayer(Player player) throws RemoteException {
-        this.player = player;
+    public Player getPlayer() throws RemoteException {
+        return this.player;
     }
 }

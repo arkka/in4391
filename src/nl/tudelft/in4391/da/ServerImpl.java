@@ -12,14 +12,10 @@ import java.rmi.server.ServerNotActiveException;
 public class ServerImpl implements Server {
     private Client client;
 
-    public ServerImpl() {
-
-    }
-
     @Override
-    public Boolean ping() throws RemoteException {
+    public Boolean connect() throws RemoteException {
         try {
-            System.out.println("[System] Incoming client connection from "+RemoteServer.getClientHost());
+            System.out.println("[System] Established client connection from "+RemoteServer.getClientHost());
         } catch (ServerNotActiveException e) {
             e.printStackTrace();
         }
@@ -27,39 +23,30 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public Client getClient() throws RemoteException {
-        return this.client;
-    }
+    public Player login(String username, String password) throws RemoteException {
+        // Init player object
+        Player player = new Player(username, password);
 
-    @Override
-    public void setClient(Client client) throws RemoteException {
-        this.client = client;
-    }
-
-    @Override
-    public void login(Client client) throws RemoteException {
-        // TO-DO: Credentials Authentication
-        setClient(client);
-
-        try {
-            // Init new player object
-            Player player = new Player(client.getUsername(),RemoteServer.getClientHost());
-            System.out.println("[System] Player "+player.toString()+" has logged in.");
-
-            // ACK authentication
-            client.authenticated(this, player);
-        } catch (ServerNotActiveException e) {
-            e.printStackTrace();
+        // TO-DO Check credentials
+        if(true) {
+            player.setAuthenticated(true);
+            try {
+                player.setHostAddress(RemoteServer.getClientHost());
+            } catch (ServerNotActiveException e) {
+                e.printStackTrace();
+            }
+            System.out.println("[System] Player " + player + " has logged in.");
+        } else {
+            System.out.println("[Error] Bad credentials.");
         }
 
-
+        return player;
     }
 
     @Override
     public void logout() throws RemoteException {
-        System.out.println("[System] Player '"+client.getUsername()+"' has logout.");
-        setClient(null);
-
+        client.getPlayer().setAuthenticated(false);
+        System.out.println("[System] Player '" + client.getPlayer() + "' has logout.");
     }
 
 }
