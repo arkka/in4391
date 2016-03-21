@@ -10,7 +10,7 @@ import java.net.NetworkInterface;
 /**
  * Created by arkkadhiratara on 3/7/16.
  */
-public class Multicast extends Thread {
+public class Event extends Thread {
     byte[] message;
     int socketPort;
 
@@ -21,14 +21,11 @@ public class Multicast extends Thread {
 
     public int dataLength = 1024; // DEFAULT
 
-    MulticastListener listener;
+    EventListener listener;
 
 
-    public Multicast(byte[] message, String groupAddressName, int socketPort) throws IOException {
-        // Init Multicast & Join Group
-        this.message = message;
+    public Event(String groupAddressName, int socketPort) throws IOException {
         this.socketPort = socketPort;
-
         this.groupAddress = InetAddress.getByName(groupAddressName);
         this.socket = new MulticastSocket(socketPort);
 
@@ -42,11 +39,10 @@ public class Multicast extends Thread {
     public void run() {
         try {
             // RECEIVE MULTICAST
-            byte[] receiveData = new byte[dataLength]; // TO-DO set correct size
+            byte[] receiveData = new byte[dataLength];
             DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
             while (listening) {
                 this.socket.receive(packet);
-                //System.out.println("Received Multicast: " + (new String(receiveData, 0, packet.getLength())));
                 listener.onReceiveData(receiveData,packet.getLength());
             }
         } catch (Exception e) {
@@ -55,13 +51,18 @@ public class Multicast extends Thread {
 
     }
 
-    public void send() throws IOException {
-        // SEND MULTICAST
-        //System.out.println("Send Multicast: " + name);
-        DatagramPacket sendPacket = new DatagramPacket(this.message, this.message.length, this.groupAddress, this.socketPort);
-        this.socket.send(sendPacket);
+    public void send(int code, Object obj) {
+        EventMessage message = new EventMessage(code,obj);
+        DatagramPacket sendPacket = null;
+        try {
+            sendPacket = new DatagramPacket(message.getBytes(), message.getBytes().length, this.groupAddress, this.socketPort);
+            this.socket.send(sendPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    public void setListener( MulticastListener listener ){
+
+    public void setListener( EventListener listener ){
         this.listener = listener;
     }
 

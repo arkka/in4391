@@ -36,6 +36,10 @@ public class Player implements Serializable {
         return this.isAuthenticated;
     }
 
+    public String getUsername() {
+        return this.username;
+    }
+
     public String toString() {
         return this.username+" ( "+this.hostAddress+" )";
     }

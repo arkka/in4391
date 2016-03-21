@@ -3,14 +3,8 @@ package nl.tudelft.in4391.da;
 /**
  * Created by arkkadhiratara on 3/2/16.
  */
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class GameServer {
@@ -33,7 +27,7 @@ public class GameServer {
         // Init Node information
         Node node = null;
         try {
-            node = new Node(nodeID,InetAddress.getLocalHost().getHostAddress(), registry_port, callback_port);
+            node = new Node(nodeID,InetAddress.getLocalHost().getHostAddress(), registry_port, callback_port, socket_port);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -41,74 +35,11 @@ public class GameServer {
         // Init Server Object
         final ServerImpl server = new ServerImpl(node);
 
-        // Create New Registry
-        try {
-            LocateRegistry.createRegistry(registry_port);
-        } catch (RemoteException e) {
-            System.err.println("[System] Error Exception: " + e.toString());
-            e.printStackTrace();
-        }
 
-        // Get Registry
-        Registry registry = null;
-        Server stub = null;
-        try {
-
-            // Get Local Registry
-            registry = LocateRegistry.getRegistry(registry_port);
-
-            // Stub and Skeleton
-            stub = (Server) UnicastRemoteObject.exportObject(server,callback_port);
-            registry.bind(node.getName(), stub);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Multicast multicast = null;
-
-        try {
-            // Init multicast object and join Muticast group
-            multicast = new Multicast(Node.serialize(node), DEFAULT_MULTICAST_GROUP, socket_port);
-            multicast.setListener(new MulticastListener() {
-                @Override
-                public void onReceiveData(byte[] receiveData, int length) {
-                    Node receiveNode = null;
-                    try {
-                        receiveNode = Node.deserialize(receiveData);
-                        server.addActiveNode(receiveNode);
-                        System.out.println("[System] " + receiveNode.getFullName() + " is active.");
-
-                        if(!nodeID.equals(receiveNode.getID())) { // if the multicast not from himself
-                            Server remoteComponent = ServerImpl.fromRemoteNode(receiveNode);
-                            remoteComponent.register(new Node(nodeID, InetAddress.getLocalHost().getHostAddress(), registry_port, callback_port));
-                            //System.out.println("[System] Register current node status on " + receiveNode.getName()+".");
-                        }
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            // Run listener thread
-            multicast.start();
-
-            // Multicast that this node is active
-            multicast.send();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-
-
+        // COMMAND
         String command = "";
 
-        while(!command.equals("exit")){
+        while(true){
             command = s.nextLine().trim();
             switch(command) {
                 case "nodes":
@@ -123,6 +54,11 @@ public class GameServer {
                     for(Player p : server.getActivePlayers()) {
                         System.out.println("- "+p.toString());
                     }
+                    break;
+                
+                case "exit":
+                    server.shutdown();
+                    System.exit(0);
                     break;
                 default:
                     break;

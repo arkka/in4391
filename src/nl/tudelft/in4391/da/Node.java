@@ -5,6 +5,7 @@ package nl.tudelft.in4391.da;
  */
 
 import java.io.*;
+import java.net.InetAddress;
 
 /**
  * Created by arkkadhiratara on 3/11/16.
@@ -15,12 +16,21 @@ public class Node implements Serializable {
     private String hostAddress;
     private Integer registryPort;
     private Integer callbackPort;
+    private Integer socketPort;
 
     Node(Integer id, String hostAddress, Integer registryPort, Integer callbackPort) {
         this.id = id;
         this.hostAddress = hostAddress;
         this.registryPort = registryPort;
         this.callbackPort = callbackPort;
+    }
+
+    Node(Integer id, String hostAddress, Integer registryPort, Integer callbackPort, Integer socketPort) {
+        this.id = id;
+        this.hostAddress = hostAddress;
+        this.registryPort = registryPort;
+        this.callbackPort = callbackPort;
+        this.socketPort = socketPort;
     }
 
     public Integer getID() {
@@ -45,18 +55,6 @@ public class Node implements Serializable {
 
     public void setRegistryPort(Integer registryPort) {
         this.registryPort = registryPort;
-    }
-
-    public static byte[] serialize(Node obj) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ObjectOutputStream os = new ObjectOutputStream(out);
-        os.writeObject(obj);
-        return out.toByteArray();
-    }
-    public static Node deserialize(byte[] data) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        ObjectInputStream is = new ObjectInputStream(in);
-        return (Node) is.readObject();
     }
 
     public boolean equals(Object c) {
