@@ -23,6 +23,13 @@ public class Player implements Serializable {
         this.id = UUID.randomUUID();
         this.username = username;
     }
+    public UUID getID() {
+        return id;
+    }
+
+    public void setID(UUID id) {
+        this.id = id;
+    }
 
     public void setHostAddress(String hostAddress){
         this.hostAddress = hostAddress;
@@ -43,4 +50,15 @@ public class Player implements Serializable {
     public String toString() {
         return this.username+" ( "+this.hostAddress+" )";
     }
+
+    public boolean equals(Object c) {
+        if(!(c instanceof Player)) {
+            return false;
+        }
+
+        Player that = (Player) c;
+        return this.getID().equals(that.getID());
+    }
+
+
 }

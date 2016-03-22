@@ -42,6 +42,7 @@ public class GameServer {
         while(true){
             command = s.nextLine().trim();
             switch(command) {
+                case "node":
                 case "nodes":
                     System.out.println("\n[Active Nodes: "+server.getActiveNodes().size()+"]");
                     for(Node n : server.getActiveNodes()) {
@@ -49,6 +50,7 @@ public class GameServer {
                     }
                     break;
 
+                case "player":
                 case "players":
                     System.out.println("\n[Active Players: "+server.getActivePlayers().size()+"]");
                     for(Player p : server.getActivePlayers()) {

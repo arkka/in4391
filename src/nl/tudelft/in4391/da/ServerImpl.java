@@ -72,7 +72,7 @@ public class ServerImpl implements Server {
         }
     }
 
-    // ACTIVE NODES
+    // NODES
     public ArrayList<Node> getActiveNodes() {
         return this.activeNodes;
     }
@@ -99,6 +99,24 @@ public class ServerImpl implements Server {
                 return  node2.getID().compareTo(node1.getID());
             }
         });
+    }
+
+    // PLAYERS
+
+    public ArrayList<Player> getActivePlayers() {
+        return this.activePlayers;
+    }
+
+    public void addActivePlayer(Player player) {
+        if(!activePlayers.contains(player)) {
+            this.activePlayers.add(player);
+        }
+    }
+
+    public void removeActivePlayer(Player player) {
+        if(activePlayers.contains(player)) {
+            this.getActivePlayers().remove(activePlayers.indexOf(player));
+        }
     }
 
     // THREAD
@@ -134,8 +152,18 @@ public class ServerImpl implements Server {
                             case 100: // Node Connected
                                 onNodeConnected((Node) message.getObject());
                                 break;
-                            case 101: // Node Disconnected
+                            case 104: // Node Disconnected
                                 onNodeDisconnected((Node) message.getObject());
+                                break;
+
+                            // PLAYER
+                            case 200: // Player Connected
+                                onPlayerConnected((Player) message.getObject());
+                                break;
+
+                            case 204: // Player Connected
+                                onPlayerDisconnected((Player) message.getObject());
+                                break;
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -153,17 +181,7 @@ public class ServerImpl implements Server {
 
     }
 
-    public ArrayList<Player> getActivePlayers() {
-        return this.activePlayers;
-    }
-
-    public void addActivePlayer(Player player) {
-        if(!activePlayers.contains(player)) {
-            this.activePlayers.add(player);
-        }
-    }
-
-    // EVENT
+    // EVENTS
     public void onNodeConnected(Node n){
         addActiveNode(n);
         System.out.println("[System] " + n.getFullName() + " is connected.");
@@ -181,6 +199,18 @@ public class ServerImpl implements Server {
     public void onNodeDisconnected(Node n){
         removeActiveNode(n);
         System.out.println("[System] " + n.getFullName() + " is disconnected.");
+
+    }
+
+    public void onPlayerConnected(Player p) {
+        addActivePlayer(p);
+        System.out.println("[System] " + p.getUsername() + " is logged in.");
+
+    }
+
+    public void onPlayerDisconnected(Player p) {
+        removeActivePlayer(p);
+        System.out.println("[System] " + p.getUsername() + " is logged out.");
     }
 
     // REMOTE FUNCTIONS
@@ -206,6 +236,7 @@ public class ServerImpl implements Server {
             try {
                 player.setHostAddress(RemoteServer.getClientHost());
                 addActivePlayer(player);
+                event.send(200,player);
             } catch (ServerNotActiveException e) {
                 e.printStackTrace();
             }
