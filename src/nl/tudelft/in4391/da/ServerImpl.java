@@ -1,5 +1,8 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Knight;
+import nl.tudelft.in4391.da.unit.Unit;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.RemoteException;
@@ -19,8 +22,9 @@ public class ServerImpl implements Server {
     private Node node;
     private ArrayList<Node> activeNodes;
     private ArrayList<Player> activePlayers;
-
     private Event event;
+
+    private Arena arena;
 
     public ServerImpl(Node node) {
         this.node = node;
@@ -28,6 +32,9 @@ public class ServerImpl implements Server {
         // Init Array List
         this.activeNodes = new ArrayList<Node>();
         this.activePlayers = new ArrayList<Player>();
+
+        // Init Arena
+        this.arena = new Arena();
 
         // Add current node
         addActiveNode(node);
@@ -164,6 +171,11 @@ public class ServerImpl implements Server {
                             case 204: // Player Connected
                                 onPlayerDisconnected((Player) message.getObject());
                                 break;
+
+                            // UNIT
+                            case 300: // Unit Spawned
+                                onUnitSpawned((Unit) message.getObject());
+                                break;
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -213,6 +225,10 @@ public class ServerImpl implements Server {
         System.out.println("[System] " + p.getUsername() + " is logged out.");
     }
 
+    private void onUnitSpawned(Unit u) {
+        System.out.println("[System] Unit spawned at coord " + u.getX() + "," + u.getY() + " of the arena.");
+    }
+
     // REMOTE FUNCTIONS
     @Override
     public void register(Node remoteNode) {
@@ -245,6 +261,14 @@ public class ServerImpl implements Server {
             System.out.println("[Error] Bad credentials.");
         }
         return player;
+    }
+
+    @Override
+    public Unit spawnUnit(Player player) throws RemoteException {
+        Knight knight = new Knight(player);
+        arena.spawnUnitRandom(knight);
+        event.send(300,knight);
+        return knight;
     }
 
     @Override

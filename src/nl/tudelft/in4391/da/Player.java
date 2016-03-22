@@ -1,5 +1,7 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Unit;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.UUID;
@@ -15,6 +17,8 @@ public class Player implements Serializable {
     //private String password; // unimplemented
     private String hostAddress;
     private boolean isAuthenticated = false;
+
+    private Unit unit;
 
     private int level;
     private int experience;
@@ -45,6 +49,10 @@ public class Player implements Serializable {
 
     public String getUsername() {
         return this.username;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 
     public String toString() {
