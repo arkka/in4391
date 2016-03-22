@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * Created by arkkadhiratara on 3/6/16.
  */
-public class Player implements Serializable, Client {
+public class Player implements Serializable {
     private static final long serialVersionUID = 6196049233420585921L;
 
     private UUID id;
@@ -32,12 +32,15 @@ public class Player implements Serializable, Client {
         this.isAuthenticated = authenticated;
     }
 
-    public String toString() {
-        return this.username+" ( "+this.hostAddress+" )";
+    public Boolean isAuthenticated(){
+        return this.isAuthenticated;
     }
 
-    @Override
-    public String getArena() throws RemoteException {
-        return null;
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String toString() {
+        return this.username+" ( "+this.hostAddress+" )";
     }
 }

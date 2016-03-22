@@ -7,3 +7,6 @@
 - Server: 1099 
 - Client: 1098
 - Arena: 1097
+
+# Refferences
+http://gafferongames.com/networking-for-game-programmers/what-every-programmer-needs-to-know-about-game-networking/
