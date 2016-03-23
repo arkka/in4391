@@ -21,6 +21,9 @@ import java.util.Comparator;
 public class ServerImpl implements Server {
     private Node node;
     private ArrayList<Node> activeNodes;
+    private ArrayList<Node> masterNodes;
+    private ArrayList<Node> workerNodes;
+
     private ArrayList<Player> activePlayers;
     private Event event;
 
@@ -31,6 +34,9 @@ public class ServerImpl implements Server {
 
         // Init Array List
         this.activeNodes = new ArrayList<Node>();
+        this.masterNodes = new ArrayList<Node>();
+        this.workerNodes = new ArrayList<Node>();
+
         this.activePlayers = new ArrayList<Player>();
 
         // Init Arena
@@ -46,7 +52,7 @@ public class ServerImpl implements Server {
         initEventThread(GameServer.DEFAULT_MULTICAST_GROUP,GameServer.DEFAULT_SOCKET_PORT);
 
         // Send Node Active State
-        event.send(100,node);
+        event.send(Event.NODE_CONNECTED,node);
     }
 
     // GETTERS SETTERS
@@ -83,29 +89,57 @@ public class ServerImpl implements Server {
     public ArrayList<Node> getActiveNodes() {
         return this.activeNodes;
     }
+    public ArrayList<Node> getMasterNodes() {
+        return this.masterNodes;
+    }
+    public ArrayList<Node> getWorkerNodes() {
+        return this.workerNodes;
+    }
 
     public void addActiveNode(Node node) {
         if(!activeNodes.contains(node)) {
             this.activeNodes.add(node);
-            sortActiveNodes();
+
+            // Master
+            if(node.getID()<=2) {
+                this.masterNodes.add(node);
+                this.masterNodes = sortNodes(this.masterNodes);
+            }
+            else { // Worker
+                this.workerNodes.add(node);
+                this.workerNodes = sortNodes(this.workerNodes);
+            }
+
+            this.activeNodes = sortNodes(this.activeNodes);
         }
     }
 
     public void removeActiveNode(Node node) {
         if(activeNodes.contains(node)) {
             this.getActiveNodes().remove(activeNodes.indexOf(node));
-            sortActiveNodes();
+
+            if(node.getID()<= 2 && this.masterNodes.contains(node)) {
+                this.getMasterNodes().remove(masterNodes.indexOf(node));
+                this.masterNodes = sortNodes(this.masterNodes);
+            } if(node.getID()> 2 && this.workerNodes.contains(node)) {
+                this.getWorkerNodes().remove(workerNodes.indexOf(node));
+                this.workerNodes = sortNodes(this.workerNodes);
+            }
+
+            this.activeNodes = sortNodes(this.activeNodes);
         }
     }
 
-    public void sortActiveNodes() {
-        Collections.sort(this.activeNodes, new Comparator<Node>() {
+    public ArrayList<Node> sortNodes(ArrayList<Node> nodes) {
+        Collections.sort(nodes, new Comparator<Node>() {
             @Override
             public int compare(Node node2, Node node1)
             {
                 return  node2.getID().compareTo(node1.getID());
             }
         });
+
+        return nodes;
     }
 
     // PLAYERS
@@ -154,28 +188,16 @@ public class ServerImpl implements Server {
                     // RAW Event Message
                     try {
                         EventMessage message = EventMessage.fromByte(receiveData);
-                        switch(message.getCode()) {
-                            // NODE
-                            case 100: // Node Connected
-                                onNodeConnected((Node) message.getObject());
-                                break;
-                            case 104: // Node Disconnected
-                                onNodeDisconnected((Node) message.getObject());
-                                break;
-
-                            // PLAYER
-                            case 200: // Player Connected
-                                onPlayerConnected((Player) message.getObject());
-                                break;
-
-                            case 204: // Player Connected
-                                onPlayerDisconnected((Player) message.getObject());
-                                break;
-
-                            // UNIT
-                            case 300: // Unit Spawned
-                                onUnitSpawned((Unit) message.getObject());
-                                break;
+                        if(message.getCode()==Event.NODE_CONNECTED) {
+                            onNodeConnected((Node) message.getObject());
+                        } else if(message.getCode()==Event.NODE_DISCONNECTED) {
+                            onNodeDisconnected((Node) message.getObject());
+                        } else if(message.getCode()==Event.PLAYER_CONNECTED) {
+                            onPlayerConnected((Player) message.getObject());
+                        } else if(message.getCode()==Event.PLAYER_DISCONNECTED) {
+                            onPlayerDisconnected((Player) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_SPAWN) {
+                            onUnitSpawned((Unit) message.getObject());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -252,7 +274,7 @@ public class ServerImpl implements Server {
             try {
                 player.setHostAddress(RemoteServer.getClientHost());
                 addActivePlayer(player);
-                event.send(200,player);
+                event.send(Event.PLAYER_CONNECTED,player);
             } catch (ServerNotActiveException e) {
                 e.printStackTrace();
             }
@@ -267,7 +289,7 @@ public class ServerImpl implements Server {
     public Unit spawnUnit(Player player) throws RemoteException {
         Knight knight = new Knight(player);
         arena.spawnUnitRandom(knight);
-        event.send(300,knight);
+        event.send(Event.UNIT_SPAWN,knight);
         return knight;
     }
 

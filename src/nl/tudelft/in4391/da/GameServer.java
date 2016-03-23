@@ -45,7 +45,14 @@ public class GameServer {
                 case "node":
                 case "nodes":
                     System.out.println("\n[Active Nodes: "+server.getActiveNodes().size()+"]");
-                    for(Node n : server.getActiveNodes()) {
+
+                    System.out.println(" Master");
+                    for(Node n : server.getMasterNodes()) {
+                        System.out.println("- "+n.getFullName());
+                    }
+
+                    System.out.println(" Worker");
+                    for(Node n : server.getWorkerNodes()) {
                         System.out.println("- "+n.getFullName());
                     }
                     break;
