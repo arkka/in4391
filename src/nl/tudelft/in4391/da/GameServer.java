@@ -3,6 +3,9 @@ package nl.tudelft.in4391.da;
 /**
  * Created by arkkadhiratara on 3/2/16.
  */
+import nl.tudelft.in4391.da.unit.Dragon;
+import nl.tudelft.in4391.da.unit.Unit;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -64,7 +67,25 @@ public class GameServer {
                         System.out.println("- "+p.toString());
                     }
                     break;
-                
+
+                case "dragon":
+                case "dragons":
+                    System.out.println("\n[Active Dragons: "+server.getArena().getDragons().size()+"]");
+                    for(Unit d : server.getArena().getDragons()) {
+                        System.out.println("- "+d.getName());
+                    }
+                    break;
+
+                case "release dragon":
+                case "release dragons":
+                    server.releaseDragons(25);
+                    break;
+
+                case "show arena":
+                case "arena":
+                    server.getArena().show();
+                    break;
+
                 case "exit":
                     server.shutdown();
                     System.exit(0);

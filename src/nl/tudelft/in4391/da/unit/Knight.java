@@ -8,6 +8,6 @@ import nl.tudelft.in4391.da.Player;
 public class Knight extends Unit {
 
     public Knight(String name) {
-        super(name);
+        super(name,"knight");
     }
 }

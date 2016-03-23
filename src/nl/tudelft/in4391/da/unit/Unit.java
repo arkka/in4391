@@ -7,11 +7,17 @@ import java.io.Serializable;
  */
 public class Unit implements Serializable {
     String name;
+    String type;
     int x;
     int y;
 
     public Unit(String name) {
         this.name = name;
+    }
+
+    public Unit(String name, String type) {
+        this.name = name;
+        this.type = type;
     }
 
     public String getName() {
@@ -29,4 +35,6 @@ public class Unit implements Serializable {
     public int getY() {
         return y;
     }
+
+    public String getType() { return this.type; }
 }
