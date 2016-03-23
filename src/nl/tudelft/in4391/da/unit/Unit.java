@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public class Unit implements Serializable {
     String name;
+    String type;
     int x;
     int y;
 
@@ -19,6 +20,11 @@ public class Unit implements Serializable {
 
     public Unit(String name) {
         this.name = name;
+    }
+
+    public Unit(String name, String type) {
+        this.name = name;
+        this.type = type;
     }
 
     public String getName() {
@@ -40,4 +46,5 @@ public class Unit implements Serializable {
     public void adjustHitPoints(int modifier){
 
     }
+    public String getType() { return this.type; }
 }

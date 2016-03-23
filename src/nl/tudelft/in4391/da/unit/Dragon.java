@@ -14,11 +14,10 @@ public class Dragon extends Unit {
     public static final int MAX_ATTACKPOINTS = 20;
 
     public Dragon(String name) {
-        super(name);
+        super(name,"dragon");
 
         // Initialize hitpoints and attackpoints
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);
         this.attackPoints = (int)(Math.random() * (MAX_ATTACKPOINTS - MIN_ATTACKPOINTS) + MIN_ATTACKPOINTS);
-
     }
 }
