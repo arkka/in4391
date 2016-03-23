@@ -55,6 +55,10 @@ public class Player implements Serializable {
         this.unit = unit;
     }
 
+    public Unit getUnit(){
+        return this.unit;
+    }
+
     public String toString() {
         return this.username+" ( "+this.hostAddress+" )";
     }

@@ -1,10 +1,10 @@
 package nl.tudelft.in4391.da;
 
-import nl.tudelft.in4391.da.unit.Knight;
+import nl.tudelft.in4391.da.unit.Dragon;
 import nl.tudelft.in4391.da.unit.Unit;
 
 import java.io.IOException;
-import java.net.InetAddress;
+
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -25,6 +25,7 @@ public class ServerImpl implements Server {
     private ArrayList<Node> workerNodes;
 
     private ArrayList<Player> activePlayers;
+
     private Event event;
 
     private Arena arena;
@@ -39,24 +40,45 @@ public class ServerImpl implements Server {
 
         this.activePlayers = new ArrayList<Player>();
 
-        // Init Arena
-        this.arena = new Arena();
+
 
         // Add current node
         addActiveNode(node);
 
         // Init RMI Registry
+        System.out.println("[System] Initialize Registry.");
         initRegistry();
 
         // Init Event Thread
+        System.out.println("[System] Initialize Event Listener.");
         initEventThread(GameServer.DEFAULT_MULTICAST_GROUP,GameServer.DEFAULT_SOCKET_PORT);
 
         // Send Node Active State
         event.send(Event.NODE_CONNECTED,node);
+
+        // Arena
+        System.out.println("[System] Initialize Arena.");
+        this.arena = new Arena();
+
+
+        // Wait Node registry propagate across cluster
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if(masterNodes.size() <=1) { // If this is the first master node alive
+            releaseDragons(25);
+        } else {
+            syncData();
+        }
     }
 
     // GETTERS SETTERS
     public Node getNode() { return this.node; }
+
+    public Arena getArena() { return this.arena; }
 
     // Registry
     public void initRegistry(){
@@ -142,6 +164,22 @@ public class ServerImpl implements Server {
         return nodes;
     }
 
+    public void syncData() {
+        System.out.println("[System] Sync data with active master node.");
+            for(Node n: masterNodes){
+                if(n!=node) {
+                    Server remoteServer = fromRemoteNode(n);
+                    try {
+                        this.activePlayers = remoteServer.getPlayers(node);
+                        this.arena = remoteServer.getArena(node);
+                        break;
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+    }
+
     // PLAYERS
 
     public ArrayList<Player> getActivePlayers() {
@@ -160,6 +198,20 @@ public class ServerImpl implements Server {
         }
     }
 
+    // Dragons
+
+    public void releaseDragons(int num){
+        System.out.println("[System] Releasing dragons to the arena.");
+        // Release dragons to arena
+        int idragon = 1;
+        while(arena.getDragons().isEmpty() || arena.getDragons().size()<25) {
+            Dragon dragon = new Dragon("Dragon-"+idragon);
+            arena.spawnUnitRandom(dragon);
+            idragon++;
+            System.out.println("[System] " + dragon.getName() + " is active.");
+        }
+    }
+
     // THREAD
     public void shutdown() {
         this.event.send(101,getNode());
@@ -167,16 +219,16 @@ public class ServerImpl implements Server {
 
     // STATIC method
     public static Server fromRemoteNode(Node node) {
-        Server component = null;
+        Server remoteServer = null;
         try {
             Registry remoteRegistry = LocateRegistry.getRegistry(node.getHostAddress(), node.getRegistryPort());
-            component = (Server) remoteRegistry.lookup(node.getName());
-            return component;
+            remoteServer = (Server) remoteRegistry.lookup(node.getName());
+            return remoteServer;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return component;
+        return remoteServer;
     }
 
     private void initEventThread(String group, int port) {
@@ -198,6 +250,11 @@ public class ServerImpl implements Server {
                             onPlayerDisconnected((Player) message.getObject());
                         } else if(message.getCode()==Event.UNIT_SPAWN) {
                             onUnitSpawned((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_MOVED) {
+                            onUnitMoved((Unit) message.getObject());
+                        }
+                        else if(message.getCode()==Event.UNIT_REMOVED) {
+                            onUnitRemoved((Unit) message.getObject());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -218,7 +275,7 @@ public class ServerImpl implements Server {
     // EVENTS
     public void onNodeConnected(Node n){
         addActiveNode(n);
-        System.out.println("[System] " + n.getFullName() + " is connected.");
+        System.out.println("[System] " + n.getFullName() + " is connected to cluster.");
 
         if(!this.node.getID().equals(n.getID())) { // if the multicast not from himself
             Server remoteComponent = ServerImpl.fromRemoteNode(n);
@@ -232,7 +289,7 @@ public class ServerImpl implements Server {
 
     public void onNodeDisconnected(Node n){
         removeActiveNode(n);
-        System.out.println("[System] " + n.getFullName() + " is disconnected.");
+        System.out.println("[System] " + n.getFullName() + " is disconnected from cluster.");
 
     }
 
@@ -248,14 +305,25 @@ public class ServerImpl implements Server {
     }
 
     private void onUnitSpawned(Unit u) {
-        System.out.println("[System] Unit spawned at coord " + u.getX() + "," + u.getY() + " of the arena.");
+        if(u.getType().equals("dragon")) arena.addDragon(u);
+        else arena.addKnight(u);
+
+        System.out.println("[System] "+u.getName()+" spawned at coord (" + u.getX() + "," + u.getY() + ") of the arena.");
+    }
+
+    private void onUnitMoved(Unit u) {
+        System.out.println("[System] "+u.getName()+" moved to coord (" + u.getX() + "," + u.getY() + ") of the arena.");
+    }
+
+    private void onUnitRemoved(Unit u) {
+        System.out.println("[System] "+u.getName()+" moved from coord (" + u.getX() + "," + u.getY() + ") of the arena.");
     }
 
     // REMOTE FUNCTIONS
     @Override
     public void register(Node remoteNode) {
         addActiveNode(remoteNode);
-        System.out.println("[System] " + remoteNode.getFullName() + " is connected.");
+        System.out.println("[System] " + remoteNode.getFullName() + " is connected to cluster.");
     }
 
     @Override
@@ -286,11 +354,34 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public Unit spawnUnit(Player player) throws RemoteException {
-        Knight knight = new Knight(player);
-        arena.spawnUnitRandom(knight);
-        event.send(Event.UNIT_SPAWN,knight);
-        return knight;
+    public Arena getArena(Node node) throws RemoteException {
+        return this.arena;
+    }
+
+    @Override
+    public ArrayList<Player> getPlayers(Node node) throws RemoteException {
+        return this.activePlayers;
+    }
+
+    @Override
+    public Unit spawnUnit(Unit unit) throws RemoteException {
+        unit = arena.spawnUnitRandom(unit);
+        event.send(Event.UNIT_SPAWN,unit);
+        return unit;
+    }
+
+    @Override
+    public Unit moveUnit(Unit unit, int x, int y) throws RemoteException {
+        unit = arena.moveUnit(unit, x, y);
+        event.send(Event.UNIT_MOVED, unit);
+        return unit;
+    }
+
+    @Override
+    public Unit removeUnit(Unit unit, int x, int y) throws RemoteException {
+        arena.removeUnit(unit, x, y);
+        event.send(Event.UNIT_REMOVED, unit);
+        return unit;
     }
 
     @Override
