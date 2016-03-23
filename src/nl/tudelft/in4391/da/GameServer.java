@@ -82,7 +82,9 @@ public class GameServer {
                     break;
 
                 case "show arena":
+                case "arena":
                     server.getArena().show();
+                    break;
 
                 case "exit":
                     server.shutdown();

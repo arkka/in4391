@@ -72,7 +72,7 @@ public class Arena implements Serializable {
             for(int i=0;i<25;i++) {
                 Unit unit = unitCell[i][j];
                 if(unit!=null) {
-                    if(unit.getType()=="dragon") System.out.print("D");
+                    if(unit.getType().equals("dragon")) System.out.print("D");
                     else System.out.print("K");
                 } else {
                     System.out.print(" ");
