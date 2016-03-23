@@ -2,20 +2,25 @@ package nl.tudelft.in4391.da;
 
 import nl.tudelft.in4391.da.unit.Unit;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
 /**
  * Created by arkkadhiratara on 3/22/16.
  */
-public class Arena {
+public class Arena implements Serializable {
     public Unit[][] unitCell = new Unit[25][25];
     public ArrayList<Unit> units = new ArrayList<Unit>();
+    public ArrayList<Unit> knights = new ArrayList<Unit>();
+    public ArrayList<Unit> dragons = new ArrayList<Unit>();
 
     public Boolean spawnUnit(int x, int y, Unit unit) {
         if(unitCell[x][y] == null) {
             unitCell[x][y] = unit;
             addUnit(unit);
+            if(unit.getType().equals("dragon")) addDragon(unit);
+            else addKnight(unit);
             return true;
         } else return false;
     }
@@ -45,5 +50,17 @@ public class Arena {
 
     public void addUnit(Unit unit) {
         if(!units.contains(unit)) units.add(unit);
+    }
+
+    public void addKnight(Unit unit) {
+        if(!knights.contains(unit)) knights.add(unit);
+    }
+
+    public void addDragon(Unit unit) {
+        if(!dragons.contains(unit)) dragons.add(unit);
+    }
+
+    public ArrayList<Unit> getDragons() {
+        return this.dragons;
     }
 }

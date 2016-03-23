@@ -6,6 +6,6 @@ package nl.tudelft.in4391.da.unit;
 public class Dragon extends Unit {
 
     public Dragon(String name) {
-        super(name);
+        super(name,"dragon");
     }
 }
