@@ -98,6 +98,7 @@ public class Arena implements Serializable {
 
     public void addUnit(Unit unit) {
         if(!units.contains(unit)) units.add(unit);
+        unitCell[unit.getX()][unit.getY()] = unit;
     }
 
     public void addKnight(Unit unit) {
@@ -113,10 +114,9 @@ public class Arena implements Serializable {
     }
 
     public void show() {
-        int row = 1;
-        for(int j=24;j>=0;j--) {
+        for(int j=0;j<25;j++) {
             System.out.println("       ---------------------------------------------------");
-            System.out.print("Row-"+row+" |");
+            System.out.print("Row-"+j+" |");
             for(int i=0;i<25;i++) {
                 Unit unit = unitCell[i][j];
                 if(unit!=null) {
@@ -129,7 +129,6 @@ public class Arena implements Serializable {
                 System.out.print("|");
             }
             System.out.println("\n       ---------------------------------------------------");
-            row++;
         }
     }
 }
