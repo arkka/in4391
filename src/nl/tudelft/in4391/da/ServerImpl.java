@@ -385,6 +385,18 @@ public class ServerImpl implements Server {
     }
 
     @Override
+    public boolean checkSurrounding(Unit unit, int x, int y) throws RemoteException {
+        boolean exist = arena.checkSurrounding(unit, x, y);
+        return exist;
+    }
+
+    @Override
+    public Unit getSurroundingUnit(int x, int y) throws RemoteException {
+        Unit adjacentUnit = arena.getSurroundingUnit(x, y);
+        return adjacentUnit;
+    }
+
+    @Override
     public void logout(Player player) throws RemoteException {
         //player.setAuthenticated(false);
         //System.out.println("[System] Player '" + player + "' has logout.");

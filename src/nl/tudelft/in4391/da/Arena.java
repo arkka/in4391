@@ -1,5 +1,6 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Dragon;
 import nl.tudelft.in4391.da.unit.Unit;
 
 import java.io.Serializable;
@@ -72,6 +73,27 @@ public class Arena implements Serializable {
     public Unit removeUnit(Unit unit, int x, int y) {
         unitCell[x][y] = null;
         return unit;
+    }
+
+    public boolean checkSurrounding(Unit unit, int x, int y) {
+        if (unitCell[x][y] != null){
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    public Unit getSurroundingUnit(int x, int y) {
+        Unit adjacentUnit = unitCell[x][y];
+
+//        if (adjacentUnit instanceof Dragon){
+//            // do damage
+//        }
+//        else { // Knight
+//            // heal player
+//        }
+        return adjacentUnit;
     }
 
     public void addUnit(Unit unit) {
