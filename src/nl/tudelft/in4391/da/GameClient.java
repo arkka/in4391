@@ -4,6 +4,7 @@ package nl.tudelft.in4391.da;
  * Created by arkkadhiratara on 3/2/16.
  */
 import nl.tudelft.in4391.da.unit.Knight;
+import nl.tudelft.in4391.da.unit.Unit;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -70,20 +71,51 @@ public class GameClient {
 
         while(true){
             command = s.nextLine().trim();
+            Unit unit = player.getUnit();
+            int posX = unit.getX();
+            int posY = unit.getY();
             switch(command) {
                 case "up":
                     try {
-                        player.setUnit(server.moveUnit(player.getUnit(),player.getUnit().getX(),player.getUnit().getY()+1));
-                        System.out.println("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.");
+//                        int posX = unit.getX();
+//                        int posY = unit.getY();
+                        player.setUnit(server.removeUnit(unit, posX, posY));
+                        player.setUnit(server.moveUnit(unit, posX , posY + 1));
+                        // Player set to new coordinate
+                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
                     break;
                 case "down":
+                    try {
+                        player.setUnit(server.removeUnit(unit, posX, posY));
+                        player.setUnit(server.moveUnit(unit, posX, posY - 1));
+                        // Player set to new coordinate
+                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "left":
+                    try {
+                        player.setUnit(server.removeUnit(unit, posX, posY));
+                        player.setUnit(server.moveUnit(unit, posX - 1, posY));
+                        // Player set to new coordinate
+                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "right":
+                    try {
+                        player.setUnit(server.removeUnit(unit, posX, posY));
+                        player.setUnit(server.moveUnit(unit, posX + 1, posY));
+                        // Player set to new coordinate
+                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "exit":
                     System.exit(0);

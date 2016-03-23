@@ -36,10 +36,36 @@ public class Arena {
     }
 
     public Unit moveUnit(Unit unit, int x, int y) {
-        if(unitCell[x][y] == null) {
+        // Check boundary
+        // right
+        if (unit.getX() == 24 && x >= 25){
+            return unit;
+        }
+        // left
+        if (unit.getX() == 0 && x < 0){
+            return unit;
+        }
+        // up
+        if (unit.getY() == 24 && y >= 25){
+            return unit;
+        }
+        // down
+        if (unit.getY() == 0 && y < 0){
+            return unit;
+        }
+
+        // Check unit existence on next move
+        if (unitCell[x][y] == null) {
             unitCell[x][y] = unit;
             unit.setCoord(x,y);
+            return unit;
         }
+
+        return unit;
+    }
+
+    public Unit removeUnit(Unit unit, int x, int y) {
+        unitCell[x][y] = null;
         return unit;
     }
 

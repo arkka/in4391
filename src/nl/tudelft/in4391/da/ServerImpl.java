@@ -201,6 +201,9 @@ public class ServerImpl implements Server {
                         } else if(message.getCode()==Event.UNIT_MOVED) {
                             onUnitMoved((Unit) message.getObject());
                         }
+                        else if(message.getCode()==Event.UNIT_REMOVED) {
+                            onUnitRemoved((Unit) message.getObject());
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (ClassNotFoundException e) {
@@ -257,6 +260,10 @@ public class ServerImpl implements Server {
         System.out.println("[System] "+u.getName()+" moved to coord (" + u.getX() + "," + u.getY() + ") of the arena.");
     }
 
+    private void onUnitRemoved(Unit u) {
+        System.out.println("[System] "+u.getName()+" moved from coord (" + u.getX() + "," + u.getY() + ") of the arena.");
+    }
+
     // REMOTE FUNCTIONS
     @Override
     public void register(Node remoteNode) {
@@ -305,8 +312,15 @@ public class ServerImpl implements Server {
 
     @Override
     public Unit moveUnit(Unit unit, int x, int y) throws RemoteException {
-        unit = arena.moveUnit(unit,x,y);
+        unit = arena.moveUnit(unit, x, y);
         event.send(Event.UNIT_MOVED, unit);
+        return unit;
+    }
+
+    @Override
+    public Unit removeUnit(Unit unit, int x, int y) throws RemoteException {
+        arena.removeUnit(unit, x, y);
+        event.send(Event.UNIT_REMOVED, unit);
         return unit;
     }
 

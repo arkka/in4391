@@ -20,5 +20,7 @@ public interface Server extends Remote {
 
     public Unit moveUnit(Unit unit, int x, int y) throws RemoteException;
 
+    public Unit removeUnit(Unit unit, int x, int y) throws RemoteException;
+
     public void logout(Player player) throws RemoteException;
 }
