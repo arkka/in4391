@@ -305,8 +305,9 @@ public class ServerImpl implements Server {
     }
 
     private void onUnitSpawned(Unit u) {
-        if(u.getType().equals("dragon")) arena.addDragon(u);
-        else arena.addKnight(u);
+        //if(u.getType().equals("dragon")) arena.addDragon(u);
+        //else arena.addKnight(u);
+        arena.addUnit(u);
 
         System.out.println("[System] "+u.getName()+" spawned at coord (" + u.getX() + "," + u.getY() + ") of the arena.");
     }
