@@ -3,9 +3,13 @@ package nl.tudelft.in4391.da;
 /**
  * Created by arkkadhiratara on 3/2/16.
  */
+import nl.tudelft.in4391.da.ui.ClientUI;
 import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -13,26 +17,102 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class GameClient {
-    public static Integer CLIENT_CALLBACK_PORT = 1500;
+public class GameClient  {
+    public Server server;
+    public Player player;
 
-    public static void main(String[] args)
-    {
+    public JPanel panel;
+    public JTextField username;
+    public JProgressBar progressBar1;
+    public JButton loginButton;
+    private JButton upButton;
+    private JButton leftButton;
+    private JButton rightButton;
+    private JButton downButton;
+    private JTable table1;
+    public JTextArea consoleArea;
+
+    public GameClient() {
+        server = null;
+        player = null;
+
+        findAndConnectServer();
+
+
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                login(username.getText(),"");
+            }
+        });
+    }
+
+    public void findAndConnectServer(){
         // Pre-defined game coordinator nodes
         ArrayList<Node> masterNodes = new ArrayList<Node>();
         masterNodes.add(new Node(1,"127.0.0.1",1100,1200));
         masterNodes.add(new Node(2,"127.0.0.1",1101,1201));
 
-        // Try to connect to known game coordinator nodes
-        Server server = findMasterAndConnect(masterNodes);
-        System.out.println("[System] Welcome to Dragon Arena: Distributed Reborn!");
+        while(server == null) {
+            for (Node n : masterNodes) {
+                try {
+                    Registry remoteRegistry = LocateRegistry.getRegistry(n.getHostAddress(), n.getRegistryPort());
+                    server = (Server) remoteRegistry.lookup(n.getName());
+                    consoleArea.append("[System] Connected to Master Server " + n.getFullName() + ".\n");
+                    break;
+                } catch (Exception e) {
+                    consoleArea.append("[Error] Unable to connect to game coordinator server " + n.getFullName() + ".\n");
+                }
+            }
+
+            if(server==null) {
+                consoleArea.append("[System] Retrying connect to server in 5 seconds.\n");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        consoleArea.append("[System] Welcome to Dragon Arena: Distributed Reborn!\n");
+    }
+
+    public void login(String username, String password) {
+        consoleArea.append("[System] Authenticating to server as "+ username +"...");
+        try {
+            player = server.login( username, "");
+        } catch (RemoteException re) {
+            re.printStackTrace();
+        }
+
+        if(player!=null && player.isAuthenticated()){
+            consoleArea.append("[System] Successfully logged in as "+player.getUsername()+".");
+            try {
+                Knight knight = new Knight(player.getUsername());
+                knight = (Knight) server.spawnUnit(knight);
+                player.setUnit(knight);
+                consoleArea.append("[ " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public static void main(String[] args)
+    {
+        GameClient ui = new GameClient();
+        JFrame frame = new JFrame("Dragon Arena: Distributed Reborn");
+        frame.setContentPane(ui.panel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
 
 
+
+        /*
         // Login
         Scanner s = new Scanner(System.in);
-        Player player = null;
-        String username = "";
-        String password = "";
+
 
         do {
             // Input authentication credentials
@@ -52,19 +132,7 @@ public class GameClient {
 
         } while(!player.isAuthenticated());
 
-        if(player!=null && player.isAuthenticated()){
-            System.out.println("[System] Successfully logged in as "+player.getUsername()+".");
-            try {
-                Knight knight = new Knight(player.getUsername());
-                knight = (Knight) server.spawnUnit(knight);
-                player.setUnit(knight);
-                System.out.println("[ " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
 
-
-        }
 
         // COMMAND
         String command = "";
@@ -131,33 +199,6 @@ public class GameClient {
             }
 
         }
-    }
-
-    private static Server findMasterAndConnect(ArrayList<Node> masterNodes) {
-        Server server = null;
-        for (Node n: masterNodes) {
-            try {
-                Registry remoteRegistry = LocateRegistry.getRegistry(n.getHostAddress(),n.getRegistryPort());
-                server = (Server) remoteRegistry.lookup(n.getName());
-                System.out.println("[System] Connected to game coordinator server "+n.getFullName()+".");
-                break;
-            } catch (Exception e) {
-                System.out.println("[Error] Unable to connect to game coordinator server "+n.getFullName()+".");
-            }
-        }
-
-        if(server==null) {
-            System.out.println("[System] Retrying connect to server in 5 seconds.");
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            server = findMasterAndConnect(masterNodes);
-        }
-
-        return server;
+        */
     }
 }
