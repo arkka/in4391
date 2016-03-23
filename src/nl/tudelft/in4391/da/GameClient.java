@@ -3,6 +3,8 @@ package nl.tudelft.in4391.da;
 /**
  * Created by arkkadhiratara on 3/2/16.
  */
+import nl.tudelft.in4391.da.unit.Knight;
+
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -51,6 +53,11 @@ public class GameClient {
 
         if(player!=null && player.isAuthenticated()){
             System.out.println("[System] Successfully logged in as "+player.getUsername()+".");
+            try {
+                Knight knight = (Knight) server.spawnUnit(player);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
 
 
         }

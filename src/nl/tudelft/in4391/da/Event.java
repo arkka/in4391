@@ -11,6 +11,14 @@ import java.net.NetworkInterface;
  * Created by arkkadhiratara on 3/7/16.
  */
 public class Event extends Thread {
+    public static final Integer NODE_CONNECTED = 100;
+    public static final Integer NODE_DISCONNECTED = 101;
+    public static final Integer NODE_MASTER_ELECTION =105;
+    public static final Integer PLAYER_CONNECTED = 200;
+    public static final Integer PLAYER_DISCONNECTED = 201;
+    public static final Integer UNIT_SPAWN = 300;
+
+
     byte[] message;
     int socketPort;
 
@@ -65,6 +73,7 @@ public class Event extends Thread {
     public void setListener( EventListener listener ){
         this.listener = listener;
     }
+
 
 }
 

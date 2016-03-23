@@ -42,13 +42,22 @@ public class GameServer {
         while(true){
             command = s.nextLine().trim();
             switch(command) {
+                case "node":
                 case "nodes":
                     System.out.println("\n[Active Nodes: "+server.getActiveNodes().size()+"]");
-                    for(Node n : server.getActiveNodes()) {
+
+                    System.out.println(" Master");
+                    for(Node n : server.getMasterNodes()) {
+                        System.out.println("- "+n.getFullName());
+                    }
+
+                    System.out.println(" Worker");
+                    for(Node n : server.getWorkerNodes()) {
                         System.out.println("- "+n.getFullName());
                     }
                     break;
 
+                case "player":
                 case "players":
                     System.out.println("\n[Active Players: "+server.getActivePlayers().size()+"]");
                     for(Player p : server.getActivePlayers()) {

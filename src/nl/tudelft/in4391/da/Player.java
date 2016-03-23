@@ -1,5 +1,7 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Unit;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.UUID;
@@ -16,12 +18,21 @@ public class Player implements Serializable {
     private String hostAddress;
     private boolean isAuthenticated = false;
 
+    private Unit unit;
+
     private int level;
     private int experience;
 
     public Player(String username, String password) {
         this.id = UUID.randomUUID();
         this.username = username;
+    }
+    public UUID getID() {
+        return id;
+    }
+
+    public void setID(UUID id) {
+        this.id = id;
     }
 
     public void setHostAddress(String hostAddress){
@@ -40,7 +51,22 @@ public class Player implements Serializable {
         return this.username;
     }
 
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+
     public String toString() {
         return this.username+" ( "+this.hostAddress+" )";
     }
+
+    public boolean equals(Object c) {
+        if(!(c instanceof Player)) {
+            return false;
+        }
+
+        Player that = (Player) c;
+        return this.getID().equals(that.getID());
+    }
+
+
 }
