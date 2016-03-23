@@ -81,6 +81,9 @@ public class GameServer {
                     server.releaseDragons(25);
                     break;
 
+                case "show arena":
+                    server.getArena().show();
+
                 case "exit":
                     server.shutdown();
                     System.exit(0);

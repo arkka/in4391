@@ -63,4 +63,25 @@ public class Arena implements Serializable {
     public ArrayList<Unit> getDragons() {
         return this.dragons;
     }
+
+    public void show() {
+        int row = 1;
+        for(int j=24;j>=0;j--) {
+            System.out.println("       ---------------------------------------------------");
+            System.out.print("Row-"+row+" |");
+            for(int i=0;i<25;i++) {
+                Unit unit = unitCell[i][j];
+                if(unit!=null) {
+                    if(unit.getType()=="dragon") System.out.print("D");
+                    else System.out.print("K");
+                } else {
+                    System.out.print(" ");
+                }
+
+                System.out.print("|");
+            }
+            System.out.println("\n       ---------------------------------------------------");
+            row++;
+        }
+    }
 }
