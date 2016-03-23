@@ -10,6 +10,13 @@ public class Unit implements Serializable {
     int x;
     int y;
 
+    // Health
+    private int maxHitPoints;
+    protected int hitPoints;
+
+    // Attack points
+    protected int attackPoints;
+
     public Unit(String name) {
         this.name = name;
     }
@@ -28,5 +35,9 @@ public class Unit implements Serializable {
 
     public int getY() {
         return y;
+    }
+
+    public void adjustHitPoints(int modifier){
+
     }
 }

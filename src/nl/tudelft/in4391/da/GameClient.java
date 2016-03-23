@@ -77,42 +77,48 @@ public class GameClient {
             switch(command) {
                 case "up":
                     try {
-//                        int posX = unit.getX();
-//                        int posY = unit.getY();
-                        player.setUnit(server.removeUnit(unit, posX, posY));
-                        player.setUnit(server.moveUnit(unit, posX , posY + 1));
-                        // Player set to new coordinate
-                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        if (server.checkSurrounding(player.getUnit(), posX, posY+ 1)){
+                            player.setUnit(server.removeUnit(unit, posX, posY));
+                            player.setUnit(server.moveUnit(unit, posX , posY + 1));
+                            // Player set to new coordinate
+                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        }
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
                     break;
                 case "down":
                     try {
-                        player.setUnit(server.removeUnit(unit, posX, posY));
-                        player.setUnit(server.moveUnit(unit, posX, posY - 1));
-                        // Player set to new coordinate
-                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        if (server.checkSurrounding(player.getUnit(), posX, posY - 1)){
+                            player.setUnit(server.removeUnit(unit, posX, posY));
+                            player.setUnit(server.moveUnit(unit, posX , posY - 1));
+                            // Player set to new coordinate
+                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        }
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
                     break;
                 case "left":
                     try {
-                        player.setUnit(server.removeUnit(unit, posX, posY));
-                        player.setUnit(server.moveUnit(unit, posX - 1, posY));
-                        // Player set to new coordinate
-                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        if (server.checkSurrounding(player.getUnit(), posX - 1, posY)){
+                            player.setUnit(server.removeUnit(unit, posX, posY));
+                            player.setUnit(server.moveUnit(unit, posX - 1, posY));
+                            // Player set to new coordinate
+                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        }
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
                     break;
                 case "right":
                     try {
-                        player.setUnit(server.removeUnit(unit, posX, posY));
-                        player.setUnit(server.moveUnit(unit, posX + 1, posY));
-                        // Player set to new coordinate
-                        System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        if (server.checkSurrounding(player.getUnit(), posX + 1, posY+ 1)){
+                            player.setUnit(server.removeUnit(unit, posX, posY));
+                            player.setUnit(server.moveUnit(unit, posX + 1 , posY));
+                            // Player set to new coordinate
+                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
+                        }
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
