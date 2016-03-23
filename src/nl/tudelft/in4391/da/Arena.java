@@ -33,8 +33,14 @@ public class Arena {
         }
         unit.setCoord(x,y);
         return unit;
+    }
 
-
+    public Unit moveUnit(Unit unit, int x, int y) {
+        if(unitCell[x][y] == null) {
+            unitCell[x][y] = unit;
+            unit.setCoord(x,y);
+        }
+        return unit;
     }
 
     public void addUnit(Unit unit) {

@@ -17,6 +17,8 @@ public class Event extends Thread {
     public static final Integer PLAYER_CONNECTED = 200;
     public static final Integer PLAYER_DISCONNECTED = 201;
     public static final Integer UNIT_SPAWN = 300;
+    public static final Integer UNIT_DEAD = 301;
+    public static final Integer UNIT_MOVED = 302;
 
 
     byte[] message;

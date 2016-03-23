@@ -54,8 +54,10 @@ public class GameClient {
         if(player!=null && player.isAuthenticated()){
             System.out.println("[System] Successfully logged in as "+player.getUsername()+".");
             try {
-                Knight knight = (Knight) server.spawnUnit(player);
-                System.out.println("[System] Your Knight" + knight.getName() + " is spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
+                Knight knight = new Knight(player.getUsername());
+                knight = (Knight) server.spawnUnit(knight);
+                player.setUnit(knight);
+                System.out.println("[ " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -70,6 +72,12 @@ public class GameClient {
             command = s.nextLine().trim();
             switch(command) {
                 case "up":
+                    try {
+                        player.setUnit(server.moveUnit(player.getUnit(),player.getUnit().getX(),player.getUnit().getY()+1));
+                        System.out.println("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.");
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "down":
                     break;

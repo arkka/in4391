@@ -16,7 +16,9 @@ public interface Server extends Remote {
 
     public Arena getArena(Node node) throws RemoteException;
 
-    public Unit spawnUnit(Player player) throws RemoteException;
+    public Unit spawnUnit(Unit unit) throws RemoteException;
+
+    public Unit moveUnit(Unit unit, int x, int y) throws RemoteException;
 
     public void logout(Player player) throws RemoteException;
 }

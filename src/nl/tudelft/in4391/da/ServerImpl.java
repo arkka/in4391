@@ -198,6 +198,8 @@ public class ServerImpl implements Server {
                             onPlayerDisconnected((Player) message.getObject());
                         } else if(message.getCode()==Event.UNIT_SPAWN) {
                             onUnitSpawned((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_MOVED) {
+                            onUnitMoved((Unit) message.getObject());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -251,6 +253,10 @@ public class ServerImpl implements Server {
         System.out.println("[System] "+u.getName()+" spawned at coord (" + u.getX() + "," + u.getY() + ") of the arena.");
     }
 
+    private void onUnitMoved(Unit u) {
+        System.out.println("[System] "+u.getName()+" moved to coord (" + u.getX() + "," + u.getY() + ") of the arena.");
+    }
+
     // REMOTE FUNCTIONS
     @Override
     public void register(Node remoteNode) {
@@ -291,11 +297,17 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public Unit spawnUnit(Player player) throws RemoteException {
-        Knight knight = new Knight(player);
-        arena.spawnUnitRandom(knight);
-        event.send(Event.UNIT_SPAWN,knight);
-        return knight;
+    public Unit spawnUnit(Unit unit) throws RemoteException {
+        unit = arena.spawnUnitRandom(unit);
+        event.send(Event.UNIT_SPAWN,unit);
+        return unit;
+    }
+
+    @Override
+    public Unit moveUnit(Unit unit, int x, int y) throws RemoteException {
+        unit = arena.moveUnit(unit,x,y);
+        event.send(Event.UNIT_MOVED, unit);
+        return unit;
     }
 
     @Override

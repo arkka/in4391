@@ -10,6 +10,10 @@ public class Unit implements Serializable {
     int x;
     int y;
 
+    public Unit(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return this.name;
     }
