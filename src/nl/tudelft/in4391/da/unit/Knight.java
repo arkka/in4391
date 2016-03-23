@@ -9,11 +9,6 @@ public class Knight extends Unit {
     Player player;
 
     public Knight(Player player) {
-
-    }
-
-    @Override
-    public String toString() {
-        return "Knight "+player.getUsername();
+        super.name = player.getUsername();
     }
 }

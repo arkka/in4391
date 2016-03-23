@@ -248,7 +248,7 @@ public class ServerImpl implements Server {
     }
 
     private void onUnitSpawned(Unit u) {
-        System.out.println("[System] Unit spawned at coord " + u.getX() + "," + u.getY() + " of the arena.");
+        System.out.println("[System] "+u.getName()+" spawned at coord (" + u.getX() + "," + u.getY() + ") of the arena.");
     }
 
     // REMOTE FUNCTIONS
@@ -283,6 +283,11 @@ public class ServerImpl implements Server {
             System.out.println("[Error] Bad credentials.");
         }
         return player;
+    }
+
+    @Override
+    public Arena getArena(Node node) throws RemoteException {
+        return this.arena;
     }
 
     @Override

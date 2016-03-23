@@ -6,8 +6,17 @@ import java.io.Serializable;
  * Created by arkkadhiratara on 3/22/16.
  */
 public class Unit implements Serializable {
+    String name;
     int x;
     int y;
+
+    public String getName() {
+        return this.name;
+    }
+    public void setCoord(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
 
     public int getX() {
         return x;

@@ -55,10 +55,34 @@ public class GameClient {
             System.out.println("[System] Successfully logged in as "+player.getUsername()+".");
             try {
                 Knight knight = (Knight) server.spawnUnit(player);
+                System.out.println("[System] Your Knight" + knight.getName() + " is spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
 
+
+        }
+
+        // COMMAND
+        String command = "";
+
+        while(true){
+            command = s.nextLine().trim();
+            switch(command) {
+                case "up":
+                    break;
+                case "down":
+                    break;
+                case "left":
+                    break;
+                case "right":
+                    break;
+                case "exit":
+                    System.exit(0);
+                    break;
+                default:
+                    break;
+            }
 
         }
     }

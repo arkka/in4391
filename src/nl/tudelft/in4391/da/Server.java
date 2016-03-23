@@ -13,6 +13,9 @@ public interface Server extends Remote {
     public Boolean connect() throws RemoteException;
     public Player login(String username, String password) throws RemoteException;
 
+
+    public Arena getArena(Node node) throws RemoteException;
+
     public Unit spawnUnit(Player player) throws RemoteException;
 
     public void logout(Player player) throws RemoteException;
