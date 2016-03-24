@@ -11,12 +11,14 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
-public class GameClient  {
+public class GameClient {
     public Server server;
     public Arena arena;
     public Player player;
@@ -54,6 +56,7 @@ public class GameClient  {
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() + 1));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
@@ -70,6 +73,7 @@ public class GameClient  {
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() - 1));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
@@ -81,12 +85,13 @@ public class GameClient  {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY() + 1)) {
+                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY())) {
                         player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY()));
 
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
@@ -103,6 +108,7 @@ public class GameClient  {
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY()));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
@@ -157,7 +163,7 @@ public class GameClient  {
                 Knight knight = new Knight(player.getUsername());
                 knight = (Knight) server.spawnUnit(knight);
                 player.setUnit(knight);
-                consoleArea.append("[ " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.\n");
+                consoleArea.append("[Player " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.\n");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -176,7 +182,7 @@ public class GameClient  {
         Component[] components = arenaPanel.getComponents();
 
         int cellIndex = 0;
-        for(int j=0;j<25;j++) {
+        for(int j=24;j>0;j--) {
             for(int i=0;i<25;i++) {
                 Component component = components[cellIndex];
                 if (component instanceof JLabel)
@@ -206,27 +212,52 @@ public class GameClient  {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
+        frame.setSize(1200,600);
         frame.setVisible(true);
+
+        /*
+        frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(player.isAuthenticated()){
+                    int keyCode = e.getKeyCode();
+                    switch( keyCode ) {
+                        case KeyEvent.VK_UP:
+                            upButton.doClick();
+                            break;
+                        case KeyEvent.VK_DOWN:
+                            downButton.doClick();
+                            break;
+                        case KeyEvent.VK_LEFT:
+                            leftButton.doClick();
+                            break;
+                        case KeyEvent.VK_RIGHT :
+                            rightButton.doClick();
+                            break;
+                    }
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+        */
     }
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        //arena = new Arena();
-        //Unit[][] unitCell = arena.unitCell;
-        arenaPanel = new JPanel(new GridLayout(0, 24));
+        arenaPanel = new JPanel(new GridLayout(0, 25));
         arenaPanel.setBorder(new LineBorder(Color.BLACK));
 
         for(int j=0;j<25;j++) {
             for(int i=0;i<25;i++) {
-                /*
-                Unit unit = unitCell[i][j];
-                if(unit!=null) {
-                    if(unit.getType().equals("dragon")) arenaPanel.add(new JLabel("D"));
-                    else arenaPanel.add(new JLabel("K"));
-                } else {
-                    arenaPanel.add(new JLabel(" "));
-                }
-                */
                 JLabel cellLabel =  new JLabel(" ");
                 cellLabel.setBorder(new LineBorder(Color.GRAY));
                 arenaPanel.add(cellLabel);
