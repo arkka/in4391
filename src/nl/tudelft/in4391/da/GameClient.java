@@ -212,7 +212,7 @@ public class GameClient {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(1200,600);
+        frame.setSize(1200,650);
         frame.setVisible(true);
 
         /*
