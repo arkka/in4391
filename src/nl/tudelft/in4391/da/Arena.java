@@ -1,6 +1,7 @@
 package nl.tudelft.in4391.da;
 
 import nl.tudelft.in4391.da.unit.Dragon;
+import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
 import java.io.Serializable;
@@ -26,6 +27,8 @@ public class Arena implements Serializable {
         } else return false;
     }
 
+    // Spawn unit on random location
+    // Spawn unit with random hit points and attack points
     public Unit spawnUnitRandom(Unit unit) {
         Random rand = new Random();
         int x = 0;
@@ -35,7 +38,7 @@ public class Arena implements Serializable {
         while(!spawned) {
             x = rand.nextInt(25);
             y = rand.nextInt(25);
-            spawned = spawnUnit(x,y,unit);
+            spawned = spawnUnit(x, y, unit);
         }
         unit.setCoord(x,y);
         return unit;
@@ -89,15 +92,23 @@ public class Arena implements Serializable {
         }
     }
 
-    public Unit getSurroundingUnit(int x, int y) {
+    // After check whether surrounding empty or not when moving
+    // If not, check the type of unit
+    // Do damage if dragon
+    // Heal if player
+    public Unit actionToSurroundingUnit(Unit unit, int x, int y) {
         Unit adjacentUnit = unitCell[x][y];
 
-//        if (adjacentUnit instanceof Dragon){
-//            // do damage
-//        }
-//        else { // Knight
-//            // heal player
-//        }
+        if (adjacentUnit.getType().equals("knight"))
+        {
+            // heal
+            unit.healPlayer(adjacentUnit);
+
+        } else { // Dragon
+            // do damage
+            unit.dealDamage(adjacentUnit);
+        }
+
         return adjacentUnit;
     }
 

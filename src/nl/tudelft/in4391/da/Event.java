@@ -20,6 +20,8 @@ public class Event extends Thread {
     public static final Integer UNIT_DEAD = 301;
     public static final Integer UNIT_MOVED = 302;
     public static final Integer UNIT_REMOVED = 303;
+    public static final Integer UNIT_HEALED= 304;
+    public static final Integer UNIT_DAMAGED= 305;
 
     byte[] message;
     int socketPort;

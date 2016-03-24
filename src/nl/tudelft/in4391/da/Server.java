@@ -29,7 +29,7 @@ public interface Server extends Remote {
 
     public boolean checkSurrounding(Unit unit, int x, int y) throws RemoteException;
 
-    public Unit getSurroundingUnit(int x, int y) throws RemoteException;
+    public Unit actionToSurroundingUnit(Unit unit, int x, int y) throws RemoteException;
 
     public void logout(Player player) throws RemoteException;
 }

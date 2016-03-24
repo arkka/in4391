@@ -206,7 +206,7 @@ public class ServerImpl implements Server {
             Dragon dragon = new Dragon("Dragon-"+idragon);
             arena.spawnUnitRandom(dragon);
             idragon++;
-            System.out.println("[System] " + dragon.getName() + " is active.");
+            System.out.println("[System] " + dragon.getName() + " is active with " + dragon.getHitPoints() + "HP and " + dragon.getAttackPoints() + " AP.");
         }
     }
 
@@ -254,6 +254,10 @@ public class ServerImpl implements Server {
                             onUnitRemoved((Unit) message.getObject());
                         } else if(message.getCode()==Event.UNIT_DEAD) {
                             onUnitDead((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_HEALED) {
+	                        onUnitHealed((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_DAMAGED) {
+	                        onUnitDamaged((Unit) message.getObject());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -322,6 +326,14 @@ public class ServerImpl implements Server {
     private void onUnitDead(Unit u) {
         System.out.println("[System] "+u.getName()+" is dead on coord (" + u.getX() + "," + u.getY() + "), removed from the arena.");
     }
+
+	private void onUnitHealed(Unit u) {
+		System.out.println("[System] "+u.getName()+" is healed to " + u.getHitPoints() + " on coord (" + u.getX() + "," + u.getY() + ")");
+	}
+
+	private void onUnitDamaged(Unit u) {
+		System.out.println("[System] "+u.getName()+" is damaged to " + u.getHitPoints() + " on coord (" + u.getX() + "," + u.getY() + ")");
+	}
 
     // REMOTE FUNCTIONS
     @Override
@@ -401,8 +413,14 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public Unit getSurroundingUnit(int x, int y) throws RemoteException {
-        Unit adjacentUnit = arena.getSurroundingUnit(x, y);
+    public Unit actionToSurroundingUnit(Unit unit, int x, int y) throws RemoteException {
+        Unit adjacentUnit = arena.actionToSurroundingUnit(unit,x, y);
+	    if (adjacentUnit.getType().equals("knight")){
+		    event.send(Event.UNIT_HEALED, adjacentUnit);
+	    }
+	    else {
+		    event.send(Event.UNIT_DAMAGED, adjacentUnit);
+	    }
         return adjacentUnit;
     }
 
