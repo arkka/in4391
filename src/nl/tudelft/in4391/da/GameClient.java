@@ -7,17 +7,18 @@ import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class GameClient  {
     public Server server;
+    public Arena arena;
     public Player player;
 
     public JPanel panel;
@@ -28,8 +29,8 @@ public class GameClient  {
     private JButton leftButton;
     private JButton rightButton;
     private JButton downButton;
-    private JTable table1;
     public JTextArea consoleArea;
+    private JPanel arenaPanel;
 
     public GameClient() {
         server = null;
@@ -166,66 +167,29 @@ public class GameClient  {
         GameClient ui = new GameClient();
         JFrame frame = new JFrame("Dragon Arena: Distributed Reborn");
         frame.setContentPane(ui.panel);
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
 
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+        arena = new Arena();
+        Unit[][] unitCell = arena.unitCell;
+        arenaPanel = new JPanel(new GridLayout(0, 24));
+        arenaPanel.setBorder(new LineBorder(Color.BLACK));
 
-
-        /*
-        // Login
-        Scanner s = new Scanner(System.in);
-
-
-        do {
-            // Input authentication credentials
-            System.out.print("Username: ");
-            username = s.nextLine().trim();
-
-            // TO-DO: Implement password authentication
-            //System.out.println("Password: ");
-            //password = s.nextLine().trim();
-
-            System.out.println("[System] Authenticating to server as "+username+"...");
-            try {
-                player = server.login(username,password);
-            } catch (RemoteException e) {
-                e.printStackTrace();
+        for(int j=0;j<25;j++) {
+            for(int i=0;i<25;i++) {
+                Unit unit = unitCell[i][j];
+                if(unit!=null) {
+                    if(unit.getType().equals("dragon")) arenaPanel.add(new JLabel("D"));
+                    else arenaPanel.add(new JLabel("K"));
+                } else {
+                    arenaPanel.add(new JLabel(" "));
+                }
             }
-
-        } while(!player.isAuthenticated());
-
-
-
-        // COMMAND
-        String command = "";
-
-        while(true){
-            command = s.nextLine().trim();
-            Unit unit = player.getUnit();
-            int player.getUnit().getX() = unit.getX();
-            int player.getUnit().getY() = unit.getY();
-            switch(command) {
-                case "up":
-
-                    break;
-                case "down":
-
-                    break;
-                case "left":
-                    
-                    break;
-                case "right":
-                    
-                    break;
-                case "exit":
-                    System.exit(0);
-                    break;
-                default:
-                    break;
-            }
-
         }
-        */
     }
 }
