@@ -15,8 +15,8 @@ public interface Server extends Remote {
     public Player login(String username, String password) throws RemoteException;
 
     // Sync
-    public Arena getArena(Node node) throws RemoteException;
-    public ArrayList<Player> getPlayers(Node node) throws RemoteException;
+    public Arena getArena() throws RemoteException;
+    public ArrayList<Player> getPlayers() throws RemoteException;
 
 
     public Unit spawnUnit(Unit unit) throws RemoteException;
