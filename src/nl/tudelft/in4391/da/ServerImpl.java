@@ -214,7 +214,7 @@ public class ServerImpl implements Server {
 
     // THREAD
     public void shutdown() {
-        this.event.send(101,getNode());
+        this.event.send(101, getNode());
     }
 
     // STATIC method
@@ -252,9 +252,10 @@ public class ServerImpl implements Server {
                             onUnitSpawned((Unit) message.getObject());
                         } else if(message.getCode()==Event.UNIT_MOVED) {
                             onUnitMoved((Unit) message.getObject());
-                        }
-                        else if(message.getCode()==Event.UNIT_REMOVED) {
+                        } else if(message.getCode()==Event.UNIT_REMOVED) {
                             onUnitRemoved((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_DEAD) {
+                            onUnitDead((Unit) message.getObject());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -320,6 +321,10 @@ public class ServerImpl implements Server {
         System.out.println("[System] "+u.getName()+" moved from coord (" + u.getX() + "," + u.getY() + ") of the arena.");
     }
 
+    private void onUnitDead(Unit u) {
+        System.out.println("[System] "+u.getName()+" is dead on coord (" + u.getX() + "," + u.getY() + "), removed from the arena.");
+    }
+
     // REMOTE FUNCTIONS
     @Override
     public void register(Node remoteNode) {
@@ -383,6 +388,12 @@ public class ServerImpl implements Server {
         arena.removeUnit(unit, x, y);
         event.send(Event.UNIT_REMOVED, unit);
         return unit;
+    }
+
+    @Override
+    public void deleteUnit(Unit unit) throws RemoteException {
+        arena.deleteUnit(unit);
+        event.send(Event.UNIT_DEAD, unit);
     }
 
     @Override

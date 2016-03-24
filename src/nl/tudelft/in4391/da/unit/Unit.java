@@ -11,6 +11,8 @@ public class Unit implements Serializable {
     int x;
     int y;
 
+    protected Thread runnerThread;;
+
     // Health
     private int maxHitPoints;
     protected int hitPoints;
@@ -30,9 +32,27 @@ public class Unit implements Serializable {
     public String getName() {
         return this.name;
     }
+
     public void setCoord(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public void setHitPointsP(int hitPoints, int maxHitPoints) {
+        this.hitPoints = hitPoints;
+        this.maxHitPoints = maxHitPoints;
+    }
+
+    public void setAttackPointsP(int attackPoints) {
+        this.attackPoints = attackPoints;
+    }
+
+    public int getHitPoints() {
+        return hitPoints;
+    }
+
+    public int getAttackPoints() {
+        return attackPoints;
     }
 
     public int getX() {
@@ -44,7 +64,23 @@ public class Unit implements Serializable {
     }
 
     public void adjustHitPoints(int modifier){
+        if (hitPoints <= 0)
+            return;
 
+        this.hitPoints += modifier;
+
+        // Adjust hitPoints if exceed maximal
+        // Case of player heal
+        if (hitPoints > maxHitPoints)
+            hitPoints = maxHitPoints;
+
+        // Remove unit if dies
+        // Case of damage dealt
+//        if (hitPoints <= 0)
+//            deleteUnit(x, y);
     }
-    public String getType() { return this.type; }
+
+    public String getType() {
+        return this.type;
+    }
 }

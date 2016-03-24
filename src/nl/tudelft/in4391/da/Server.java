@@ -25,6 +25,8 @@ public interface Server extends Remote {
 
     public Unit removeUnit(Unit unit, int x, int y) throws RemoteException;
 
+    public void deleteUnit(Unit unit) throws RemoteException;
+
     public boolean checkSurrounding(Unit unit, int x, int y) throws RemoteException;
 
     public Unit getSurroundingUnit(int x, int y) throws RemoteException;

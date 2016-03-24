@@ -5,7 +5,7 @@ import nl.tudelft.in4391.da.Player;
 /**
  * Created by arkkadhiratara on 3/22/16.
  */
-public class Knight extends Unit {
+public class Knight extends Unit implements Runnable {
 
     // The minimum and maximum amount of hitpoints that a particular player starts with
     public static final int MIN_HITPOINTS = 20;
@@ -20,5 +20,12 @@ public class Knight extends Unit {
         // Initialize hitpoints and attackpoints
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);
         this.attackPoints = (int)(Math.random() * (MAX_ATTACKPOINTS - MIN_ATTACKPOINTS) + MIN_ATTACKPOINTS);
+
+        runnerThread = new Thread(this);
+        runnerThread.run();
+    }
+
+    public void run() {
+
     }
 }

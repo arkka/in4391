@@ -4,7 +4,7 @@ package nl.tudelft.in4391.da.unit;
  * Created by arkkadhiratara on 3/22/16.
  */
 
-public class Dragon extends Unit {
+public class Dragon extends Unit implements Runnable{
 
     // The minimum and maximum amount of hitpoints that a particular dragon starts with
     public static final int MIN_HITPOINTS = 50;
@@ -19,5 +19,13 @@ public class Dragon extends Unit {
         // Initialize hitpoints and attackpoints
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);
         this.attackPoints = (int)(Math.random() * (MAX_ATTACKPOINTS - MIN_ATTACKPOINTS) + MIN_ATTACKPOINTS);
+
+        // Create thread for each dragon
+        runnerThread = new Thread(this);
+        runnerThread.start();
+    }
+
+    public void run() {
+        
     }
 }
