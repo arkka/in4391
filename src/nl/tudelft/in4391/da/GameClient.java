@@ -6,158 +6,262 @@ package nl.tudelft.in4391.da;
 import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
-import java.rmi.NotBoundException;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class GameClient {
-    public static Integer CLIENT_CALLBACK_PORT = 1500;
+    public Server server;
+    public Arena arena;
+    public Player player;
 
-    public static void main(String[] args)
-    {
+    public JPanel panel;
+    public JTextField username;
+    public JProgressBar progressBar1;
+    public JButton loginButton;
+    private JButton upButton;
+    private JButton leftButton;
+    private JButton rightButton;
+    private JButton downButton;
+    public JTextArea consoleArea;
+    private JPanel arenaPanel;
+
+    public GameClient() {
+        server = null;
+        player = null;
+
+        findAndConnectServer();
+
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                login(username.getText(),"");
+            }
+        });
+
+        upButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()+ 1)){
+                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
+                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() + 1));
+                        // Player set to new coordinate
+                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
+                    }
+                } catch (RemoteException re) {
+                    re.printStackTrace();
+                }
+            }
+        });
+
+        downButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1)){
+                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
+                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() - 1));
+                        // Player set to new coordinate
+                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
+                    }
+                } catch (RemoteException re) {
+                    re.printStackTrace();
+                }
+            }
+        });
+
+        rightButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY())) {
+                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
+                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY()));
+
+                        // Player set to new coordinate
+                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
+                    }
+                } catch (RemoteException re) {
+                    re.printStackTrace();
+                }
+            }
+        });
+
+        leftButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY())){
+                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
+                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY()));
+                        // Player set to new coordinate
+                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
+                        syncArena();
+                    }
+                } catch (RemoteException re) {
+                    re.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void findAndConnectServer(){
         // Pre-defined game coordinator nodes
         ArrayList<Node> masterNodes = new ArrayList<Node>();
         masterNodes.add(new Node(1,"127.0.0.1",1100,1200));
         masterNodes.add(new Node(2,"127.0.0.1",1101,1201));
 
-        // Try to connect to known game coordinator nodes
-        Server server = findMasterAndConnect(masterNodes);
-        System.out.println("[System] Welcome to Dragon Arena: Distributed Reborn!");
-
-
-        // Login
-        Scanner s = new Scanner(System.in);
-        Player player = null;
-        String username = "";
-        String password = "";
-
-        do {
-            // Input authentication credentials
-            System.out.print("Username: ");
-            username = s.nextLine().trim();
-
-            // TO-DO: Implement password authentication
-            //System.out.println("Password: ");
-            //password = s.nextLine().trim();
-
-            System.out.println("[System] Authenticating to server as "+username+"...");
-            try {
-                player = server.login(username,password);
-            } catch (RemoteException e) {
-                e.printStackTrace();
+        while(server == null) {
+            for (Node n : masterNodes) {
+                try {
+                    Registry remoteRegistry = LocateRegistry.getRegistry(n.getHostAddress(), n.getRegistryPort());
+                    server = (Server) remoteRegistry.lookup(n.getName());
+                    consoleArea.append("[System] Connected to Master Server " + n.getFullName() + ".\n");
+                    break;
+                } catch (Exception e) {
+                    consoleArea.append("[Error] Unable to connect to game coordinator server " + n.getFullName() + ".\n");
+                }
             }
 
-        } while(!player.isAuthenticated());
+            if(server==null) {
+                consoleArea.append("[System] Retrying connect to server in 5 seconds.\n");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        consoleArea.append("[System] Welcome to Dragon Arena: Distributed Reborn!\n");
+    }
+
+    public void login(String username, String password) {
+        consoleArea.append("[System] Authenticating to server as "+ username +"...\n");
+        try {
+            player = server.login( username, "");
+            syncArena();
+        } catch (RemoteException re) {
+            re.printStackTrace();
+        }
 
         if(player!=null && player.isAuthenticated()){
-            System.out.println("[System] Successfully logged in as "+player.getUsername()+".");
+            consoleArea.append("[System] Successfully logged in as "+player.getUsername()+".\n");
             try {
                 Knight knight = new Knight(player.getUsername());
                 knight = (Knight) server.spawnUnit(knight);
                 player.setUnit(knight);
-                System.out.println("[ " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
+                consoleArea.append("[Player " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.\n");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-
-
-        }
-
-        // COMMAND
-        String command = "";
-
-        while(true){
-            command = s.nextLine().trim();
-            Unit unit = player.getUnit();
-            int posX = unit.getX();
-            int posY = unit.getY();
-            switch(command) {
-                case "up":
-                    try {
-                        if (server.checkSurrounding(player.getUnit(), posX, posY+ 1)){
-                            player.setUnit(server.removeUnit(unit, posX, posY));
-                            player.setUnit(server.moveUnit(unit, posX , posY + 1));
-                            // Player set to new coordinate
-                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
-                        }
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case "down":
-                    try {
-                        if (server.checkSurrounding(player.getUnit(), posX, posY - 1)){
-                            player.setUnit(server.removeUnit(unit, posX, posY));
-                            player.setUnit(server.moveUnit(unit, posX , posY - 1));
-                            // Player set to new coordinate
-                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
-                        }
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case "left":
-                    try {
-                        if (server.checkSurrounding(player.getUnit(), posX - 1, posY)){
-                            player.setUnit(server.removeUnit(unit, posX, posY));
-                            player.setUnit(server.moveUnit(unit, posX - 1, posY));
-                            // Player set to new coordinate
-                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
-                        }
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case "right":
-                    try {
-                        if (server.checkSurrounding(player.getUnit(), posX + 1, posY+ 1)){
-                            player.setUnit(server.removeUnit(unit, posX, posY));
-                            player.setUnit(server.moveUnit(unit, posX + 1 , posY));
-                            // Player set to new coordinate
-                            System.out.println("[Knight " + unit.getName() + "] Moved to coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
-                        }
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case "exit":
-                    System.exit(0);
-                    break;
-                default:
-                    break;
-            }
-
         }
     }
 
-    private static Server findMasterAndConnect(ArrayList<Node> masterNodes) {
-        Server server = null;
-        for (Node n: masterNodes) {
-            try {
-                Registry remoteRegistry = LocateRegistry.getRegistry(n.getHostAddress(),n.getRegistryPort());
-                server = (Server) remoteRegistry.lookup(n.getName());
-                System.out.println("[System] Connected to game coordinator server "+n.getFullName()+".");
-                break;
-            } catch (Exception e) {
-                System.out.println("[Error] Unable to connect to game coordinator server "+n.getFullName()+".");
+    public void syncArena() {
+
+        try {
+            arena = server.getArena();
+        } catch (RemoteException re) {
+            re.printStackTrace();
+        }
+
+        Unit[][] unitCell = arena.unitCell;
+        Component[] components = arenaPanel.getComponents();
+
+        int cellIndex = 0;
+        for(int j=24;j>0;j--) {
+            for(int i=0;i<25;i++) {
+                Component component = components[cellIndex];
+                if (component instanceof JLabel)
+                {
+                    Unit unit = unitCell[i][j];
+                    if(unit!=null) {
+                        if(unit.getType().equals("dragon"))  ((JLabel) component).setText("D");
+                        else  ((JLabel) component).setText("K");
+                    } else {
+                        ((JLabel) component).setText(" ");
+                    }
+
+
+                }
+                cellIndex++;
             }
         }
 
-        if(server==null) {
-            System.out.println("[System] Retrying connect to server in 5 seconds.");
 
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    }
+
+    public static void main(String[] args)
+    {
+        GameClient ui = new GameClient();
+        JFrame frame = new JFrame("Dragon Arena: Distributed Reborn");
+        frame.setContentPane(ui.panel);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setSize(1200,600);
+        frame.setVisible(true);
+
+        /*
+        frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
             }
 
-            server = findMasterAndConnect(masterNodes);
-        }
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(player.isAuthenticated()){
+                    int keyCode = e.getKeyCode();
+                    switch( keyCode ) {
+                        case KeyEvent.VK_UP:
+                            upButton.doClick();
+                            break;
+                        case KeyEvent.VK_DOWN:
+                            downButton.doClick();
+                            break;
+                        case KeyEvent.VK_LEFT:
+                            leftButton.doClick();
+                            break;
+                        case KeyEvent.VK_RIGHT :
+                            rightButton.doClick();
+                            break;
+                    }
+                }
+            }
 
-        return server;
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+        */
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+        arenaPanel = new JPanel(new GridLayout(0, 25));
+        arenaPanel.setBorder(new LineBorder(Color.BLACK));
+
+        for(int j=0;j<25;j++) {
+            for(int i=0;i<25;i++) {
+                JLabel cellLabel =  new JLabel(" ");
+                cellLabel.setBorder(new LineBorder(Color.GRAY));
+                arenaPanel.add(cellLabel);
+            }
+        }
     }
 }

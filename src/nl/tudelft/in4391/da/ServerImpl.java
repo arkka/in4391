@@ -78,8 +78,6 @@ public class ServerImpl implements Server {
     // GETTERS SETTERS
     public Node getNode() { return this.node; }
 
-    public Arena getArena() { return this.arena; }
-
     // Registry
     public void initRegistry(){
         // Create New Registry
@@ -170,8 +168,8 @@ public class ServerImpl implements Server {
                 if(n!=node) {
                     Server remoteServer = fromRemoteNode(n);
                     try {
-                        this.activePlayers = remoteServer.getPlayers(node);
-                        this.arena = remoteServer.getArena(node);
+                        this.activePlayers = remoteServer.getPlayers();
+                        this.arena = remoteServer.getArena();
                         break;
                     } catch (RemoteException e) {
                         e.printStackTrace();
@@ -360,12 +358,12 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public Arena getArena(Node node) throws RemoteException {
+    public Arena getArena() throws RemoteException {
         return this.arena;
     }
 
     @Override
-    public ArrayList<Player> getPlayers(Node node) throws RemoteException {
+    public ArrayList<Player> getPlayers() throws RemoteException {
         return this.activePlayers;
     }
 
