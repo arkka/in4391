@@ -146,6 +146,7 @@ public class GameClient  {
         consoleArea.append("[System] Authenticating to server as "+ username +"...\n");
         try {
             player = server.login( username, "");
+            syncArena();
         } catch (RemoteException re) {
             re.printStackTrace();
         }
@@ -162,6 +163,41 @@ public class GameClient  {
             }
         }
     }
+
+    public void syncArena() {
+
+        try {
+            arena = server.getArena();
+        } catch (RemoteException re) {
+            re.printStackTrace();
+        }
+
+        Unit[][] unitCell = arena.unitCell;
+        Component[] components = arenaPanel.getComponents();
+
+        int cellIndex = 0;
+        for(int j=0;j<25;j++) {
+            for(int i=0;i<25;i++) {
+                Component component = components[cellIndex];
+                if (component instanceof JLabel)
+                {
+                    Unit unit = unitCell[i][j];
+                    if(unit!=null) {
+                        if(unit.getType().equals("dragon"))  ((JLabel) component).setText("D");
+                        else  ((JLabel) component).setText("K");
+                    } else {
+                        ((JLabel) component).setText(" ");
+                    }
+
+
+                }
+                cellIndex++;
+            }
+        }
+
+
+    }
+
     public static void main(String[] args)
     {
         GameClient ui = new GameClient();
@@ -175,13 +211,14 @@ public class GameClient  {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        arena = new Arena();
-        Unit[][] unitCell = arena.unitCell;
+        //arena = new Arena();
+        //Unit[][] unitCell = arena.unitCell;
         arenaPanel = new JPanel(new GridLayout(0, 24));
         arenaPanel.setBorder(new LineBorder(Color.BLACK));
 
         for(int j=0;j<25;j++) {
             for(int i=0;i<25;i++) {
+                /*
                 Unit unit = unitCell[i][j];
                 if(unit!=null) {
                     if(unit.getType().equals("dragon")) arenaPanel.add(new JLabel("D"));
@@ -189,6 +226,10 @@ public class GameClient  {
                 } else {
                     arenaPanel.add(new JLabel(" "));
                 }
+                */
+                JLabel cellLabel =  new JLabel(" ");
+                cellLabel.setBorder(new LineBorder(Color.GRAY));
+                arenaPanel.add(cellLabel);
             }
         }
     }

@@ -8,6 +8,7 @@ import nl.tudelft.in4391.da.unit.Unit;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.rmi.RemoteException;
 import java.util.Scanner;
 
 public class GameServer {
@@ -70,10 +71,15 @@ public class GameServer {
 
                 case "dragon":
                 case "dragons":
-                    System.out.println("\n[Active Dragons: "+server.getArena().getDragons().size()+"]");
-                    for(Unit d : server.getArena().getDragons()) {
-                        System.out.println("- "+d.getName());
+                    try {
+                        System.out.println("\n[Active Dragons: "+server.getArena().getDragons().size()+"]");
+                        for(Unit d : server.getArena().getDragons()) {
+                            System.out.println("- "+d.getName());
+                        }
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
                     }
+
                     break;
 
                 case "release dragon":
@@ -83,7 +89,11 @@ public class GameServer {
 
                 case "show arena":
                 case "arena":
-                    server.getArena().show();
+                    try {
+                        server.getArena().show();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                     break;
 
                 case "exit":
