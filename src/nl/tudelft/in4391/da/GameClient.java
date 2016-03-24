@@ -215,6 +215,7 @@ public class GameClient {
         frame.setSize(1200,600);
         frame.setVisible(true);
 
+        /*
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -247,6 +248,7 @@ public class GameClient {
 
             }
         });
+        */
     }
 
     private void createUIComponents() {
