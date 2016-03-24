@@ -206,7 +206,7 @@ public class ServerImpl implements Server {
             Dragon dragon = new Dragon("Dragon-"+idragon);
             arena.spawnUnitRandom(dragon);
             idragon++;
-            System.out.println("[System] " + dragon.getName() + " is active with " + dragon.getHitPoints() + "HP and " + dragon.getAttackPoints() + " AP.");
+            System.out.println("[System] " + dragon.getName() + " is active with " + dragon.getHitPoints() + " HP and " + dragon.getAttackPoints() + " AP.");
         }
     }
 
@@ -328,11 +328,12 @@ public class ServerImpl implements Server {
     }
 
 	private void onUnitHealed(Unit u) {
-		System.out.println("[System] "+u.getName()+" is healed to " + u.getHitPoints() + " on coord (" + u.getX() + "," + u.getY() + ")");
+		System.out.println("[System] "+u.getName()+" is healed to " + u.getHitPoints() + "/" + u.getMaxHitPoints() + " HP on coord (" + u.getX() + "," + u.getY() + ")");
 	}
 
+
 	private void onUnitDamaged(Unit u) {
-		System.out.println("[System] "+u.getName()+" is damaged to " + u.getHitPoints() + " on coord (" + u.getX() + "," + u.getY() + ")");
+		System.out.println("[System] "+u.getName()+" is damaged to " + u.getHitPoints() + "/" + u.getMaxHitPoints() + " HP on coord (" + u.getX() + "," + u.getY() + ")");
 	}
 
     // REMOTE FUNCTIONS
@@ -388,7 +389,8 @@ public class ServerImpl implements Server {
 
     @Override
     public Unit moveUnit(Unit unit, int x, int y) throws RemoteException {
-        unit = arena.moveUnit(unit, x, y);
+        arena.removeUnit(unit, unit.getX(), unit.getY());
+	    unit = arena.moveUnit(unit, x, y);
         event.send(Event.UNIT_MOVED, unit);
         return unit;
     }
@@ -410,6 +412,12 @@ public class ServerImpl implements Server {
     public boolean checkSurrounding(Unit unit, int x, int y) throws RemoteException {
         boolean exist = arena.checkSurrounding(unit, x, y);
         return exist;
+    }
+
+    @Override
+    public boolean checkDead(Unit unit) throws RemoteException {
+        boolean dead = arena.checkDead(unit);
+        return dead;
     }
 
     @Override

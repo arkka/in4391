@@ -44,7 +44,7 @@ public class Arena implements Serializable {
         return unit;
     }
 
-    public Unit moveUnit(Unit unit, int x, int y) {
+    public synchronized Unit moveUnit(Unit unit, int x, int y) {
         // Check boundary
         // right
         if (unit.getX() == 24 && x >= 25){
@@ -73,13 +73,14 @@ public class Arena implements Serializable {
         return unit;
     }
 
-    public Unit removeUnit(Unit unit, int x, int y) {
+    public synchronized Unit removeUnit(Unit unit, int x, int y) {
         unitCell[x][y] = null;
         return unit;
     }
 
-    public void deleteUnit(Unit unit) {
+    public synchronized void deleteUnit(Unit unit) {
         unitCell[unit.getX()][unit.getY()] = null;
+//        unit.disconnect(); // thread
         units.remove(unit);
     }
 
@@ -110,6 +111,13 @@ public class Arena implements Serializable {
         }
 
         return adjacentUnit;
+    }
+
+    public Boolean checkDead(Unit unit){
+        boolean dead = false;
+        if(unit.getHitPoints() <= 0) dead = true;
+
+        return dead;
     }
 
     public void addUnit(Unit unit) {

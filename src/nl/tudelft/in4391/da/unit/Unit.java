@@ -14,6 +14,7 @@ public class Unit implements Serializable {
     protected Thread runnerThread;;
 
     // Health
+    protected int maxHitPoints;
     protected int hitPoints;
 
     // Attack points
@@ -49,6 +50,11 @@ public class Unit implements Serializable {
         return hitPoints;
     }
 
+    // Max HP for after heal and for status of user
+    public int getMaxHitPoints() {
+        return maxHitPoints;
+    }
+
     public int getAttackPoints() {
         return attackPoints;
     }
@@ -81,7 +87,8 @@ public class Unit implements Serializable {
     public void healPlayer(Unit adjacentUnit) {
         int hpAfterAttack = adjacentUnit.getHitPoints() + this.attackPoints;
 
-        if (hpAfterAttack >= Knight.MAX_HITPOINTS) hpAfterAttack = Knight.MAX_HITPOINTS;
+        // Set maximal HP after heal to the random max HP for each Knight
+        if (hpAfterAttack >= adjacentUnit.getMaxHitPoints()) hpAfterAttack = adjacentUnit.getMaxHitPoints();
 
         adjacentUnit.setHitPoints(hpAfterAttack);
     }

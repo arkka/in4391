@@ -22,6 +22,10 @@ public class Knight extends Unit {
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);
         this.attackPoints = (int)(Math.random() * (MAX_ATTACKPOINTS - MIN_ATTACKPOINTS) + MIN_ATTACKPOINTS);
 
+        // Assign max health for each Knight
+        this.maxHitPoints = this.hitPoints;
+
+
         // Create thread for each knight
 //        runnerThread = new Thread(this);
 //        runnerThread.run();

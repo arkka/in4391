@@ -20,6 +20,9 @@ public class Dragon extends Unit {
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);
         this.attackPoints = (int)(Math.random() * (MAX_ATTACKPOINTS - MIN_ATTACKPOINTS) + MIN_ATTACKPOINTS);
 
+        // Assign max health for each Dragon
+        this.maxHitPoints = this.hitPoints;
+
         // Create thread for each dragon
 //        runnerThread = new Thread(this);
 //        runnerThread.start();

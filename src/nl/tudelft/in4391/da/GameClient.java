@@ -9,10 +9,7 @@ import nl.tudelft.in4391.da.unit.Unit;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -52,7 +49,6 @@ public class GameClient {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()+ 1)){
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() + 1));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
@@ -62,11 +58,19 @@ public class GameClient {
                         if (adjacentunit.getType().equals("dragon")){
                             // Damage dragon
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
                         } else { // Knight
                             // Heal player
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
                         }
                     }
                 } catch (RemoteException re) {
@@ -80,7 +84,6 @@ public class GameClient {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1)){
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() - 1));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
@@ -90,11 +93,19 @@ public class GameClient {
                         if (adjacentunit.getType().equals("dragon")){
                             // Damage dragon
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
                         } else { // Knight
                             // Heal player
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
                         }
                     }
                 } catch (RemoteException re) {
@@ -108,7 +119,6 @@ public class GameClient {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY())) {
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY()));
 
                         // Player set to new coordinate
@@ -119,11 +129,19 @@ public class GameClient {
                         if (adjacentunit.getType().equals("dragon")){
                             // Damage dragon
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
                         } else { // Knight
                             // Heal player
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
                         }
                     }
                 } catch (RemoteException re) {
@@ -137,7 +155,6 @@ public class GameClient {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY())){
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY()));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
@@ -147,11 +164,19 @@ public class GameClient {
                         if (adjacentunit.getType().equals("dragon")){
                             // Damage dragon
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
                         } else { // Knight
                             // Heal player
                             consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + " HP.\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
                         }
                     }
                 } catch (RemoteException re) {
@@ -241,8 +266,6 @@ public class GameClient {
                     } else {
                         ((JLabel) component).setText(" ");
                     }
-
-
                 }
                 cellIndex++;
             }
@@ -259,7 +282,7 @@ public class GameClient {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(1200,600);
+        frame.setSize(1200, 600);
         frame.setVisible(true);
 
         /*
