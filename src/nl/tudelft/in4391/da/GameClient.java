@@ -282,7 +282,11 @@ public class GameClient {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
+<<<<<<< HEAD
         frame.setSize(1200, 600);
+=======
+        frame.setSize(1200,650);
+>>>>>>> keyboard-control
         frame.setVisible(true);
 
         /*
