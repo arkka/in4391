@@ -11,4 +11,7 @@ public interface Server extends Remote {
     public void register(Node node) throws RemoteException;
     public Player login(String username, String password) throws RemoteException;
     public void logout(Player player) throws RemoteException;
+
+    // Arena
+    public Arena getArena() throws RemoteException;
 }

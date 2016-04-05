@@ -4,6 +4,8 @@ package nl.tudelft.in4391.da;
  * Created by arkkadhiratara on 3/2/16.
  */
 
+import nl.tudelft.in4391.da.unit.Unit;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -15,8 +17,8 @@ import java.util.ArrayList;
 public class GameClient {
     public ArrayList<Node> serverNodes;
     public Server server;
-    //public Arena arena;
     public Player player;
+    public Arena arena;
 
     public JPanel panel;
     public JTextField username;
@@ -264,6 +266,7 @@ public class GameClient {
             player = server.login( username, "");
             if(player!=null) {
                 console.append("[System] Successfully logged in as `"+ username +"`\n");
+                updateArena();
             }
         } catch (RemoteException re) {
             re.printStackTrace();
@@ -272,15 +275,18 @@ public class GameClient {
 
     }
 
-    public void syncArena() {
-        /*
+    public void updateArena() {
         try {
-            arena = server.getArena();
-        } catch (RemoteException re) {
-            re.printStackTrace();
+            this.arena = server.getArena();
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
 
-        Unit[][] unitCell = arena.unitCell;
+
+        renderArena();
+    }
+
+    public void renderArena() {
         Component[] components = arenaPanel.getComponents();
 
         int cellIndex = 0;
@@ -289,9 +295,9 @@ public class GameClient {
                 Component component = components[cellIndex];
                 if (component instanceof JLabel)
                 {
-                    Unit unit = unitCell[i][j];
+                    Unit unit = arena.unitCell[i][j];
                     if(unit!=null) {
-                        if(unit.getType().equals("dragon"))  ((JLabel) component).setText("D");
+                        if(unit.getType().equals("Dragon"))  ((JLabel) component).setText("D");
                         else  ((JLabel) component).setText("K");
                     } else {
                         ((JLabel) component).setText(" ");
@@ -300,9 +306,6 @@ public class GameClient {
                 cellIndex++;
             }
         }
-        */
-
-
     }
 
     public static void main(String[] args)
@@ -315,41 +318,6 @@ public class GameClient {
         frame.pack();
         frame.setSize(1200,650);
         frame.setVisible(true);
-
-        /*
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(player.isAuthenticated()){
-                    int keyCode = e.getKeyCode();
-                    switch( keyCode ) {
-                        case KeyEvent.VK_UP:
-                            upButton.doClick();
-                            break;
-                        case KeyEvent.VK_DOWN:
-                            downButton.doClick();
-                            break;
-                        case KeyEvent.VK_LEFT:
-                            leftButton.doClick();
-                            break;
-                        case KeyEvent.VK_RIGHT :
-                            rightButton.doClick();
-                            break;
-                    }
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-        */
     }
 
     private void createUIComponents() {

@@ -1,5 +1,8 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Knight;
+import nl.tudelft.in4391.da.unit.Unit;
+
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -21,11 +24,10 @@ public class ServerImpl implements Server {
     private ArrayList<Player> players = new ArrayList<Player>();
     private PlayerEvent playerEvent;
 
+    private Arena arena = new Arena();
+
     public ServerImpl(Node node) {
         this.currentNode = node;
-
-        // Register current node to the list
-        registerNode(node);
 
         // Initialize RMI Registry
         initRegistry();
@@ -36,9 +38,9 @@ public class ServerImpl implements Server {
         nodeEvent = new NodeEvent(node) {
             @Override
             public void onConnected(Node n) {
-                System.out.println("[System] "+n.getFullName()+" is connected.");
+                registerNode(n);
+
                 if(!node.equals(n)) {
-                    registerNode(n);
                     Server remoteServer = fromRemoteNode(n);
                     try {
                         remoteServer.register(node);
@@ -50,7 +52,6 @@ public class ServerImpl implements Server {
 
             @Override
             public void onDisconnected(Node n) {
-                System.out.println("[System] "+n.getFullName()+" is disconnected.");
                 deregisterNode(n);
 
             }
@@ -66,7 +67,6 @@ public class ServerImpl implements Server {
         playerEvent = new PlayerEvent(node) {
             @Override
             public void onLoggedIn(Player p) {
-                System.out.println("[System] "+p.getUsername()+" is logged in.");
                 // Do I need to register new connected user here? or put it all on sync?
 
                 if(!node.equals(p)) {
@@ -76,7 +76,6 @@ public class ServerImpl implements Server {
 
             @Override
             public void onLoggedOut(Player p) {
-                System.out.println("[System] "+p.getUsername()+" is logged out.");
                 deregisterPlayer(p);
             }
         };
@@ -100,12 +99,14 @@ public class ServerImpl implements Server {
 
     public void registerNode(Node node) {
         if (!nodes.contains(node)) {
+            System.out.println("[System] "+node.getFullName()+" is connected.");
             this.nodes.add(node);
         }
     }
 
     public void deregisterNode(Node node) {
         if (nodes.contains(node)) {
+            System.out.println("[System] "+node.getFullName()+" is disconnected.");
             this.nodes.remove(node);
         }
     }
@@ -116,12 +117,14 @@ public class ServerImpl implements Server {
 
     public void registerPlayer(Player player) {
         if (!players.contains(player)) {
+            System.out.println("[System] "+player.getUsername()+" is logged in.");
             this.players.add(player);
         }
     }
 
     public void deregisterPlayer(Player player) {
         if (players.contains(player)) {
+            System.out.println("[System] "+player.getUsername()+" is logged out.");
             this.players.remove(player);
         }
     }
@@ -189,13 +192,23 @@ public class ServerImpl implements Server {
         Player player = new Player(username, password);
         if(true) {
             player.setAuthenticated(true);
+            System.out.println("[System] Player `" + player + "` has logged in.");
             try {
                 player.setHostAddress(RemoteServer.getClientHost());
+
+                // TO-DO SEND to WORKER via EventQueue
+                Knight knight = new Knight(player.getUsername());
+                knight = (Knight) arena.spawnUnit(knight);
+                player.setUnit(knight);
+                System.out.println("[System] "+knight.getFullName()+" spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
+
+                // Notify others
                 playerEvent.send(playerEvent.LOGGED_IN,player);
+
             } catch (ServerNotActiveException e) {
                 e.printStackTrace();
             }
-            System.out.println("[System] Player `" + player + "` has logged in.");
+
         } else {
             System.out.println("[Error] Bad credentials.");
         }
@@ -206,5 +219,10 @@ public class ServerImpl implements Server {
     public void logout(Player p) throws RemoteException {
         deregisterPlayer(p);
         System.out.println("[System] Player `" + p + "` has logged out.");
+    }
+
+    @Override
+    public Arena getArena() throws RemoteException {
+        return arena;
     }
 }

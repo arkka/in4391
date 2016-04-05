@@ -8,17 +8,17 @@ import java.io.Serializable;
 public class Unit implements Serializable {
     String name;
     String type;
-    int x;
-    int y;
+    Integer x;
+    Integer y;
 
     protected Thread runnerThread;;
 
     // Health
-    protected int maxHitPoints;
-    protected int hitPoints;
+    protected Integer maxHitPoints;
+    protected Integer hitPoints;
 
     // Attack points
-    protected int attackPoints;
+    protected Integer attackPoints;
 
     public Unit(String name) {
         this.name = name;
@@ -27,11 +27,16 @@ public class Unit implements Serializable {
     public Unit(String name, String type) {
         this.name = name;
         this.type = type;
+        this.x = null;
+        this.y = null;
+
     }
 
     public String getName() {
         return this.name;
     }
+
+    public String getFullName() { return this.type+" "+this.name; }
 
     public void setCoord(int x, int y) {
         this.x = x;
@@ -51,19 +56,19 @@ public class Unit implements Serializable {
     }
 
     // Max HP for after heal and for status of user
-    public int getMaxHitPoints() {
+    public Integer getMaxHitPoints() {
         return maxHitPoints;
     }
 
-    public int getAttackPoints() {
+    public Integer getAttackPoints() {
         return attackPoints;
     }
 
-    public int getX() {
+    public Integer getX() {
         return x;
     }
 
-    public int getY() {
+    public Integer getY() {
         return y;
     }
 

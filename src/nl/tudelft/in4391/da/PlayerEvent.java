@@ -14,7 +14,7 @@ public class PlayerEvent extends BaseEvent  {
     // Event splitter
     @Override
     public void onEvent(EventMessage em) {
-        if(em.getObject() instanceof Node) {
+        if(em.getObject() instanceof Player) {
             Player p = (Player) em.getObject();
             if (em.getCode() == LOGGED_IN) {
                 onLoggedIn(p);

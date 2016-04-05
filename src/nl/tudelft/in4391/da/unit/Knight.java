@@ -14,7 +14,7 @@ public class Knight extends Unit {
     public static final int MAX_ATTACKPOINTS = 10;
 
     public Knight(String name) {
-        super(name, "knight");
+        super(name, "Knight");
 
         // Initialize hitpoints and attackpoints for each Knight
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);

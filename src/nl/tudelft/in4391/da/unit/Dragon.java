@@ -14,7 +14,7 @@ public class Dragon extends Unit {
     public static final int MAX_ATTACKPOINTS = 20;
 
     public Dragon(String name) {
-        super(name,"dragon");
+        super(name,"Dragon");
 
         // Initialize hitpoints and attackpoints for each Dragon
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);
