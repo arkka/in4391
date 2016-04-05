@@ -47,8 +47,16 @@ public class GameClient {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(server == null) server = findServer();
-                login(username.getText(),"");
+
+                if(player == null) { // LOGIN
+                    if(server == null) server = findServer();
+                    login(username.getText(),"");
+                    loginButton.setText("Logout");
+                } else { // LOGOUT
+                    logout();
+                    loginButton.setText("Login");
+                }
+
             }
         });
 
@@ -210,13 +218,8 @@ public class GameClient {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 consoleLog("[System] Logout and disconnect from server...");
-                try {
-                    server.logout(player);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-
-                System.out.println("Bye!");
+                logout();
+                consoleLog("Bye!");
             }
         });
     }
@@ -276,7 +279,20 @@ public class GameClient {
             re.printStackTrace();
             consoleLog("[System] Authentication as "+ username +" failed.");
         }
+    }
 
+    public void logout() {
+        try {
+            server.logout(player);
+            server = null;
+            player = null;
+            arena = new Arena();
+            renderArena();
+
+            consoleLog("[System] Successfully logged out from server.");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateArena() {
@@ -335,7 +351,7 @@ public class GameClient {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(1200,650);
+        frame.setSize(1250,700);
         frame.setVisible(true);
     }
 
