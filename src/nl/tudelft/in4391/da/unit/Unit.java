@@ -1,11 +1,14 @@
 package nl.tudelft.in4391.da.unit;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Created by arkkadhiratara on 3/22/16.
  */
 public class Unit implements Serializable {
+    private UUID id;
+
     String name;
     String type;
     Integer x;
@@ -25,11 +28,16 @@ public class Unit implements Serializable {
     }
 
     public Unit(String name, String type) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.type = type;
         this.x = null;
         this.y = null;
 
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {

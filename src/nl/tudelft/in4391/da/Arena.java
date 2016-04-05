@@ -55,15 +55,11 @@ public class Arena implements Serializable {
         } else return unit;
     }
 
-    public synchronized Unit removeUnit(Unit unit, int x, int y) {
-        unitCell[x][y] = null;
-        return unit;
-    }
+    public void removeUnit(Unit unit) {
+        if(unit.getId().equals(unitCell[unit.getX()][unit.getY()].getId())){
+            unitCell[unit.getX()][unit.getY()] = null;
+        }
 
-    public synchronized void deleteUnit(Unit unit) {
-        unitCell[unit.getX()][unit.getY()] = null;
-//        unit.disconnect(); // thread
-        units.remove(unit);
     }
 
     public boolean checkSurrounding(Unit unit, int x, int y) {

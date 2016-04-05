@@ -1,5 +1,6 @@
 package nl.tudelft.in4391.da;
 
+import java.rmi.RemoteException;
 import java.util.Scanner;
 
 /**
@@ -41,6 +42,15 @@ public class GameServer {
                     System.out.println("\n[Players: " + server.getPlayers().size() + "]");
                     for (Player p : server.getPlayers()) {
                         System.out.println("- " + p.getUsername());
+                    }
+                    break;
+
+                case "show arena":
+                case "arena":
+                    try {
+                        server.getArena().show();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
                     }
                     break;
 

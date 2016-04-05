@@ -15,6 +15,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class GameClient {
+    private static Integer GAME_SPEED = 100; //ms
+
     public ArrayList<Node> serverNodes;
     public Server server;
     public Player player;
@@ -39,11 +41,13 @@ public class GameClient {
 
         // Server object based on latency
         server = findServer();
-        //player = null;
+        player = null;
+        arena = new Arena();
 
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(server == null) server = findServer();
                 login(username.getText(),"");
             }
         });
@@ -205,7 +209,7 @@ public class GameClient {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                console.append("[System] Logout and disconnect from server...");
+                consoleLog("[System] Logout and disconnect from server...");
                 try {
                     server.logout(player);
                 } catch (RemoteException e) {
@@ -235,12 +239,12 @@ public class GameClient {
                 try {
                     if (s.ping()) {
                         latency = System.currentTimeMillis() - t;
-                        console.append("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)\n");
+                        consoleLog("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)");
                     }
                 } catch (RemoteException e) {
                     //e.printStackTrace();
                     latency = maxLatency;
-                    console.append("[System] Game server " + n.getFullName() + " is down.\n");
+                    consoleLog("[System] Game server " + n.getFullName() + " is down.");
                 }
                 n.setLatency(latency);
 
@@ -252,38 +256,47 @@ public class GameClient {
             }
         }
         if(bestServer!=null)
-            console.append("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)\n");
+            consoleLog("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)");
         else
-            console.append("[System] No available game server. Please try again later.");
+            consoleLog("[System] No available game server. Please try again later.");
 
         return bestServer;
     }
 
 
     public void login(String username, String password) {
-        console.append("[System] Authenticating to server as `"+ username +"`...\n");
+        consoleLog("[System] Authenticating to server as `"+ username +"`...");
         try {
             player = server.login( username, "");
             if(player!=null) {
-                console.append("[System] Successfully logged in as `"+ username +"`\n");
+                consoleLog("[System] Successfully logged in as `"+ username +"`");
                 updateArena();
             }
         } catch (RemoteException re) {
             re.printStackTrace();
-            console.append("[System] Authentication as "+ username +" failed.\n");
+            consoleLog("[System] Authentication as "+ username +" failed.");
         }
 
     }
 
     public void updateArena() {
-        try {
-            this.arena = server.getArena();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-
-
-        renderArena();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while(server!=null) {
+                        //consoleLog("[System] Sync arena map.");
+                        arena = server.getArena();
+                        renderArena();
+                        Thread.sleep(GAME_SPEED);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public void renderArena() {
@@ -306,6 +319,12 @@ public class GameClient {
                 cellIndex++;
             }
         }
+    }
+
+    public void consoleLog(String message) {
+        console.append(message);
+        console.append("\n");
+        console.setCaretPosition(console.getDocument().getLength());
     }
 
     public static void main(String[] args)

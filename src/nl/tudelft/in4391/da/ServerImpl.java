@@ -1,7 +1,6 @@
 package nl.tudelft.in4391.da;
 
 import nl.tudelft.in4391.da.unit.Knight;
-import nl.tudelft.in4391.da.unit.Unit;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -218,6 +217,7 @@ public class ServerImpl implements Server {
     @Override
     public void logout(Player p) throws RemoteException {
         deregisterPlayer(p);
+        arena.removeUnit(p.getUnit());
         System.out.println("[System] Player `" + p + "` has logged out.");
     }
 
