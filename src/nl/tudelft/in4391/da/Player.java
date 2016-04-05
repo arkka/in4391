@@ -3,7 +3,6 @@ package nl.tudelft.in4391.da;
 import nl.tudelft.in4391.da.unit.Unit;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.UUID;
 
 /**

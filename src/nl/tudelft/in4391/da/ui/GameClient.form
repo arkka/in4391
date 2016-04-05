@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="panel" layout-manager="GridLayoutManager" row-count="8" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="581" height="400"/>
+      <xy x="20" y="20" width="976" height="604"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -32,7 +32,7 @@
           <text value="HP"/>
         </properties>
       </component>
-      <component id="137fa" class="javax.swing.JProgressBar" binding="progressBar1" default-binding="true">
+      <component id="137fa" class="javax.swing.JProgressBar" binding="progressBar">
         <constraints>
           <grid row="1" column="2" row-span="2" col-span="3" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -102,7 +102,7 @@
           <text value="10000 / 10000"/>
         </properties>
       </component>
-      <component id="27b51" class="javax.swing.JTextArea" binding="consoleArea">
+      <component id="27b51" class="javax.swing.JTextArea" binding="console">
         <constraints>
           <grid row="7" column="1" row-span="1" col-span="5" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="50"/>
@@ -124,7 +124,11 @@
       <grid id="f2208" binding="arenaPanel" custom-create="true" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="0" column="0" row-span="8" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="8" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <minimum-size width="600" height="600"/>
+            <preferred-size width="600" height="600"/>
+            <maximum-size width="600" height="600"/>
+          </grid>
         </constraints>
         <properties/>
         <border type="none"/>

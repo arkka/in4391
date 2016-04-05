@@ -3,9 +3,9 @@ package nl.tudelft.in4391.da;
 import java.io.*;
 
 /**
- * Created by arkkadhiratara on 3/21/16.
+ * Created by arkkadhiratara on 4/5/16.
  */
-public class EventMessage implements Serializable{
+public class EventMessage implements Serializable {
     private int code;
     private Object object;
 

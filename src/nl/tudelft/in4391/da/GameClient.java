@@ -3,42 +3,41 @@ package nl.tudelft.in4391.da;
 /**
  * Created by arkkadhiratara on 3/2/16.
  */
-import nl.tudelft.in4391.da.unit.Knight;
-import nl.tudelft.in4391.da.unit.Unit;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
 public class GameClient {
+    public ArrayList<Node> serverNodes;
     public Server server;
-    public Arena arena;
+    //public Arena arena;
     public Player player;
 
     public JPanel panel;
     public JTextField username;
-    public JProgressBar progressBar1;
+    public JProgressBar progressBar;
     public JButton loginButton;
     private JButton upButton;
     private JButton leftButton;
     private JButton rightButton;
     private JButton downButton;
-    public JTextArea consoleArea;
+    public JTextArea console;
     private JPanel arenaPanel;
 
     public GameClient() {
-        server = null;
-        player = null;
+        // Server Nodes
+        serverNodes = new ArrayList<Node>();
+        serverNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
+        serverNodes.add(new Node(2, "127.0.0.1", 1101, 1201));
 
-        findAndConnectServer();
+        // Server object based on latency
+        server = findServer();
+        //player = null;
 
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -50,128 +49,231 @@ public class GameClient {
         upButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                /*
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()+ 1)){
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() + 1));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
                         syncArena();
+                    } else { // There are unit, Dragon or Knight
+                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()+ 1);
+                        if (adjacentunit.getType().equals("dragon")){
+                            // Damage dragon
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        } else { // Knight
+                            // Heal player
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
+                        }
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
                 }
+                */
             }
         });
 
         downButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                /*
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1)){
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() - 1));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
                         syncArena();
+                    } else { // There are unit, Dragon or Knight
+                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1);
+                        if (adjacentunit.getType().equals("dragon")){
+                            // Damage dragon
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        } else { // Knight
+                            // Heal player
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
+                        }
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
                 }
+                */
             }
         });
 
         rightButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                /*
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY())) {
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY()));
 
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
                         syncArena();
+                    } else { // There are unit, Dragon or Knight
+                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY());
+                        if (adjacentunit.getType().equals("dragon")){
+                            // Damage dragon
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        } else { // Knight
+                            // Heal player
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
+                        }
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
                 }
+                */
             }
         });
 
         leftButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                /*
                 try {
                     if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY())){
-                        player.setUnit(server.removeUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()));
                         player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY()));
                         // Player set to new coordinate
                         consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
                         syncArena();
+                    } else { // There are unit, Dragon or Knight
+                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY());
+                        if (adjacentunit.getType().equals("dragon")){
+                            // Damage dragon
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        } else { // Knight
+                            // Heal player
+                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
+                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
+                        }
+                        // Check whether unit dead after damage
+                        // Case1: Knight attack Dragon
+                        // Case2: Dragon attack Knight
+                        // Delete unit
+                        if (server.checkDead(adjacentunit)) {
+                            server.deleteUnit(adjacentunit);
+                            syncArena();
+                        }
                     }
                 } catch (RemoteException re) {
                     re.printStackTrace();
                 }
+                */
+            }
+        });
+
+
+        /*
+         *  SHUTDOWN THREAD
+         *  Exit gracefully
+         */
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                console.append("[System] Logout and disconnect from server...");
+                try {
+                    server.logout(player);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Bye!");
             }
         });
     }
 
-    public void findAndConnectServer(){
-        // Pre-defined game coordinator nodes
-        ArrayList<Node> masterNodes = new ArrayList<Node>();
-        masterNodes.add(new Node(1,"127.0.0.1",1100,1200));
-        masterNodes.add(new Node(2,"127.0.0.1",1101,1201));
+    public Server findServer() {
+        Server bestServer = null;
+        Node bestNode = null;
 
-        while(server == null) {
-            for (Node n : masterNodes) {
+        long t = 0;
+        long latency = 0;
+        long maxLatency = 10000; // 10 seconds
+        long bestLatency = maxLatency;
+
+        // Ping all server and find the best latency
+        for (Node n : serverNodes) {
+            Server s = ServerImpl.fromRemoteNode(n);
+            if(s!=null) {
+                t = System.currentTimeMillis();
+
                 try {
-                    Registry remoteRegistry = LocateRegistry.getRegistry(n.getHostAddress(), n.getRegistryPort());
-                    server = (Server) remoteRegistry.lookup(n.getName());
-                    consoleArea.append("[System] Connected to Master Server " + n.getFullName() + ".\n");
-                    break;
-                } catch (Exception e) {
-                    consoleArea.append("[Error] Unable to connect to game coordinator server " + n.getFullName() + ".\n");
+                    if (s.ping()) {
+                        latency = System.currentTimeMillis() - t;
+                        console.append("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)\n");
+                    }
+                } catch (RemoteException e) {
+                    //e.printStackTrace();
+                    latency = maxLatency;
+                    console.append("[System] Game server " + n.getFullName() + " is down.\n");
                 }
-            }
+                n.setLatency(latency);
 
-            if(server==null) {
-                consoleArea.append("[System] Retrying connect to server in 5 seconds.\n");
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (latency < bestLatency) {
+                    bestLatency = latency;
+                    bestServer = s;
+                    bestNode = n;
                 }
             }
         }
+        if(bestServer!=null)
+            console.append("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)\n");
+        else
+            console.append("[System] No available game server. Please try again later.");
 
-        consoleArea.append("[System] Welcome to Dragon Arena: Distributed Reborn!\n");
+        return bestServer;
     }
 
+
     public void login(String username, String password) {
-        consoleArea.append("[System] Authenticating to server as "+ username +"...\n");
+        console.append("[System] Authenticating to server as `"+ username +"`...\n");
         try {
             player = server.login( username, "");
-            syncArena();
+            if(player!=null) {
+                console.append("[System] Successfully logged in as `"+ username +"`\n");
+            }
         } catch (RemoteException re) {
             re.printStackTrace();
+            console.append("[System] Authentication as "+ username +" failed.\n");
         }
 
-        if(player!=null && player.isAuthenticated()){
-            consoleArea.append("[System] Successfully logged in as "+player.getUsername()+".\n");
-            try {
-                Knight knight = new Knight(player.getUsername());
-                knight = (Knight) server.spawnUnit(knight);
-                player.setUnit(knight);
-                consoleArea.append("[Player " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.\n");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public void syncArena() {
-
+        /*
         try {
             arena = server.getArena();
         } catch (RemoteException re) {
@@ -194,12 +296,11 @@ public class GameClient {
                     } else {
                         ((JLabel) component).setText(" ");
                     }
-
-
                 }
                 cellIndex++;
             }
         }
+        */
 
 
     }
@@ -212,7 +313,7 @@ public class GameClient {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(1200,600);
+        frame.setSize(1200,650);
         frame.setVisible(true);
 
         /*
@@ -264,4 +365,6 @@ public class GameClient {
             }
         }
     }
+
+
 }

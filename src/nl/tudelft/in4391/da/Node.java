@@ -1,60 +1,101 @@
 package nl.tudelft.in4391.da;
 
-/**
- * Created by arkkadhiratara on 3/21/16.
- */
-
-import java.io.*;
+import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
- * Created by arkkadhiratara on 3/11/16.
+ * Created by arkkadhiratara on 4/5/16.
  */
 public class Node implements Serializable {
+    static Integer DEFAULT_NODE_ID = 1;
+    static String DEFAULT_NODE_NAME = "Node";
+    static Integer DEFAULT_REGISTRY_PORT = 1100;
+    static Integer DEFAULT_CALLBACK_PORT = 1200;
+    static Integer DEFAULT_SOCKET_PORT = 1300;
+    static String DEFAULT_MULTICAST_GROUP = "239.255.0.113";
+    static Integer TYPE_MASTER = 10;
+    static Integer TYPE_ARENA = 20;
+
+    // Node Attribute
+
     private Integer id;
     private String name;
     private String hostAddress;
     private Integer registryPort;
     private Integer callbackPort;
     private Integer socketPort;
+    private String multicastGroup;
+    private InetAddress multicastGroupAddress;
+    private Integer type;
+    private long latency;
 
-    Node(Integer id, String hostAddress, Integer registryPort, Integer callbackPort) {
-        this.id = id;
-        this.hostAddress = hostAddress;
-        this.registryPort = registryPort;
-        this.callbackPort = callbackPort;
+    public Node(Integer id, Integer registryPort, Integer callbackPort){
+        this(id, DEFAULT_NODE_NAME, "127.0.0.1", registryPort, callbackPort, DEFAULT_SOCKET_PORT, DEFAULT_MULTICAST_GROUP);
     }
 
-    Node(Integer id, String hostAddress, Integer registryPort, Integer callbackPort, Integer socketPort) {
+    public Node(Integer id, Integer registryPort, Integer callbackPort, Integer socketPort){
+        this(id, DEFAULT_NODE_NAME, "127.0.0.1", registryPort, callbackPort, socketPort, DEFAULT_MULTICAST_GROUP);
+    }
+
+    public Node(Integer id, String name, Integer registryPort, Integer callbackPort){
+        this(id, name, "127.0.0.1", registryPort, callbackPort, DEFAULT_SOCKET_PORT, DEFAULT_MULTICAST_GROUP);
+    }
+
+    public Node(Integer id, String name, String hostAddress, Integer registryPort, Integer callbackPort){
+        this(id, name, hostAddress, registryPort, callbackPort, DEFAULT_SOCKET_PORT, DEFAULT_MULTICAST_GROUP);
+    }
+
+
+    public Node(Integer id, String name, String hostAddress, Integer registryPort, Integer callbackPort, Integer socketPort, String multicastGroup){
         this.id = id;
+        this.name = name;
         this.hostAddress = hostAddress;
+        this.name = DEFAULT_NODE_NAME+"-"+id;
+        try {
+            this.multicastGroupAddress = InetAddress.getByName(multicastGroup);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         this.registryPort = registryPort;
         this.callbackPort = callbackPort;
         this.socketPort = socketPort;
+        this.multicastGroup = multicastGroup;
+        this.type = TYPE_MASTER;
     }
 
-    public Integer getID() {
-        return this.id;
+    public Integer getId() { return id; }
+
+    public String getName() {
+        return name;
     }
 
-    public Integer getIndex() { return this.id-1; }
-
-    public String getName() { return "Node-"+getID(); }
-
-    public String getFullName() { return getName()+" ("+getHostAddress()+":"+getRegistryPort()+")"; }
+    public String getFullName() {
+        return name+" ( "+hostAddress+":"+registryPort+" )";
+    }
 
     public String getHostAddress() {
-        return this.hostAddress;
+        return hostAddress;
     }
-
-    public Integer getCallbackPort() { return this.callbackPort; }
 
     public Integer getRegistryPort() {
         return registryPort;
     }
 
-    public void setRegistryPort(Integer registryPort) {
-        this.registryPort = registryPort;
+    public Integer getCallbackPort() {
+        return callbackPort;
+    }
+
+    public Integer getSocketPort() {
+        return socketPort;
+    }
+
+    public String getMulticastGroup() {
+        return multicastGroup;
+    }
+
+    public InetAddress getMulticastGroupAddress() {
+        return multicastGroupAddress;
     }
 
     public boolean equals(Object c) {
@@ -63,7 +104,15 @@ public class Node implements Serializable {
         }
 
         Node that = (Node) c;
-        return this.getID().equals(that.getID());
+        return this.getId().equals(that.getId());
+    }
+
+
+    public long getLatency() {
+        return latency;
+    }
+
+    public void setLatency(long latency) {
+        this.latency = latency;
     }
 }
-
