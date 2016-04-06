@@ -198,14 +198,12 @@ public class ServerImpl implements Server {
                 System.out.println("[System] Player " + player + " has logged in.");
 
                 // TO-DO SEND to WORKER via EventQueue
-//                Knight knight = new Knight(player.getUsername());
                 Unit unit = null;
                 if(type.equals("Dragon")) {
                     unit = new Dragon(player.getUsername());
                 } else unit = new Knight(player.getUsername());
 
                 arena.spawnUnit(unit);
-
                 player.setUnit(unit);
                 System.out.println("[System] "+unit.getFullName()+" spawned at coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
 

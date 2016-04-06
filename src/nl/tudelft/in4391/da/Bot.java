@@ -1,5 +1,6 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
 import javax.swing.*;
@@ -140,8 +141,6 @@ public class Bot extends Thread {
         return adjacentUnit;
     }
 
-
-
     public Bot(String username, String type) {
         serverNodes = new ArrayList<Node>();
         serverNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
@@ -159,20 +158,35 @@ public class Bot extends Thread {
         }
     }
 
+
     public void run() {
         boolean run = true;
         try {
-            while (run){
+            while (run && GameState.getRunningState()){
+
+                Thread.sleep(GAME_SPEED + TURN_DELAY);
+
                 arena = server.getArena();
                 arena.syncUnits();
                 player.setUnit(arena.getMyUnit(player));
 
+                Unit unit = player.getUnit();
+
+                // Unit dead
+                if (unit.getHitPoints() <= 0)
+                    break;
+
+                // Get next movement
                 Integer x = rand.nextInt(1 + 1 + 1) - 1;
                 Integer y = rand.nextInt(1 + 1 + 1) - 1;
 
-                server.moveUnit(player.getUnit(), player.getUnit().getX() + x, player.getUnit().getY() + y);
 
-                Thread.sleep(GAME_SPEED+TURN_DELAY);
+
+                if (unit instanceof Knight) {
+                    server.moveUnit(player.getUnit(), player.getUnit().getX() + x, player.getUnit().getY() + y);
+                }
+
+
             }
         } catch (RemoteException e) {
             e.printStackTrace();

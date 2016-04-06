@@ -67,7 +67,7 @@ public class Arena implements Serializable {
         Integer last_y = unit.getY();
 
         // Out of boundary?
-        if ((x < 0 )|| (x > 25) || (y < 0) || (y > 25)) return unit;
+        if ((x < 0 )|| (x >= 25) || (y < 0) || (y >= 25)) return unit;
 
         // Another unit exist?
         if (unitCell[x][y] != null) return unit;
