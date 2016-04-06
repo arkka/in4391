@@ -32,34 +32,32 @@ public class Arena implements Serializable {
 
     public synchronized Unit moveUnit(Unit unit, int x, int y) {
         // Not a new spawn unit?
-        if(!(unit.getX()==null)&&!(unit.getY()==null)) {
-            // Check boundary
-            // right
-            if (unit.getX() == 24 && x >= 25) return unit;
+        if((unit.getX()!=null)&&!(unit.getY()!=null)) {
+            // Check boundaries
+            if ((x >= 0 && x < 25) && (y >= 0 && y < 25)) {
+                unit.setCoord(x,y);
+            } else {
+                // Out of bound
+            }
 
-            // left
-            if (unit.getX() == 0 && x < 0) return unit;
 
-            // up
-            if (unit.getY() == 24 && y >= 25) return unit;
+            // Remove previous cell step
 
-            // down
-            if (unit.getY() == 0 && y < 0) return unit;
         }
 
-        // Check unit existence on next move
+        // Check occupied cell
         if (unitCell[x][y] == null) {
             unitCell[x][y] = unit;
-            unit.setCoord(x,y);
-            return unit;
-        } else return unit;
-    }
-
-    public void removeUnit(Unit unit) {
-        if(unit.getId().equals(unitCell[unit.getX()][unit.getY()].getId())){
-            unitCell[unit.getX()][unit.getY()] = null;
         }
 
+        return unit;
+    }
+
+
+    public void removeUnit(Unit unit) {
+        if((unitCell[unit.getX()][unit.getY()]!=null) && (unit.getId().equals(unitCell[unit.getX()][unit.getY()].getId()))){
+            unitCell[unit.getX()][unit.getY()] = null;
+        }
     }
 
     public boolean checkSurrounding(Unit unit, int x, int y) {

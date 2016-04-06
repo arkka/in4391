@@ -63,149 +63,44 @@ public class GameClient {
         upButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*
                 try {
-                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()+ 1)){
-                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() + 1));
-                        // Player set to new coordinate
-                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
-                        syncArena();
-                    } else { // There are unit, Dragon or Knight
-                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY()+ 1);
-                        if (adjacentunit.getType().equals("dragon")){
-                            // Damage dragon
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        } else { // Knight
-                            // Heal player
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        }
-                        // Check whether unit dead after damage
-                        // Case1: Knight attack Dragon
-                        // Case2: Dragon attack Knight
-                        // Delete unit
-                        if (server.checkDead(adjacentunit)) {
-                            server.deleteUnit(adjacentunit);
-                            syncArena();
-                        }
-                    }
-                } catch (RemoteException re) {
-                    re.printStackTrace();
+                    server.moveUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() + 1);
+                } catch (RemoteException e1) {
+                    e1.printStackTrace();
                 }
-                */
             }
         });
 
         downButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*
                 try {
-                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1)){
-                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() , player.getUnit().getY() - 1));
-                        // Player set to new coordinate
-                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
-                        syncArena();
-                    } else { // There are unit, Dragon or Knight
-                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1);
-                        if (adjacentunit.getType().equals("dragon")){
-                            // Damage dragon
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        } else { // Knight
-                            // Heal player
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        }
-                        // Check whether unit dead after damage
-                        // Case1: Knight attack Dragon
-                        // Case2: Dragon attack Knight
-                        // Delete unit
-                        if (server.checkDead(adjacentunit)) {
-                            server.deleteUnit(adjacentunit);
-                            syncArena();
-                        }
-                    }
-                } catch (RemoteException re) {
-                    re.printStackTrace();
+                    server.moveUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1);
+                } catch (RemoteException e1) {
+                    e1.printStackTrace();
                 }
-                */
             }
         });
 
         rightButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*
                 try {
-                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY())) {
-                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY()));
-
-                        // Player set to new coordinate
-                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
-                        syncArena();
-                    } else { // There are unit, Dragon or Knight
-                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY());
-                        if (adjacentunit.getType().equals("dragon")){
-                            // Damage dragon
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        } else { // Knight
-                            // Heal player
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        }
-                        // Check whether unit dead after damage
-                        // Case1: Knight attack Dragon
-                        // Case2: Dragon attack Knight
-                        // Delete unit
-                        if (server.checkDead(adjacentunit)) {
-                            server.deleteUnit(adjacentunit);
-                            syncArena();
-                        }
-                    }
-                } catch (RemoteException re) {
-                    re.printStackTrace();
+                    server.moveUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY());
+                } catch (RemoteException e1) {
+                    e1.printStackTrace();
                 }
-                */
             }
         });
 
         leftButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*
                 try {
-                    if (server.checkSurrounding(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY())){
-                        player.setUnit(server.moveUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY()));
-                        // Player set to new coordinate
-                        consoleArea.append("[Knight " + player.getUnit().getName() + "] Moved to coord (" + player.getUnit().getX() + "," + player.getUnit().getY() + ") of the arena.\n");
-                        syncArena();
-                    } else { // There are unit, Dragon or Knight
-                        Unit adjacentunit = server.actionToSurroundingUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY());
-                        if (adjacentunit.getType().equals("dragon")){
-                            // Damage dragon
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] damage " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[" + adjacentunit.getName() + "] damaged to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        } else { // Knight
-                            // Heal player
-                            consoleArea.append("[Knight " + player.getUnit().getName() + "] heal " + adjacentunit.getName() + " by " + player.getUnit().getAttackPoints() + ".\n");
-                            consoleArea.append("[Knight " + adjacentunit.getName() + "] healed to " + adjacentunit.getHitPoints() + "/" + adjacentunit.getMaxHitPoints() + " HP.\n");
-                        }
-                        // Check whether unit dead after damage
-                        // Case1: Knight attack Dragon
-                        // Case2: Dragon attack Knight
-                        // Delete unit
-                        if (server.checkDead(adjacentunit)) {
-                            server.deleteUnit(adjacentunit);
-                            syncArena();
-                        }
-                    }
-                } catch (RemoteException re) {
-                    re.printStackTrace();
+                    server.moveUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY());
+                } catch (RemoteException e1) {
+                    e1.printStackTrace();
                 }
-                */
             }
         });
 

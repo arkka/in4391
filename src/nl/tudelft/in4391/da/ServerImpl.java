@@ -1,6 +1,7 @@
 package nl.tudelft.in4391.da;
 
 import nl.tudelft.in4391.da.unit.Knight;
+import nl.tudelft.in4391.da.unit.Unit;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -224,5 +225,9 @@ public class ServerImpl implements Server {
     @Override
     public Arena getArena() throws RemoteException {
         return arena;
+    }
+
+    public void moveUnit(Unit u, int x, int y) throws RemoteException {
+        arena.moveUnit(u, x, y);
     }
 }
