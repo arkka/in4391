@@ -14,7 +14,11 @@ public class Unit implements Serializable {
     Integer x;
     Integer y;
 
-    protected Thread runnerThread;;
+    protected Thread runnerThread;
+    protected boolean running;
+
+    // Turn delay
+    protected int timeBetweenTurns;
 
     // Health
     protected Integer maxHitPoints;
@@ -78,6 +82,10 @@ public class Unit implements Serializable {
 
     public Integer getY() {
         return y;
+    }
+
+    public int getTurnDelay(){
+        return timeBetweenTurns;
     }
 
     public synchronized void adjustHitPoints(int modifier){
