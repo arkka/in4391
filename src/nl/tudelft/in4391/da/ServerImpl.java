@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static java.rmi.server.RemoteServer.getClientHost;
+
 /**
  * Created by arkkadhiratara on 3/5/16.
  */
@@ -63,7 +65,7 @@ public class ServerImpl implements Server {
 
         // Wait Node registry propagate across cluster
         try {
-            Thread.sleep(1000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -202,17 +204,17 @@ public class ServerImpl implements Server {
         System.out.println("[System] Releasing dragons to the arena.");
         // Release dragons to arena
         int idragon = 1;
-        while(arena.getDragons().isEmpty() || arena.getDragons().size()<25) {
+        while(arena.getDragons().isEmpty() || arena.getDragons().size()< num) {
             Dragon dragon = new Dragon("Dragon-"+idragon);
             arena.spawnUnitRandom(dragon);
             idragon++;
-            System.out.println("[System] " + dragon.getName() + " is active.");
+            System.out.println("[System] " + dragon.getName() + " is active with " + dragon.getHitPoints() + " HP and " + dragon.getAttackPoints() + " AP.");
         }
     }
 
     // THREAD
     public void shutdown() {
-        this.event.send(101,getNode());
+        this.event.send(101, getNode());
     }
 
     // STATIC method
@@ -224,7 +226,7 @@ public class ServerImpl implements Server {
             return remoteServer;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return remoteServer;
     }
@@ -250,9 +252,14 @@ public class ServerImpl implements Server {
                             onUnitSpawned((Unit) message.getObject());
                         } else if(message.getCode()==Event.UNIT_MOVED) {
                             onUnitMoved((Unit) message.getObject());
-                        }
-                        else if(message.getCode()==Event.UNIT_REMOVED) {
+                        } else if(message.getCode()==Event.UNIT_REMOVED) {
                             onUnitRemoved((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_DEAD) {
+                            onUnitDead((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_HEALED) {
+	                        onUnitHealed((Unit) message.getObject());
+                        } else if(message.getCode()==Event.UNIT_DAMAGED) {
+	                        onUnitDamaged((Unit) message.getObject());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -318,7 +325,30 @@ public class ServerImpl implements Server {
         System.out.println("[System] "+u.getName()+" moved from coord (" + u.getX() + "," + u.getY() + ") of the arena.");
     }
 
+    private void onUnitDead(Unit u) {
+        System.out.println("[System] "+u.getName()+" is dead on coord (" + u.getX() + "," + u.getY() + "), removed from the arena.");
+    }
+
+	private void onUnitHealed(Unit u) {
+		System.out.println("[System] "+u.getName()+" is healed to " + u.getHitPoints() + "/" + u.getMaxHitPoints() + " HP on coord (" + u.getX() + "," + u.getY() + ")");
+	}
+
+
+	private void onUnitDamaged(Unit u) {
+		System.out.println("[System] "+u.getName()+" is damaged to " + u.getHitPoints() + "/" + u.getMaxHitPoints() + " HP on coord (" + u.getX() + "," + u.getY() + ")");
+	}
+
     // REMOTE FUNCTIONS
+    @Override
+    public boolean ping() throws RemoteException {
+        try {
+            System.out.println("[System] Incoming ping from "+getClientHost());
+        } catch (ServerNotActiveException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
     @Override
     public void register(Node remoteNode) {
         addActiveNode(remoteNode);
@@ -371,7 +401,8 @@ public class ServerImpl implements Server {
 
     @Override
     public Unit moveUnit(Unit unit, int x, int y) throws RemoteException {
-        unit = arena.moveUnit(unit, x, y);
+        arena.removeUnit(unit, unit.getX(), unit.getY());
+	    unit = arena.moveUnit(unit, x, y);
         event.send(Event.UNIT_MOVED, unit);
         return unit;
     }
@@ -384,14 +415,32 @@ public class ServerImpl implements Server {
     }
 
     @Override
+    public void deleteUnit(Unit unit) throws RemoteException {
+        arena.deleteUnit(unit);
+        event.send(Event.UNIT_DEAD, unit);
+    }
+
+    @Override
     public boolean checkSurrounding(Unit unit, int x, int y) throws RemoteException {
         boolean exist = arena.checkSurrounding(unit, x, y);
         return exist;
     }
 
     @Override
-    public Unit getSurroundingUnit(int x, int y) throws RemoteException {
-        Unit adjacentUnit = arena.getSurroundingUnit(x, y);
+    public boolean checkDead(Unit unit) throws RemoteException {
+        boolean dead = arena.checkDead(unit);
+        return dead;
+    }
+
+    @Override
+    public Unit actionToSurroundingUnit(Unit unit, int x, int y) throws RemoteException {
+        Unit adjacentUnit = arena.actionToSurroundingUnit(unit,x, y);
+	    if (adjacentUnit.getType().equals("knight")){
+		    event.send(Event.UNIT_HEALED, adjacentUnit);
+	    }
+	    else {
+		    event.send(Event.UNIT_DAMAGED, adjacentUnit);
+	    }
         return adjacentUnit;
     }
 

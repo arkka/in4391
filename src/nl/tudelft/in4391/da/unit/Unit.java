@@ -11,8 +11,14 @@ public class Unit implements Serializable {
     int x;
     int y;
 
+    protected Thread runnerThread;
+    protected boolean running;
+
+    // Turn delay
+    protected int timeBetweenTurns;
+
     // Health
-    private int maxHitPoints;
+    protected int maxHitPoints;
     protected int hitPoints;
 
     // Attack points
@@ -30,9 +36,31 @@ public class Unit implements Serializable {
     public String getName() {
         return this.name;
     }
+
     public void setCoord(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public void setHitPoints(int hitPoints) {
+        this.hitPoints = hitPoints;
+    }
+
+    public void setAttackPoints(int attackPoints) {
+        this.attackPoints = attackPoints;
+    }
+
+    public int getHitPoints() {
+        return hitPoints;
+    }
+
+    // Max HP for after heal and for status of user
+    public int getMaxHitPoints() {
+        return maxHitPoints;
+    }
+
+    public int getAttackPoints() {
+        return attackPoints;
     }
 
     public int getX() {
@@ -43,8 +71,63 @@ public class Unit implements Serializable {
         return y;
     }
 
-    public void adjustHitPoints(int modifier){
+    public int getTurnDelay(){
+        return timeBetweenTurns;
+    }
+
+    public synchronized void adjustHitPoints(int modifier){
+        if (hitPoints <= 0)
+            return;
+
+        this.hitPoints += modifier;
+
+        // Adjust hitPoints if exceed maximal
+        // Case of player heal
+//        if (hitPoints > maxHitPoints)
+//            hitPoints = maxHitPoints;
+
+        // Remove unit if dies
+        // Case of damage dealt
+//        if (hitPoints <= 0)
+//            deleteUnit(x, y);
+    }
+
+    public synchronized void healPlayer(Unit adjacentUnit) {
+        int hpAfterAttack = adjacentUnit.getHitPoints() + this.attackPoints;
+
+        // Set maximal HP after heal to the random max HP for each Knight
+        if (hpAfterAttack >= adjacentUnit.getMaxHitPoints()) hpAfterAttack = adjacentUnit.getMaxHitPoints();
+
+        adjacentUnit.setHitPoints(hpAfterAttack);
+    }
+
+    public synchronized void dealDamage(Unit adjacentUnit) {
+        int hpAfterAttack = adjacentUnit.getHitPoints() - this.attackPoints;
+
+    //        if (hpAfterAttack <= 0){
+    //
+    //        } else { // Dragon still survive
+    //            adjacentUnit.setHitPoints(hpAfterAttack);
+    //        }
+
+        adjacentUnit.setHitPoints(hpAfterAttack);
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    // To stop bot on unit
+    public void unitDisconnect(){
+        running = false;
+    }
+
+    public void stopRunnerThread() {
+        try {
+            runnerThread.join();
+        } catch (InterruptedException ex) {
+            assert(false) : "Unit stopRunnerThread was interrupted";
+        }
 
     }
-    public String getType() { return this.type; }
 }
