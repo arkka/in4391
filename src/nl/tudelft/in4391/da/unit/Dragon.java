@@ -1,10 +1,19 @@
 package nl.tudelft.in4391.da.unit;
 
+import nl.tudelft.in4391.da.GameState;
+import nl.tudelft.in4391.da.Arena;
+
+import java.io.Serializable;
+
 /**
  * Created by arkkadhiratara on 3/22/16.
  */
 
-public class Dragon extends Unit {
+public class Dragon extends Unit  {
+
+    // Minimum and maximum delay between turns
+    public static final int MIN_TIME_BETWEEN_TURNS = 2;
+    public static final int MAX_TIME_BETWEEN_TURNS = 7;
 
     // The minimum and maximum amount of hitpoints that a particular dragon starts with
     public static final int MIN_HITPOINTS = 50;
@@ -13,7 +22,7 @@ public class Dragon extends Unit {
     public static final int MIN_ATTACKPOINTS = 5;
     public static final int MAX_ATTACKPOINTS = 20;
 
-    public Dragon(String name) {
+    public Dragon(String name){
         super(name,"dragon");
 
         // Initialize hitpoints and attackpoints for each Dragon
@@ -23,12 +32,35 @@ public class Dragon extends Unit {
         // Assign max health for each Dragon
         this.maxHitPoints = this.hitPoints;
 
+        // Create a random delay for each Dragon
+        this.timeBetweenTurns = (int)(Math.random() * (MAX_TIME_BETWEEN_TURNS - MIN_TIME_BETWEEN_TURNS)) + MIN_TIME_BETWEEN_TURNS;
+
         // Create thread for each dragon
-//        runnerThread = new Thread(this);
+//        runnerThread = new Thread(this, name);
 //        runnerThread.start();
+//
+//        // Check thread running or not
+//        if (runnerThread.isAlive()) {
+//            System.out.println("Starting " +  name );
+//        }
+
     }
 
 //    public void run() {
 //
+//        this.running = true;
+//
+//        while (GameState.getRunningState() && this.running){
+//            try {
+//                Thread.currentThread().sleep((int)(timeBetweenTurns * 500 * GameState.GAME_SPEED));
+//
+//
+//
+//
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
 //    }
 }

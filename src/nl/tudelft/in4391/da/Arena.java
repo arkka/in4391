@@ -11,8 +11,13 @@ import java.util.Random;
 /**
  * Created by arkkadhiratara on 3/22/16.
  */
+
 public class Arena implements Serializable {
-    public Unit[][] unitCell = new Unit[25][25];
+
+    public final static int MAP_WIDTH = 25;
+    public final static int MAP_HEIGHT = 25;
+
+    public Unit[][] unitCell = new Unit[MAP_WIDTH][MAP_HEIGHT];
     public ArrayList<Unit> units = new ArrayList<Unit>();
     public ArrayList<Unit> knights = new ArrayList<Unit>();
     public ArrayList<Unit> dragons = new ArrayList<Unit>();
@@ -36,8 +41,8 @@ public class Arena implements Serializable {
 
         Boolean spawned = false;
         while(!spawned) {
-            x = rand.nextInt(25);
-            y = rand.nextInt(25);
+            x = rand.nextInt(MAP_WIDTH);
+            y = rand.nextInt(MAP_HEIGHT);
             spawned = spawnUnit(x, y, unit);
         }
         unit.setCoord(x,y);
@@ -84,6 +89,7 @@ public class Arena implements Serializable {
         units.remove(unit);
     }
 
+    // Check surrounding for movings
     public boolean checkSurrounding(Unit unit, int x, int y) {
         if (unitCell[x][y] != null){
             return false;
@@ -91,6 +97,74 @@ public class Arena implements Serializable {
         else {
             return true;
         }
+    }
+
+    // Scan for unit nearby
+    // Up to total 2 distance
+    public Unit scanSurrounding(Unit unit) {
+        Unit adjacentUnit = unitCell[unit.getX()][unit.getY()];
+
+        scanUnit:
+        for (int i = 0 ; i < 11 ; i++){
+            // Get the nearby unit for at most 2 distance
+            switch (i) {
+                case 1:
+                    // Get unit on the right
+                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY()];
+                    break;
+                case 2:
+                    // Get unit on the left
+                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY()];
+                    break;
+                case 3:
+                    // Get unit on the top
+                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 1];
+                    break;
+                case 4:
+                    // Get unit on the bottom
+                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 1];
+                    break;
+                case 5:
+                    // Get unit on the diagonal top left
+                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() + 1];
+                    break;
+                case 6:
+                    // Get unit on the diagonal top right
+                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() + 1];
+                    break;
+                case 7:
+                    // Get unit on the diagonal bottom left
+                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() - 1];
+                    break;
+                case 8:
+                    // Get unit on the diagonal bottom right
+                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() - 1];
+                    break;
+                case 9:
+                    // Get unit on the right distance 2
+                    adjacentUnit = unitCell[unit.getX() + 2][unit.getY()];
+                    break;
+                case 10:
+                    // Get unit on the left distance 2
+                    adjacentUnit = unitCell[unit.getX() - 2][unit.getY()];
+                    break;
+                case 11:
+                    // Get unit on the top distance 2
+                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 2];
+                    break;
+                case 12:
+                    // Get unit on the bottom distance 2
+                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 2];
+                    break;
+            }
+
+            if (adjacentUnit != null){
+                break scanUnit;
+            }
+
+        }
+
+        return adjacentUnit;
     }
 
     // After check whether surrounding empty or not when moving
@@ -138,10 +212,10 @@ public class Arena implements Serializable {
     }
 
     public void show() {
-        for(int j=0;j<25;j++) {
+        for(int j=0;j<MAP_HEIGHT;j++) {
             System.out.println("       ---------------------------------------------------");
             System.out.print("Row-"+j+" |");
-            for(int i=0;i<25;i++) {
+            for(int i=0;i<MAP_HEIGHT;i++) {
                 Unit unit = unitCell[i][j];
                 if(unit!=null) {
                     if(unit.getType().equals("dragon")) System.out.print("D");

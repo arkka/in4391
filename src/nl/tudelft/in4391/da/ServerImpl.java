@@ -204,7 +204,7 @@ public class ServerImpl implements Server {
         System.out.println("[System] Releasing dragons to the arena.");
         // Release dragons to arena
         int idragon = 1;
-        while(arena.getDragons().isEmpty() || arena.getDragons().size()<25) {
+        while(arena.getDragons().isEmpty() || arena.getDragons().size()< num) {
             Dragon dragon = new Dragon("Dragon-"+idragon);
             arena.spawnUnitRandom(dragon);
             idragon++;
