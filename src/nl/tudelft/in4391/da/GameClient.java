@@ -225,9 +225,17 @@ public class GameClient {
                     Unit unit = arena.unitCell[i][j];
                     if(unit!=null) {
                         if(unit.getType().equals("Dragon"))  ((JLabel) component).setText("D");
-                        else  ((JLabel) component).setText("K");
+                        else  {
+                            ((JLabel) component).setText("K");
+
+                            if(unit.equals(player.getUnit())) {
+                                ((JLabel) component).setForeground(Color.BLUE);
+                            } else ((JLabel) component).setForeground(Color.BLACK);
+                        }
+
                     } else {
                         ((JLabel) component).setText(" ");
+
                     }
                 }
                 cellIndex++;
