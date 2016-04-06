@@ -11,7 +11,11 @@ public class Unit implements Serializable {
     int x;
     int y;
 
-    protected Thread runnerThread;;
+    protected Thread runnerThread;
+    protected boolean running;
+
+    // Turn delay
+    protected int timeBetweenTurns;
 
     // Health
     protected int maxHitPoints;
@@ -67,6 +71,10 @@ public class Unit implements Serializable {
         return y;
     }
 
+    public int getTurnDelay(){
+        return timeBetweenTurns;
+    }
+
     public synchronized void adjustHitPoints(int modifier){
         if (hitPoints <= 0)
             return;
@@ -84,7 +92,7 @@ public class Unit implements Serializable {
 //            deleteUnit(x, y);
     }
 
-    public void healPlayer(Unit adjacentUnit) {
+    public synchronized void healPlayer(Unit adjacentUnit) {
         int hpAfterAttack = adjacentUnit.getHitPoints() + this.attackPoints;
 
         // Set maximal HP after heal to the random max HP for each Knight
@@ -93,7 +101,7 @@ public class Unit implements Serializable {
         adjacentUnit.setHitPoints(hpAfterAttack);
     }
 
-    public void dealDamage(Unit adjacentUnit) {
+    public synchronized void dealDamage(Unit adjacentUnit) {
         int hpAfterAttack = adjacentUnit.getHitPoints() - this.attackPoints;
 
     //        if (hpAfterAttack <= 0){
@@ -107,5 +115,19 @@ public class Unit implements Serializable {
 
     public String getType() {
         return this.type;
+    }
+
+    // To stop bot on unit
+    public void unitDisconnect(){
+        running = false;
+    }
+
+    public void stopRunnerThread() {
+        try {
+            runnerThread.join();
+        } catch (InterruptedException ex) {
+            assert(false) : "Unit stopRunnerThread was interrupted";
+        }
+
     }
 }
