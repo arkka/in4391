@@ -16,6 +16,8 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
 public class GameClient {
+    private static Integer GAME_SPEED = 100; //ms
+
     public ArrayList<Node> serverNodes;
     public Server server;
     public Arena arena;
@@ -259,7 +261,7 @@ public class GameClient {
                 if(server == null) server = findServer();
                 player = server.login( username, "");
                 loginButton.setText("Logout");
-                syncArena();
+                updateArena();
                 if(player!=null && player.isAuthenticated()){
                     consoleArea.append("[System] Successfully logged in as "+player.getUsername()+".\n");
                     try {
@@ -300,7 +302,6 @@ public class GameClient {
     }
 
     public void syncArena() {
-
         try {
             arena = server.getArena();
         } catch (RemoteException re) {
@@ -329,6 +330,24 @@ public class GameClient {
         }
 
 
+    }
+
+    public void updateArena() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                    while(server!=null) {
+                        //consoleLog("[System] Sync arena map.");
+                        syncArena();
+                        try {
+                            Thread.sleep(GAME_SPEED);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+            }
+        }).start();
     }
 
     public static void main(String[] args)
