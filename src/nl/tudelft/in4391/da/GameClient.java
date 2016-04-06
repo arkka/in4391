@@ -16,6 +16,7 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
 public class GameClient {
+    public ArrayList<Node> serverNodes;
     public Server server;
     public Arena arena;
     public Player player;
@@ -32,10 +33,15 @@ public class GameClient {
     private JPanel arenaPanel;
 
     public GameClient() {
+        // Server Nodes
+        serverNodes = new ArrayList<Node>();
+        serverNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
+        serverNodes.add(new Node(2, "127.0.0.1", 1101, 1201));
+
         server = null;
         player = null;
 
-        findAndConnectServer();
+        server = findServer();
 
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -74,7 +80,8 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -109,7 +116,8 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -145,7 +153,8 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -180,65 +189,113 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
+
+        /*
+         *  SHUTDOWN THREAD
+         *  Exit gracefully
+         */
+        /*
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                consoleLog("[System] Logout and disconnect from server...");
+                logout();
+                consoleLog("Bye!");
+            }
+        });
+        */
     }
 
-    public void findAndConnectServer(){
-        // Pre-defined game coordinator nodes
-        ArrayList<Node> masterNodes = new ArrayList<Node>();
-        masterNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
-        masterNodes.add(new Node(2,"127.0.0.1",1101,1201));
+    public Server findServer() {
+        Server bestServer = null;
+        Node bestNode = null;
 
-        while(server == null) {
-            for (Node n : masterNodes) {
+        long t = 0;
+        long latency = 0;
+        long maxLatency = 10000; // 10 seconds
+        long bestLatency = maxLatency;
+
+        // Ping all server and find the best latency
+        for (Node n : serverNodes) {
+            Server s = ServerImpl.fromRemoteNode(n);
+            if(s!=null) {
+                t = System.currentTimeMillis();
+
                 try {
-                    Registry remoteRegistry = LocateRegistry.getRegistry(n.getHostAddress(), n.getRegistryPort());
-                    server = (Server) remoteRegistry.lookup(n.getName());
-                    consoleArea.append("[System] Connected to Master Server " + n.getFullName() + ".\n");
-                    break;
-                } catch (Exception e) {
-                    consoleArea.append("[Error] Unable to connect to game coordinator server " + n.getFullName() + ".\n");
+                    if (s.ping()) {
+                        latency = System.currentTimeMillis() - t;
+                        consoleLog("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)");
+                    }
+                } catch (RemoteException e) {
+                    //e.printStackTrace();
+                    latency = maxLatency;
+                    consoleLog("[System] Game server " + n.getFullName() + " is down.");
                 }
-            }
+                n.setLatency(latency);
 
-            if(server==null) {
-                consoleArea.append("[System] Retrying connect to server in 5 seconds.\n");
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (latency < bestLatency) {
+                    bestLatency = latency;
+                    bestServer = s;
+                    bestNode = n;
                 }
             }
         }
+        if(bestServer!=null)
+            consoleLog("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)");
+        else
+            consoleLog("[System] No available game server. Please try again later.");
 
-        consoleArea.append("[System] Welcome to Dragon Arena: Distributed Reborn!\n");
+        return bestServer;
     }
 
     public void login(String username, String password) {
         consoleArea.append("[System] Authenticating to server as "+ username +"...\n");
         try {
-            player = server.login( username, "");
-            syncArena();
+            if(player == null ) { // LOGIN
+                if(server == null) server = findServer();
+                player = server.login( username, "");
+                loginButton.setText("Logout");
+                syncArena();
+                if(player!=null && player.isAuthenticated()){
+                    consoleArea.append("[System] Successfully logged in as "+player.getUsername()+".\n");
+                    try {
+                        Knight knight = new Knight(player.getUsername());
+                        knight = (Knight) server.spawnUnit(knight);
+                        player.setUnit(knight);
+                        syncArena();
+                        // Player spawned with random location and HP AP
+                        consoleArea.append("[Player " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena " +
+                                "with " + knight.getHitPoints() + " HP and " + knight.getAttackPoints() + " AP.\n");
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } else { // LOGOUT
+                logout();
+                loginButton.setText("Login");
+            }
         } catch (RemoteException re) {
             re.printStackTrace();
         }
 
-        if(player!=null && player.isAuthenticated()){
-            consoleArea.append("[System] Successfully logged in as "+player.getUsername()+".\n");
-            try {
-                Knight knight = new Knight(player.getUsername());
-                knight = (Knight) server.spawnUnit(knight);
-                player.setUnit(knight);
-                syncArena();
-                // Player spawned with random location and HP AP
-                consoleArea.append("[Player " + knight.getName() + "] Spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena " +
-                        "with " + knight.getHitPoints() + " HP and " + knight.getAttackPoints() + " AP.\n");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+
+    }
+
+    public void logout() {
+        try {
+            server.logout(player);
+            server = null;
+            player = null;
+            arena = new Arena();
+
+            consoleLog("[System] Successfully logged out from server.");
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 
@@ -282,43 +339,12 @@ public class GameClient {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(1200, 600);
+
+        frame.setSize(1300,700);
+
         frame.setVisible(true);
 
-        /*
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
 
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(player.isAuthenticated()){
-                    int keyCode = e.getKeyCode();
-                    switch( keyCode ) {
-                        case KeyEvent.VK_UP:
-                            upButton.doClick();
-                            break;
-                        case KeyEvent.VK_DOWN:
-                            downButton.doClick();
-                            break;
-                        case KeyEvent.VK_LEFT:
-                            leftButton.doClick();
-                            break;
-                        case KeyEvent.VK_RIGHT :
-                            rightButton.doClick();
-                            break;
-                    }
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-        */
     }
 
     private void createUIComponents() {
@@ -333,5 +359,11 @@ public class GameClient {
                 arenaPanel.add(cellLabel);
             }
         }
+    }
+
+    public void consoleLog(String message) {
+        consoleArea.append(message);
+        consoleArea.append("\n");
+        consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
     }
 }
