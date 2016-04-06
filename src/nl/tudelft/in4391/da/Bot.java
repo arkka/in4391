@@ -14,7 +14,7 @@ import java.util.Random;
  */
 public class Bot extends Thread {
     private static Integer GAME_SPEED = 100; //ms
-    private static Integer TURN_DELAY = 1000;
+    private static Integer TURN_DELAY = 500;
 
     public ArrayList<Node> serverNodes;
 
@@ -77,67 +77,81 @@ public class Bot extends Thread {
 
     // Up to total 2 distance
     public Unit scanSurrounding(Unit unit) {
-        Unit adjacentUnit = unitCell[unit.getX()][unit.getY()];
+        Unit adjacentUnit;
+        Integer sourceX = unit.getX();
+        Integer sourceY = unit.getY();
 
-        scanUnit:
-        for (int i = 0 ; i < 11 ; i++){
-            // Get the nearby unit for at most 2 distance
-            switch (i) {
-                case 1:
-                    // Get unit on the right
-                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY()];
-                    break;
-                case 2:
-                    // Get unit on the left
-                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY()];
-                    break;
-                case 3:
-                    // Get unit on the top
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 1];
-                    break;
-                case 4:
-                    // Get unit on the bottom
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 1];
-                    break;
-                case 5:
-                    // Get unit on the diagonal top left
-                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() + 1];
-                    break;
-                case 6:
-                    // Get unit on the diagonal top right
-                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() + 1];
-                    break;
-                case 7:
-                    // Get unit on the diagonal bottom left
-                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() - 1];
-                    break;
-                case 8:
-                    // Get unit on the diagonal bottom right
-                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() - 1];
-                    break;
-                case 9:
-                    // Get unit on the right distance 2
-                    adjacentUnit = unitCell[unit.getX() + 2][unit.getY()];
-                    break;
-                case 10:
-                    // Get unit on the left distance 2
-                    adjacentUnit = unitCell[unit.getX() - 2][unit.getY()];
-                    break;
-                case 11:
-                    // Get unit on the top distance 2
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 2];
-                    break;
-                case 12:
-                    // Get unit on the bottom distance 2
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 2];
-                    break;
-            }
+        // Random surrounding
+        Integer x = rand.nextInt(1 + 1 + 1) - 1;
+        Integer y = rand.nextInt(1 + 1 + 1) - 1;
 
-            if (adjacentUnit != null){
-                break scanUnit;
-            }
+        adjacentUnit = unitCell[sourceX + x][sourceY + y];
 
+        if (adjacentUnit != null){
+            return adjacentUnit;
+        } else {
+            adjacentUnit = null;
         }
+
+//        scanUnit:
+//        for (int i = 0 ; i < 11 ; i++){
+//            // Get the nearby unit for at most 2 distance
+//            switch (i) {
+//                case 1:
+//                    // Get unit on the right
+//                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY()];
+//                    break;
+//                case 2:
+//                    // Get unit on the left
+//                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY()];
+//                    break;
+//                case 3:
+//                    // Get unit on the top
+//                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 1];
+//                    break;
+//                case 4:
+//                    // Get unit on the bottom
+//                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 1];
+//                    break;
+//                case 5:
+//                    // Get unit on the diagonal top left
+//                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() + 1];
+//                    break;
+//                case 6:
+//                    // Get unit on the diagonal top right
+//                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() + 1];
+//                    break;
+//                case 7:
+//                    // Get unit on the diagonal bottom left
+//                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() - 1];
+//                    break;
+//                case 8:
+//                    // Get unit on the diagonal bottom right
+//                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() - 1];
+//                    break;
+//                case 9:
+//                    // Get unit on the right distance 2
+//                    adjacentUnit = unitCell[unit.getX() + 2][unit.getY()];
+//                    break;
+//                case 10:
+//                    // Get unit on the left distance 2
+//                    adjacentUnit = unitCell[unit.getX() - 2][unit.getY()];
+//                    break;
+//                case 11:
+//                    // Get unit on the top distance 2
+//                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 2];
+//                    break;
+//                case 12:
+//                    // Get unit on the bottom distance 2
+//                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 2];
+//                    break;
+//            }
+//
+//            if (adjacentUnit != null){
+//                break scanUnit;
+//            }
+//
+//        }
 
         return adjacentUnit;
     }
@@ -182,11 +196,15 @@ public class Bot extends Thread {
                 Integer y = rand.nextInt(1 + 1 + 1) - 1;
 
                 if (unit instanceof Dragon) {
-                    
 
                 } else { // Knight
+                    Unit adjacentUnit = scanSurrounding(unit);
 
-                    server.moveUnit(unit, unit.getX() + x, unit.getY() + y);
+                    if (adjacentUnit == null){
+                        server.moveUnit(unit, adjacentUnit.getX(), adjacentUnit.getY());
+                    } else {
+                        server.actionUnit(unit, adjacentUnit);
+                    }
                 }
 
 

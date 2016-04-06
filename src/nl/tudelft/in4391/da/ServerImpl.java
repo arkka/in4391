@@ -249,4 +249,20 @@ public class ServerImpl implements Server {
     public void moveUnit(Unit u, int x, int y) throws RemoteException {
         arena.moveUnit(u, x, y);
     }
+
+    @Override
+    public void actionUnit(Unit source, Unit target) throws RemoteException {
+        arena.actionUnit(source, target);
+    }
+
+    @Override
+    public void damageUnit(Unit source, Unit target) throws RemoteException {
+        arena.damageUnit(source, target);
+    }
+
+    @Override
+    public void healUnit(Unit source, Unit target) throws RemoteException {
+        arena.healUnit(source, target);
+    }
+
 }

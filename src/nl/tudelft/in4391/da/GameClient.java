@@ -217,7 +217,7 @@ public class GameClient {
         Component[] components = arenaPanel.getComponents();
 
         int cellIndex = 0;
-        for(int j=24;j>0;j--) {
+        for(int j=24;j>=0;j--) {
             for(int i=0;i<25;i++) {
                 Component component = components[cellIndex];
                 if (component instanceof JLabel)
