@@ -12,7 +12,7 @@ import java.rmi.RemoteException;
 public interface Server extends Remote {
     public boolean ping() throws RemoteException;
     public void register(Node node) throws RemoteException;
-    public Player login(String username, String password) throws RemoteException;
+    public Player login(String username, String password, String type) throws RemoteException;
     public void logout(Player player) throws RemoteException;
 
     // Arena

@@ -5,6 +5,9 @@ package nl.tudelft.in4391.da;
  */
 
 public class GameBot {
+	private static Integer MAX_KNIGHT = 10;
+	private static Integer MAX_DRAGON = 2;
+
 	public GameBot() {
 
 	}
@@ -12,7 +15,15 @@ public class GameBot {
 
 	public static void main(String[] args)
 	{
-		Bot bot = new Bot("Ussop");
+		for(int i=0;i<MAX_KNIGHT;i++) {
+			new Bot("Knight "+(i+1),"Knight").start();
+		}
+
+		for(int j=0;j<MAX_DRAGON;j++) {
+			new Bot("Dragon "+(j+1),"Dragon").start();
+		}
+
+
 
 	}
 

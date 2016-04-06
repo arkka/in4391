@@ -10,7 +10,7 @@ import java.util.Random;
 /**
  * Created by arkkadhiratara on 4/6/16.
  */
-public class Bot {
+public class Bot extends Thread {
     private static Integer GAME_SPEED = 100; //ms
     private static Integer TURN_DELAY = 1000;
 
@@ -28,6 +28,8 @@ public class Bot {
     public Unit[][] unitCell;
 
     public boolean gameRunning;
+
+    Random rand = new Random();
 
     public Server findServer() {
         Server bestServer = null;
@@ -140,7 +142,7 @@ public class Bot {
 
 
 
-    public Bot(String username) {
+    public Bot(String username, String type) {
         serverNodes = new ArrayList<Node>();
         serverNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
         serverNodes.add(new Node(2, "127.0.0.1", 1101, 1201));
@@ -150,14 +152,14 @@ public class Bot {
         player = null;
         arena = new Arena();
 
-        Random rand = new Random();
-
         try {
-            player = server.login(username,"");
+            player = server.login(username,"",type);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+    }
 
+    public void run() {
         boolean run = true;
         try {
             while (run){

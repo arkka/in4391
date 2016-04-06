@@ -165,7 +165,7 @@ public class GameClient {
     public void login(String username, String password) {
         consoleLog("[System] Authenticating to server as `"+ username +"`...");
         try {
-            player = server.login( username, "");
+            player = server.login( username, "", "Knight");
             if(player!=null) {
                 consoleLog("[System] Successfully logged in as `"+ username +"`");
                 updateArena();

@@ -189,7 +189,7 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public Player login(String username, String password) throws RemoteException {
+    public Player login(String username, String password, String type) throws RemoteException {
         Player player = new Player(username, password);
         if(true) {
             try {
@@ -199,10 +199,13 @@ public class ServerImpl implements Server {
 
                 // TO-DO SEND to WORKER via EventQueue
 //                Knight knight = new Knight(player.getUsername());
-                Knight knight = new Knight(player.getUsername());
-                knight = (Knight) arena.spawnUnit(knight);
-                player.setUnit(knight);
-                System.out.println("[System] "+knight.getFullName()+" spawned at coord (" + knight.getX() + "," + knight.getY() + ") of the arena.");
+                Unit unit = null;
+                if(type.equals("Dragon")) {
+                    unit = new Dragon(player.getUsername());
+                } else unit = new Knight(player.getUsername());
+
+                player.setUnit(unit);
+                System.out.println("[System] "+unit.getFullName()+" spawned at coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
 
                 // Notify others
                 playerEvent.send(playerEvent.LOGGED_IN,player);
