@@ -191,10 +191,10 @@ public class ServerImpl implements Server {
     public Player login(String username, String password) throws RemoteException {
         Player player = new Player(username, password);
         if(true) {
-            player.setAuthenticated(true);
-            System.out.println("[System] Player `" + player + "` has logged in.");
             try {
+                player.setAuthenticated(true);
                 player.setHostAddress(RemoteServer.getClientHost());
+                System.out.println("[System] Player " + player + " has logged in.");
 
                 // TO-DO SEND to WORKER via EventQueue
                 Knight knight = new Knight(player.getUsername());
@@ -217,8 +217,8 @@ public class ServerImpl implements Server {
 
     @Override
     public void logout(Player p) throws RemoteException {
-        deregisterPlayer(p);
         arena.removeUnit(p.getUnit());
+        deregisterPlayer(p);
         System.out.println("[System] Player `" + p + "` has logged out.");
     }
 
@@ -227,6 +227,7 @@ public class ServerImpl implements Server {
         return arena;
     }
 
+    @Override
     public void moveUnit(Unit u, int x, int y) throws RemoteException {
         arena.moveUnit(u, x, y);
     }

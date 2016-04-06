@@ -15,7 +15,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class GameClient {
-    private static Integer GAME_SPEED = 100; //ms
+    private static Integer GAME_SPEED = 10; //ms
 
     public ArrayList<Node> serverNodes;
     public Server server;
@@ -198,6 +198,9 @@ public class GameClient {
                     while(server!=null) {
                         //consoleLog("[System] Sync arena map.");
                         arena = server.getArena();
+                        arena.syncUnits();
+                        player.setUnit(arena.getMyUnit(player));
+
                         renderArena();
                         Thread.sleep(GAME_SPEED);
                     }

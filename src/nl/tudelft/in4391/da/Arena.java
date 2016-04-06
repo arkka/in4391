@@ -15,6 +15,31 @@ public class Arena implements Serializable {
     public ArrayList<Unit> knights = new ArrayList<Unit>();
     public ArrayList<Unit> dragons = new ArrayList<Unit>();
 
+    // Get player Unit
+    public Unit getMyUnit(Player p){
+        Unit u = p.getUnit();
+        int i = units.indexOf(u);
+        return units.get(i);
+    }
+
+    // Sync data
+    public void syncUnits(){
+        units = new ArrayList<Unit>();
+        knights = new ArrayList<Unit>();
+        dragons = new ArrayList<Unit>();
+
+        for(int i=0;i<25;i++) {
+            for (int j = 0; j < 25; j++) {
+                Unit u = unitCell[i][j];
+                if(u!=null) {
+                    units.add(u);
+                    if(u.getType().equals("Dragon")) dragons.add(u);
+                    else knights.add(u);
+                }
+            }
+        }
+    }
+
     // Spawn unit on random location
     // Spawn unit with random hit points and attack points
     public synchronized Unit spawnUnit(Unit unit) {
@@ -31,24 +56,20 @@ public class Arena implements Serializable {
     }
 
     public synchronized Unit moveUnit(Unit unit, int x, int y) {
-        // Not a new spawn unit?
-        if((unit.getX()!=null)&&!(unit.getY()!=null)) {
-            // Check boundaries
-            if ((x >= 0 && x < 25) && (y >= 0 && y < 25)) {
-                unit.setCoord(x,y);
-            } else {
-                // Out of bound
-            }
+        Integer last_x = unit.getX();
+        Integer last_y = unit.getY();
 
+        // Out of boundary?
+        if ((x < 0 )|| (x > 25) || (y < 0) || (y > 25)) return unit;
 
-            // Remove previous cell step
+        // Another unit exist?
+        if (unitCell[x][y] != null) return unit;
 
-        }
+        unit.setCoord(x,y);
+        unitCell[x][y] = unit;
 
-        // Check occupied cell
-        if (unitCell[x][y] == null) {
-            unitCell[x][y] = unit;
-        }
+        // last step detected?
+        if((last_x!=null)&&(last_y!=null)) unitCell[last_x][last_y] = null;
 
         return unit;
     }
