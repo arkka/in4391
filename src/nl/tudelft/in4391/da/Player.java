@@ -26,7 +26,7 @@ public class Player implements Serializable {
         this.id = UUID.randomUUID();
         this.username = username;
     }
-    public UUID getID() {
+    public UUID getId() {
         return id;
     }
 
@@ -68,7 +68,7 @@ public class Player implements Serializable {
         }
 
         Player that = (Player) c;
-        return this.getID().equals(that.getID());
+        return this.getId().equals(that.getId());
     }
 
 

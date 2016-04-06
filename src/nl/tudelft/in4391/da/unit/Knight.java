@@ -8,7 +8,7 @@ import nl.tudelft.in4391.da.Server;
  * Created by arkkadhiratara on 3/22/16.
  */
 
-public class Knight extends Unit implements Runnable {
+public class Knight extends Unit  {
 
     // Minimum and maximum delay between turns
     public static final int MIN_TIME_BETWEEN_TURNS = 2;
@@ -36,29 +36,29 @@ public class Knight extends Unit implements Runnable {
 
 
         // Create thread for each knight
-        runnerThread = new Thread(this,name);
-        runnerThread.start();
+//        runnerThread = new Thread(this,name);
+//        runnerThread.start();
 
     }
 
-    public void run() {
-
-        this.running = true;
-
-        while (GameState.getRunningState() && this.running) {
-
-            try {
-                Thread.currentThread().sleep((int) (timeBetweenTurns * 1000));
-
-                System.out.println(name);
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-        }
-    }
+//    public void run() {
+//
+//        this.running = true;
+//
+//        while (GameState.getRunningState() && this.running) {
+//
+//            try {
+//                Thread.currentThread().sleep((int) (timeBetweenTurns * 1000));
+//
+//                System.out.println(name);
+//
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//        }
+//    }
 
 
 }

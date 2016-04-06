@@ -80,9 +80,7 @@ public class Unit implements Serializable {
         return x;
     }
 
-    public Integer getY() {
-        return y;
-    }
+    public Integer getY() { return y; }
 
     public int getTurnDelay(){
         return timeBetweenTurns;
@@ -128,5 +126,14 @@ public class Unit implements Serializable {
 
     public String getType() {
         return this.type;
+    }
+
+    public boolean equals(Object c) {
+        if(!(c instanceof Unit)) {
+            return false;
+        }
+
+        Unit that = (Unit) c;
+        return this.getId().equals(that.getId());
     }
 }

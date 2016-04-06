@@ -2,6 +2,7 @@ package nl.tudelft.in4391.da;
 
 import nl.tudelft.in4391.da.unit.Dragon;
 import nl.tudelft.in4391.da.unit.Knight;
+import nl.tudelft.in4391.da.unit.Unit;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -191,10 +192,10 @@ public class ServerImpl implements Server {
     public Player login(String username, String password) throws RemoteException {
         Player player = new Player(username, password);
         if(true) {
-            player.setAuthenticated(true);
-            System.out.println("[System] Player `" + player + "` has logged in.");
             try {
+                player.setAuthenticated(true);
                 player.setHostAddress(RemoteServer.getClientHost());
+                System.out.println("[System] Player " + player + " has logged in.");
 
                 // TO-DO SEND to WORKER via EventQueue
 //                Knight knight = new Knight(player.getUsername());
@@ -218,8 +219,8 @@ public class ServerImpl implements Server {
 
     @Override
     public void logout(Player p) throws RemoteException {
-        deregisterPlayer(p);
         arena.removeUnit(p.getUnit());
+        deregisterPlayer(p);
         System.out.println("[System] Player `" + p + "` has logged out.");
     }
 
@@ -241,10 +242,8 @@ public class ServerImpl implements Server {
         }
     }
 
-    public void setKnight(Knight knight){
-        System.out.println("[System] Releasing dragons to the arena.");
-        // Release dragons to arena
-        arena.spawnUnit(knight);
-        System.out.println("[System] " + knight.getName() + " is active with " + knight.getHitPoints() + " HP and " + knight.getAttackPoints() + " AP.");
+    @Override
+    public void moveUnit(Unit u, int x, int y) throws RemoteException {
+        arena.moveUnit(u, x, y);
     }
 }
