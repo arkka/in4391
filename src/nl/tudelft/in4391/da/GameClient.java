@@ -80,7 +80,8 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -115,7 +116,8 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -151,7 +153,8 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -186,7 +189,8 @@ public class GameClient {
                         }
                     }
                 } catch (RemoteException re) {
-                    re.printStackTrace();
+                    //re.printStackTrace();
+                    server = findServer();
                 }
             }
         });
