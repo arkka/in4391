@@ -204,6 +204,8 @@ public class ServerImpl implements Server {
                     unit = new Dragon(player.getUsername());
                 } else unit = new Knight(player.getUsername());
 
+                arena.spawnUnit(unit);
+
                 player.setUnit(unit);
                 System.out.println("[System] "+unit.getFullName()+" spawned at coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
 
