@@ -53,9 +53,6 @@ public class GameServer {
                         e.printStackTrace();
                     }
                     break;
-                case "dragons":
-                    server.releaseDragons(25);
-                    break;
                 case "exit":
                     System.exit(-1);
             }

@@ -18,8 +18,6 @@ public interface Server extends Remote {
     // Arena
     public Arena getArena() throws RemoteException;
 
-    public void releaseDragons(int num)  throws RemoteException;
-
     // Unit
     public void moveUnit(Unit unit, int x, int y) throws RemoteException;
 

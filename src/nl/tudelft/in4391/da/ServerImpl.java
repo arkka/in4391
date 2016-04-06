@@ -77,7 +77,9 @@ public class ServerImpl implements Server {
 
             @Override
             public void onLoggedOut(Player p) {
+                arena.removeUnit(p.getUnit());
                 deregisterPlayer(p);
+                System.out.println("[System] Player `" + p + "` has logged out.");
             }
         };
 
@@ -197,7 +199,6 @@ public class ServerImpl implements Server {
                 player.setHostAddress(RemoteServer.getClientHost());
                 System.out.println("[System] Player " + player + " has logged in.");
 
-                // TO-DO SEND to WORKER via EventQueue
                 Unit unit = null;
                 if(type.equals("Dragon")) {
                     unit = new Dragon(player.getUsername());
@@ -207,7 +208,7 @@ public class ServerImpl implements Server {
                 player.setUnit(unit);
                 System.out.println("[System] "+unit.getFullName()+" spawned at coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
 
-                // Notify others
+                // Notify other masters
                 playerEvent.send(playerEvent.LOGGED_IN,player);
 
             } catch (ServerNotActiveException e) {
@@ -222,9 +223,8 @@ public class ServerImpl implements Server {
 
     @Override
     public void logout(Player p) throws RemoteException {
-        arena.removeUnit(p.getUnit());
-        deregisterPlayer(p);
-        System.out.println("[System] Player `" + p + "` has logged out.");
+        // Notify other masters
+        playerEvent.send(playerEvent.LOGGED_OUT,p);
     }
 
     @Override
@@ -232,21 +232,11 @@ public class ServerImpl implements Server {
         return arena;
     }
 
-    public void releaseDragons(int num){
-        System.out.println("[System] Releasing dragons to the arena.");
-        // Release dragons to arena
-        int idragon = 1;
-
-        while (arena.getDragons().isEmpty() || arena.getDragons().size() < num) {
-            Dragon dragon = new Dragon("Dragon-"+idragon);
-            arena.spawnUnit(dragon);
-            idragon++;
-            System.out.println("[System] " + dragon.getName() + " is active with " + dragon.getHitPoints() + " HP and " + dragon.getAttackPoints() + " AP.");
-        }
-    }
+    // EventQueue to Worker
 
     @Override
     public void moveUnit(Unit u, int x, int y) throws RemoteException {
+        // Notify other masters
         arena.moveUnit(u, x, y);
     }
 }
