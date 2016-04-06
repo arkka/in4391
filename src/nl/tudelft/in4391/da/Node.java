@@ -17,6 +17,7 @@ public class Node implements Serializable {
     private Integer registryPort;
     private Integer callbackPort;
     private Integer socketPort;
+    private long latency;
 
     Node(Integer id, String hostAddress, Integer registryPort, Integer callbackPort) {
         this.id = id;
@@ -64,6 +65,14 @@ public class Node implements Serializable {
 
         Node that = (Node) c;
         return this.getID().equals(that.getID());
+    }
+
+    public long getLatency() {
+        return latency;
+    }
+
+    public void setLatency(long latency) {
+        this.latency = latency;
     }
 }
 

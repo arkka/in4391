@@ -10,6 +10,7 @@ import java.util.ArrayList;
  * Created by arkkadhiratara on 3/5/16.
  */
 public interface Server extends Remote {
+    public boolean ping() throws RemoteException;
     public void register(Node node) throws RemoteException;
     public Boolean connect() throws RemoteException;
     public Player login(String username, String password) throws RemoteException;

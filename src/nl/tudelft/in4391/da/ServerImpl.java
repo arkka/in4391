@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static java.rmi.server.RemoteServer.getClientHost;
+
 /**
  * Created by arkkadhiratara on 3/5/16.
  */
@@ -224,7 +226,7 @@ public class ServerImpl implements Server {
             return remoteServer;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return remoteServer;
     }
@@ -337,6 +339,16 @@ public class ServerImpl implements Server {
 	}
 
     // REMOTE FUNCTIONS
+    @Override
+    public boolean ping() throws RemoteException {
+        try {
+            System.out.println("[System] Incoming ping from "+getClientHost());
+        } catch (ServerNotActiveException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
     @Override
     public void register(Node remoteNode) {
         addActiveNode(remoteNode);
