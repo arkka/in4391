@@ -17,20 +17,28 @@ public class Arena implements Serializable {
 
     // Spawn unit on random location
     // Spawn unit with random hit points and attack points
-    public synchronized Unit spawnUnit(Unit unit) {
+    public Unit spawnUnit(Unit unit) {
         Random rand = new Random();
-        Integer x = 0;
-        Integer y = 0;
+        Integer x;
+        Integer y;
 
-        while((unit.getX()==null)&&(unit.getY()==null)) {
+        while((unit.getX()==null)||(unit.getY()==null)) {
             x = rand.nextInt(25);
             y = rand.nextInt(25);
-            unit = moveUnit(unit, x, y );
+
+	        if(unitCell[x][y] == null) {
+		        unit.setCoord(x,y);
+		        addUnit(unit);
+		        if(unit.getType().equals("Dragon")) addDragon(unit);
+		        else addKnight(unit);
+	        }
+
         }
         return unit;
     }
 
-    public synchronized Unit moveUnit(Unit unit, int x, int y) {
+    // Move unit to the next x and y
+    public Unit moveUnit(Unit unit, int x, int y) {
         // Not a new spawn unit?
         if(!(unit.getX()==null)&&!(unit.getY()==null)) {
             // Check boundary
@@ -78,7 +86,7 @@ public class Arena implements Serializable {
     public Unit actionToSurroundingUnit(Unit unit, int x, int y) {
         Unit adjacentUnit = unitCell[x][y];
 
-        if (adjacentUnit.getType().equals("knight"))
+        if (adjacentUnit.getType().equals("Knight"))
         {
             // heal
             unit.healPlayer(adjacentUnit);
@@ -122,7 +130,7 @@ public class Arena implements Serializable {
             for(int i=0;i<25;i++) {
                 Unit unit = unitCell[i][j];
                 if(unit!=null) {
-                    if(unit.getType().equals("dragon")) System.out.print("D");
+                    if(unit.getType().equals("Dragon")) System.out.print("D");
                     else System.out.print("K");
                 } else {
                     System.out.print(" ");

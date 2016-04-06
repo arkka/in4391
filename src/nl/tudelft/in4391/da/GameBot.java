@@ -17,6 +17,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class GameBot {
@@ -25,7 +26,7 @@ public class GameBot {
 
 	public ArrayList<Node> serverNodes;
 
-	public static final int MIN_PLAYER_COUNT = 5;
+	public static final int MIN_PLAYER_COUNT = 2;
 	public static final int MAX_PLAYER_COUNT = 100;
 	public static final int DRAGON_COUNT = 20;
 
@@ -98,6 +99,7 @@ public class GameBot {
 
 	public void login(String username, String password) {
 		consoleLog("[System] Authenticating to server as `"+ username +"`...");
+		if (server==null) findServer();
 		try {
 			player = server.login( username, "");
 			if(player!=null) {
@@ -106,7 +108,7 @@ public class GameBot {
 			}
 		} catch (RemoteException re) {
 			re.printStackTrace();
-			consoleLog("[System] Authentication as "+ username +" failed.");
+			consoleLog("[System] Authentication as " + username + " failed.");
 		}
 	}
 
@@ -243,73 +245,52 @@ public class GameBot {
 
 	public static void main(String[] args)
 	{
-		// Randomize player count
-		playerCount = (int)((MAX_PLAYER_COUNT - MIN_PLAYER_COUNT) * Math.random() + MIN_PLAYER_COUNT);
+		GameBot bot = new GameBot();
+		Random rand = new Random();
 
-		for ( int i =0 ; i < MIN_PLAYER_COUNT; i++){
+		try {
+			bot.server.login("a","");
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		boolean run = true;
 
-			final int nameInt = i;
 
-			String username = "sukma" + i;
 
-			new Thread(new Runnable() {
-				public void run() {
-					new Dragon(username);
+			try {
+				while (run){
+					bot.arena = bot.server.getArena();
+//					bot.arena.syncUnits();
+					bot.player.setUnit(bot.arena.getMyUnit(bot.player));
+
+
+					Integer x = rand.nextInt(3) + 1;
+					Integer y = rand.nextInt(3) + 1;
+
+					bot.server.moveUnit(bot.player.getUnit(), x, y);
+
+					Thread.sleep(GAME_SPEED);
 				}
-			}).start();
-
-		}
-
-
-
-	}
-
-	private void createUIComponents() {
-		// TODO: place custom component creation code here
-		arenaPanel = new JPanel(new GridLayout(0, 25));
-		arenaPanel.setBorder(new LineBorder(Color.BLACK));
-
-		for(int j=0;j<25;j++) {
-			for(int i=0;i<25;i++) {
-				JLabel cellLabel =  new JLabel(" ");
-				cellLabel.setBorder(new LineBorder(Color.GRAY));
-				arenaPanel.add(cellLabel);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		}
+
+		// Randomize player count
+//		playerCount = (int)((MAX_PLAYER_COUNT - MIN_PLAYER_COUNT) * Math.random() + MIN_PLAYER_COUNT);
+//		for ( int i =0 ; i < MIN_PLAYER_COUNT; i++){
+//			new Thread(new Runnable() {
+//				public void run() {
+//
+//				}
+//			}).start();
+//			final int nameInt = i;
+//			String username = "sukma" + i;
+//		}
+
+
 	}
+
 
 }
-
-//class ThreadPlayer extends Thread {
-//	public ThreadPlayer(String str) {
-//		super(str);
-//	}
-//
-//	public void run() {
-//
-//		GameBot bot = new GameBot();
-//
-//		// Connect to server
-//		bot.findAndConnectServer();
-//		bot.login(getName(), "");
-//
-//		bot.gameRunning = true;
-//
-//		Player player = bot.player;
-//		Server server = bot.server;
-//		Unit unit = player.getUnit();
-//
-//		while(bot.gameRunning) {
-//			try {
-//				/* Sleep while the dragon is considering its next move */
-//				Thread.currentThread().sleep((int) (unit.getTurnDelay() * 1000 * GAME_SPEED));
-//
-//
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//
-//	}
-//
-//}

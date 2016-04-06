@@ -1,5 +1,8 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Dragon;
+import nl.tudelft.in4391.da.unit.Knight;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -14,4 +17,7 @@ public interface Server extends Remote {
 
     // Arena
     public Arena getArena() throws RemoteException;
+
+    public void releaseDragons(int num)  throws RemoteException;
+    public void setKnight(Knight knight) throws RemoteException;
 }

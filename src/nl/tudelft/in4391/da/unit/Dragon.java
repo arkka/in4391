@@ -6,7 +6,7 @@ import nl.tudelft.in4391.da.GameState;
  * Created by arkkadhiratara on 3/22/16.
  */
 
-public class Dragon extends Unit implements Runnable {
+public class Dragon extends Unit implements Runnable{
 
     // The minimum and maximum amount of hitpoints that a particular dragon starts with
     public static final int MIN_HITPOINTS = 50;
@@ -28,6 +28,7 @@ public class Dragon extends Unit implements Runnable {
         // Create thread for each dragon
         runnerThread = new Thread(this, name);
         runnerThread.start();
+
     }
 
     public void run() {
@@ -36,13 +37,11 @@ public class Dragon extends Unit implements Runnable {
 
         while (GameState.getRunningState() && this.running){
             try {
-                Thread.currentThread().sleep((int)(timeBetweenTurns * 500));
+                Thread.currentThread().sleep((int)(timeBetweenTurns * 1000));
 
-                System.out.println(getName() + "a");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
     }
 }

@@ -8,7 +8,7 @@ import nl.tudelft.in4391.da.Server;
  * Created by arkkadhiratara on 3/22/16.
  */
 
-public class Knight extends Unit {
+public class Knight extends Unit implements Runnable {
 
     // Minimum and maximum delay between turns
     public static final int MIN_TIME_BETWEEN_TURNS = 2;
@@ -22,7 +22,7 @@ public class Knight extends Unit {
     public static final int MAX_ATTACKPOINTS = 10;
 
     public Knight(String name) {
-        super(name,"knight");
+        super(name,"Knight");
 
         // Initialize hitpoints and attackpoints for each Knight
         this.hitPoints = (int) (Math.random() * (MAX_HITPOINTS - MIN_HITPOINTS) + MIN_HITPOINTS);
@@ -36,39 +36,29 @@ public class Knight extends Unit {
 
 
         // Create thread for each knight
-//        runnerThread = new Thread(name);
-//        runnerThread.start();
-//
-//        // Check thread running or not
-//        if (runnerThread.isAlive()) {
-//            System.out.println("Starting " +  name );
-//        }
+        runnerThread = new Thread(this,name);
+        runnerThread.start();
 
     }
 
-//    public void run() {
-//
-//        GameBot bot = new GameBot();
-//
-//        this.running = true;
-//
-//        // Connect to server
-//        bot.login(getName(), "");
-//
-//        System.out.println("help" + name);
-//
-//        while (GameState.getRunningState() && this.running) {
-//
-//            try {
-//                Thread.currentThread().sleep((int) (timeBetweenTurns * 500));
-//
-//                System.out.println("help me" + getName());
-//
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//        }
-//    }
+    public void run() {
+
+        this.running = true;
+
+        while (GameState.getRunningState() && this.running) {
+
+            try {
+                Thread.currentThread().sleep((int) (timeBetweenTurns * 1000));
+
+                System.out.println(name);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
+
 }
