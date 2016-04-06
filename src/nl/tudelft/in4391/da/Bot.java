@@ -1,5 +1,6 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Dragon;
 import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
@@ -160,9 +161,9 @@ public class Bot extends Thread {
 
 
     public void run() {
-        boolean run = true;
+        gameRunning = true;
         try {
-            while (run && GameState.getRunningState()){
+            while (gameRunning && GameState.getRunningState()){
 
                 Thread.sleep(GAME_SPEED + TURN_DELAY);
 
@@ -176,14 +177,16 @@ public class Bot extends Thread {
                 if (unit.getHitPoints() <= 0)
                     break;
 
-                // Get next movement
+                // Get surrounding
                 Integer x = rand.nextInt(1 + 1 + 1) - 1;
                 Integer y = rand.nextInt(1 + 1 + 1) - 1;
 
+                if (unit instanceof Dragon) {
+                    
 
+                } else { // Knight
 
-                if (unit instanceof Knight) {
-                    server.moveUnit(player.getUnit(), player.getUnit().getX() + x, player.getUnit().getY() + y);
+                    server.moveUnit(unit, unit.getX() + x, unit.getY() + y);
                 }
 
 
