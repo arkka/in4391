@@ -89,8 +89,13 @@ public class ServerImpl implements Server {
          */
         unitEvent = new UnitEvent(node) {
             @Override
+            public void onMove(Unit u) {
+                System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
+            }
+
+            @Override
             public void onAttack(Unit s, Unit t) {
-                System.out.println("[System] "+s.getFullName()+" attack "+ t.getFullName());
+                System.out.println("[System] " + s.getFullName() + " attack " + t.getFullName() + " to " + t.getHitPoints() + "/" + t.getMaxHitPoints());
             }
 
             @Override
@@ -151,8 +156,6 @@ public class ServerImpl implements Server {
     public ArrayList<Player> getPlayers() {
         return players;
     }
-
-
 
     public void initRegistry(){
         System.out.println("[System] Initialize remote registry.");
@@ -266,6 +269,8 @@ public class ServerImpl implements Server {
     @Override
     public void moveUnit(Unit u, int x, int y) throws RemoteException {
         arena.moveUnit(u, x, y);
+
+        unitEvent.send(unitEvent.UNIT_MOVE, u);
     }
 
     @Override
@@ -276,6 +281,7 @@ public class ServerImpl implements Server {
     @Override
     public void attackUnit(Unit source, Unit target) throws RemoteException {
         arena.attackUnit(source, target);
+
         ArrayList<Unit> units = new ArrayList<Unit>();
         units.add(source);
         units.add(target);

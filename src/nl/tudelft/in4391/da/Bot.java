@@ -22,6 +22,8 @@ public class Bot extends Thread {
     public Arena arena;
     public Player player;
 
+    public Unit adjacentUnit;
+
     public boolean gameRunning;
 	public boolean foundUnit;
 
@@ -98,10 +100,10 @@ public class Bot extends Thread {
 		Integer x = rand.nextInt(3) - 1;
 		Integer y = rand.nextInt(3) - 1;
 
-		// Random surrounding 2
+		// Random surrounding 2 vertical horizontal
 		// Range (-2,2)
-//		Integer x2 = rand.nextInt(4) - 2;
-//		Integer y2 = rand.nextInt(4) - 2;
+		Integer x2 = rand.nextInt(4) - 2;
+		Integer y2 = rand.nextInt(4) - 2;
 
 		foundUnit = false;
 
@@ -111,14 +113,48 @@ public class Bot extends Thread {
 			// When not out of bound
 			while (!foundUnit && (x != 0 && y != 0 ) && (sourceX + x < 25 || sourceX + x >= 0) && (sourceY + y < 25 || sourceY + y >= 0) ){
 				adjacentUnit = arena.unitCell[sourceX + x][sourceY + y];
+
+                if (adjacentUnit == null){ //Check horizontal and vertical 2 square
+                    Integer direction = rand.nextInt(2);
+                    switch(direction){
+                        case 0:
+                            //horizontal
+                            adjacentUnit = arena.unitCell[sourceX + x2][sourceY];
+                            break;
+                        case 1:
+                            //vertical
+                            adjacentUnit = arena.unitCell[sourceX][sourceY + y2];
+                            break;
+                    }
+
+                    if (adjacentUnit == null && unit instanceof Knight){
+                        // Random surrounding 2 vertical horizontal
+                        // Range (-2,2)
+                        Integer x5 = rand.nextInt(10) - 5;
+                        Integer y5 = rand.nextInt(10) - 5;
+
+                        Integer direction2 = rand.nextInt(2);
+                        switch(direction2){
+                            case 0:
+                                //horizontal
+                                adjacentUnit = arena.unitCell[sourceX + x5][sourceY];
+                                break;
+                            case 1:
+                                //vertical
+                                adjacentUnit = arena.unitCell[sourceX][sourceY + y5];
+                                break;
+                        }
+                    }
+
+                }
 				foundUnit = true;
 			}
 
 		} catch (ArrayIndexOutOfBoundsException e) {
 //			System.out.println("Array is out of Bounds"+e);
 //			System.out.println("Scan other direction");
-			x = rand.nextInt(1 + 1 + 1) - 1;
-			y = rand.nextInt(1 + 1 + 1) - 1;
+			x = rand.nextInt(3) - 1;
+			y = rand.nextInt(3) - 1;
 			foundUnit = false;
 		}
 
@@ -148,16 +184,20 @@ public class Bot extends Thread {
 	            Integer y = rand.nextInt(3) - 1;
 
                 if (unit instanceof Dragon) {
+                    adjacentUnit = scanSurrounding(unit, arena);
+
+                    if (adjacentUnit != null ){
+                        server.attackUnit(unit, adjacentUnit);
+                    }
 
                 } else { // Knight
-                    Unit adjacentUnit = scanSurrounding(unit, arena);
+                    adjacentUnit = scanSurrounding(unit, arena);
 
                     if (adjacentUnit == null ){
 	                    // Check whether random 0 for both axis
 	                    // Move accordingly
 	                    if (x == 0 || y == 0) {
 		                    server.moveUnit(unit, unit.getX() + x , unit.getY() + y);
-//		                    System.out.println("test 1");
 	                    } else{
 		                    // Move horizontally or vertically 1 block
 		                    // When random value is not zero for x y
@@ -166,12 +206,10 @@ public class Bot extends Thread {
 			                    case 0:
 				                    //horizontal
 				                    server.moveUnit(unit, unit.getX() + x , unit.getY());
-//				                    System.out.println("horizontal");
 				                    break;
 			                    case 1:
 				                    //vertical
 				                    server.moveUnit(unit, unit.getX(), unit.getY() + y);
-//				                    System.out.println("vertical");
 				                    break;
 		                    }
 	                    }
@@ -179,8 +217,12 @@ public class Bot extends Thread {
                     } else {
 	                    // Adjacent Unit detected
 	                    // Do action
-                        server.attackUnit(unit, adjacentUnit);
-//	                    System.out.println("ACTIONNNN");
+                        if (adjacentUnit instanceof Dragon){
+                            server.attackUnit(unit, adjacentUnit);
+                        } else {
+                            server.healUnit(unit, adjacentUnit);
+                        }
+
                     }
                 }
 

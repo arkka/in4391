@@ -10,10 +10,11 @@ import java.util.ArrayList;
 /**
  * Created by arkkadhiratara on 4/5/16.
  */
-public class UnitEvent  extends BaseEvent  {
+public class UnitEvent extends BaseEvent  {
 
-	public static final Integer UNIT_ATTACK = 400;
-	public static final Integer UNIT_HEAL = 401;
+	public static final Integer UNIT_MOVE = 400;
+	public static final Integer UNIT_ATTACK = 401;
+	public static final Integer UNIT_HEAL = 402;
 
 	public UnitEvent(Node node) {
 		super(node);
@@ -23,13 +24,22 @@ public class UnitEvent  extends BaseEvent  {
 	@Override
 	public void onEvent(EventMessage em) {
 		if(em.getObject() instanceof Unit) {
-			ArrayList<Unit> u = (ArrayList<Unit>) em.getObject();
+			Unit u = (Unit) em.getObject();
+			if (em.getCode() == UNIT_MOVE) {
+				onMove(u);
+			}
+		} else if ( em.getObject() instanceof ArrayList ) {
+			ArrayList<Unit> us = (ArrayList<Unit>) em.getObject();
 			if (em.getCode() == UNIT_ATTACK) {
-				onAttack(u.get(0), u.get(1));
+				onAttack(us.get(0),  us.get(1));
 			} else if (em.getCode() == UNIT_HEAL) {
-				onHeal(u.get(0),  u.get(1));
+				onHeal(us.get(0),  us.get(1));
 			}
 		}
+	}
+
+	public void onMove(Unit u){
+
 	}
 
 	public void onAttack(Unit u, Unit t){

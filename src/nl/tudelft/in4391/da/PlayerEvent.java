@@ -7,8 +7,6 @@ public class PlayerEvent extends BaseEvent  {
     public static final Integer LOGGED_IN = 200;
     public static final Integer LOGGED_OUT = 201;
 
-    public static final Integer UNIT_ATTACK = 400;
-    public static final Integer UNIT_HEAL = 401;
 
     public PlayerEvent(Node node) {
         super(node);
@@ -23,10 +21,6 @@ public class PlayerEvent extends BaseEvent  {
                 onLoggedIn(p);
             } else if (em.getCode() == LOGGED_OUT) {
                 onLoggedOut(p);
-            } else if (em.getCode() == UNIT_ATTACK) {
-                onAttack(p);
-            } else if (em.getCode() == UNIT_HEAL) {
-                onHeal(p);
             }
         }
     }
@@ -36,14 +30,6 @@ public class PlayerEvent extends BaseEvent  {
     }
 
     public void onLoggedOut(Player player){
-
-    }
-
-    public void onAttack(Player player){
-
-    }
-
-    public void onHeal(Player player){
 
     }
 
