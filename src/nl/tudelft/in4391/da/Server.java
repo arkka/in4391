@@ -17,13 +17,13 @@ public interface Server extends Remote {
 
     // Arena
     public Arena getArena() throws RemoteException;
+    public void setArena(Arena arena) throws RemoteException;
 
-    public void releaseDragons(int num)  throws RemoteException;
+    // Worker Job
+    public EventMessage fetchEvent() throws RemoteException;
 
     // Unit
     public void moveUnit(Unit unit, int x, int y) throws RemoteException;
-
-    public void actionUnit(Unit source, Unit target) throws RemoteException;
 
     public void attackUnit(Unit source, Unit target) throws RemoteException;
 

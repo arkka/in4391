@@ -11,6 +11,7 @@ import java.rmi.server.RemoteServer;
 import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import static java.rmi.server.RemoteServer.getClientHost;
 
@@ -27,6 +28,9 @@ public class ServerImpl implements Server {
     private UnitEvent unitEvent;
 
     private Arena arena = new Arena();
+
+    private EventQueue eventQueue = new EventQueue();
+
 
     public ServerImpl(Node node) {
         this.currentNode = node;
@@ -78,7 +82,9 @@ public class ServerImpl implements Server {
 
             @Override
             public void onLoggedOut(Player p) {
+                arena.removeUnit(p.getUnit());
                 deregisterPlayer(p);
+                System.out.println("[System] Player `" + p + "` has logged out.");
             }
 
         };
@@ -158,9 +164,17 @@ public class ServerImpl implements Server {
         }
     }
 
+    public synchronized void syncArena(Arena arena) {
+        this.arena = arena;
+    }
+
     public ArrayList<Player> getPlayers() {
         return players;
     }
+
+    public EventQueue getEventQueue() { return eventQueue; }
+    public synchronized void enqueue(EventMessage em) { eventQueue.enqueue(em); }
+    public synchronized EventMessage dequeue() { return (EventMessage) eventQueue.dequeue(); }
 
     public void initRegistry(){
         System.out.println("[System] Initialize remote registry.");
@@ -223,7 +237,6 @@ public class ServerImpl implements Server {
                 player.setHostAddress(RemoteServer.getClientHost());
                 System.out.println("[System] Player " + player + " has logged in.");
 
-                // TO-DO SEND to WORKER via EventQueue
                 Unit unit = null;
                 if(type.equals("Dragon")) {
                     unit = new Dragon(player.getUsername());
@@ -233,7 +246,7 @@ public class ServerImpl implements Server {
                 player.setUnit(unit);
                 System.out.println("[System] "+unit.getFullName()+" spawned at coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
 
-                // Notify others
+                // Notify other masters
                 playerEvent.send(playerEvent.LOGGED_IN,player);
 
             } catch (ServerNotActiveException e) {
@@ -248,9 +261,8 @@ public class ServerImpl implements Server {
 
     @Override
     public void logout(Player p) throws RemoteException {
-        arena.removeUnit(p.getUnit());
-        deregisterPlayer(p);
-        System.out.println("[System] Player `" + p + "` has logged out.");
+        // Notify other masters
+        playerEvent.send(playerEvent.LOGGED_OUT,p);
     }
 
     @Override
@@ -258,52 +270,58 @@ public class ServerImpl implements Server {
         return arena;
     }
 
-    public void releaseDragons(int num){
-        System.out.println("[System] Releasing dragons to the arena.");
-        // Release dragons to arena
-        int idragon = 1;
-
-        while (arena.getDragons().isEmpty() || arena.getDragons().size() < num) {
-            Dragon dragon = new Dragon("Dragon-"+idragon);
-            arena.spawnUnit(dragon);
-            idragon++;
-            System.out.println("[System] " + dragon.getName() + " is active with " + dragon.getHitPoints() + " HP and " + dragon.getAttackPoints() + " AP.");
-        }
+    @Override
+    public void setArena(Arena arena) throws RemoteException {
+        syncArena(arena);
     }
+
+    @Override
+    public EventMessage fetchEvent() throws RemoteException {
+        return dequeue();
+    }
+
+    // EventQueue to Worker
 
     @Override
     public void moveUnit(Unit u, int x, int y) throws RemoteException {
-        arena.moveUnit(u, x, y);
+        // Notify other masters
+        //arena.moveUnit(u, x, y);
 
-        unitEvent.send(unitEvent.UNIT_MOVE, u);
-    }
+        //unitEvent.send(unitEvent.UNIT_MOVE, u);
 
-    @Override
-    public void actionUnit(Unit source, Unit target) throws RemoteException {
-        arena.actionUnit(source, target);
+        EventMessage em = new EventMessage(unitEvent.UNIT_MOVE, u);
+        eventQueue.enqueue(em);
     }
 
     @Override
     public void attackUnit(Unit source, Unit target) throws RemoteException {
-        arena.attackUnit(source, target);
+        //arena.attackUnit(source, target);
 
         ArrayList<Unit> units = new ArrayList<Unit>();
         units.add(source);
         units.add(target);
-        // Notify others
-        unitEvent.send(unitEvent.UNIT_ATTACK, units);
+
+        //// Notify others
+        //unitEvent.send(unitEvent.UNIT_ATTACK, units);
+
+        EventMessage em = new EventMessage(unitEvent.UNIT_ATTACK, units);
+        eventQueue.enqueue(em);
 
     }
 
     @Override
     public void healUnit(Unit source, Unit target) throws RemoteException {
-        arena.healUnit(source, target);
+        //arena.healUnit(source, target);
 
         ArrayList<Unit> units = new ArrayList<Unit>();
         units.add(source);
         units.add(target);
+
         // Notify others
-        unitEvent.send(unitEvent.UNIT_HEAL, units);
+        //unitEvent.send(unitEvent.UNIT_HEAL, units);
+
+        EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
+        eventQueue.enqueue(em);
     }
 
 }

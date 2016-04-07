@@ -53,8 +53,15 @@ public class GameServer {
                         e.printStackTrace();
                     }
                     break;
-                case "dragons":
-                    server.releaseDragons(25);
+
+                case "event":
+                case "events":
+                case "queue":
+                    System.out.println("\n[Event Queue: " + server.getEventQueue().size() + "]");
+                    for (Object o : server.getEventQueue()) {
+                        EventMessage em = (EventMessage) o;
+                        System.out.println("- " + em.getCode());
+                    }
                     break;
                 case "exit":
                     System.exit(-1);

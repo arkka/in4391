@@ -224,10 +224,27 @@ public class GameClient {
                 {
                     Unit unit = arena.unitCell[i][j];
                     if(unit!=null) {
-                        if(unit.getType().equals("Dragon"))  ((JLabel) component).setText("D");
-                        else  ((JLabel) component).setText("K");
+                        if(unit.getType().equals("Dragon"))  {
+                            ((JLabel) component).setToolTipText("Dragon ["+unit.getHitPoints()+"/"+unit.getMaxHitPoints()+"]");
+                            ((JLabel) component).setText("D");
+                            ((JLabel) component).setForeground(Color.WHITE);
+                            ((JLabel) component).setBackground(Color.RED);
+                        }
+                        else  {
+                            ((JLabel) component).setText("K");
+                            if(unit.equals(player.getUnit())) {
+                                ((JLabel) component).setForeground(Color.WHITE);
+                                ((JLabel) component).setBackground(Color.BLUE);
+                            } else {
+                                ((JLabel) component).setForeground(Color.BLACK);
+                                ((JLabel) component).setBackground(Color.GRAY);
+                            }
+                        }
+
                     } else {
                         ((JLabel) component).setText(" ");
+                        ((JLabel) component).setForeground(Color.WHITE);
+                        ((JLabel) component).setBackground(Color.WHITE);
                     }
                 }
                 cellIndex++;
@@ -261,6 +278,9 @@ public class GameClient {
         for(int j=0;j<25;j++) {
             for(int i=0;i<25;i++) {
                 JLabel cellLabel =  new JLabel(" ");
+                cellLabel.setHorizontalTextPosition(JLabel.CENTER);
+                cellLabel.setSize(10,10);
+                cellLabel.setOpaque(true);
                 cellLabel.setBorder(new LineBorder(Color.GRAY));
                 arenaPanel.add(cellLabel);
             }
