@@ -224,9 +224,8 @@ public class GameClient {
                 {
                     Unit unit = arena.unitCell[i][j];
                     if(unit!=null) {
-
-
                         if(unit.getType().equals("Dragon"))  {
+                            ((JLabel) component).setToolTipText("Dragon ["+unit.getHitPoints()+"/"+unit.getMaxHitPoints()+"]");
                             ((JLabel) component).setText("D");
                             ((JLabel) component).setForeground(Color.WHITE);
                             ((JLabel) component).setBackground(Color.RED);
