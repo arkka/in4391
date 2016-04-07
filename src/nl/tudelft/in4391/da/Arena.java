@@ -16,10 +16,15 @@ public class Arena implements Serializable {
     public ArrayList<Unit> dragons = new ArrayList<Unit>();
 
     // Get player Unit
-    public Unit getMyUnit(Player p){
-        Unit u = p.getUnit();
-        int i = units.indexOf(u);
-        return units.get(i);
+    public synchronized Unit getMyUnit(Player p){
+        Unit u = null;
+        int i = units.indexOf(p.getUnit());
+	    try {
+		    u = units.get(i);
+	    } catch(Exception e) {
+
+	    }
+        return u;
     }
 
     // Sync data
@@ -88,15 +93,6 @@ public class Arena implements Serializable {
         }
     }
 
-    public boolean checkSurrounding(Unit unit, int x, int y) {
-        if (unitCell[x][y] != null){
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
-
     // After check whether surrounding empty or not when moving
     // If not, check the type of unit
     // Do damage if dragon
@@ -117,15 +113,17 @@ public class Arena implements Serializable {
 
 	public synchronized void healUnit(Unit source, Unit target){
 		if ((Math.abs(source.getX() - target.getX()) <= 5) && (Math.abs(source.getY() - target.getY()) <= 6)){
-			if (target.getHitPoints() <= 0.5 * target.getMaxHitPoints() ){
-				target.setHitPoints(target.getHitPoints() + source.getHitPoints());
-			}
+			target.setHitPoints(target.getHitPoints() + source.getHitPoints());
+//			if (target.getHitPoints() <= 0.5 * target.getMaxHitPoints() ){
+//				target.setHitPoints(target.getHitPoints() + source.getHitPoints());
+//			}
 		}
 	}
 
 	public synchronized void attackUnit(Unit source, Unit target){
 		if ((Math.abs(source.getX() - target.getX()) <= 1) && (Math.abs(source.getY() - target.getY()) <= 1)){
 			target.setHitPoints(target.getHitPoints() - source.getHitPoints());
+			unitCell[target.getX()][target.getY()] = target;
 			checkDead(target);
 		}
 	}
@@ -136,6 +134,8 @@ public class Arena implements Serializable {
 
 	        if(unit.getType().equals("Dragon")) dragons.remove(unit);
 	        else knights.remove(unit);
+
+	        unit.setDead();
 
 	        units.remove(unit);
         }
