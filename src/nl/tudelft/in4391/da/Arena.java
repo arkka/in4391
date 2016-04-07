@@ -43,6 +43,8 @@ public class Arena implements Serializable {
                 }
             }
         }
+
+	    if (knights.size() == 0 || dragons.size() == 0) GameState.haltProgram();
     }
 
     // Spawn unit on random location
