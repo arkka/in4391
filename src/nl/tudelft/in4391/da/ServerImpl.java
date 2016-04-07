@@ -264,11 +264,6 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public void actionUnit(Unit source, Unit target) throws RemoteException {
-        arena.actionUnit(source, target);
-    }
-
-    @Override
     public void attackUnit(Unit source, Unit target) throws RemoteException {
         arena.attackUnit(source, target);
 

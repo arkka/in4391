@@ -16,10 +16,14 @@ public class Arena implements Serializable {
     public ArrayList<Unit> dragons = new ArrayList<Unit>();
 
     // Get player Unit
-    public Unit getMyUnit(Player p){
-        Unit u = p.getUnit();
+    public Unit getUnit(Unit u){
         int i = units.indexOf(u);
         return units.get(i);
+    }
+
+    public Unit getMyUnit(Player p){
+        Unit u = p.getUnit();
+        return getUnit(u);
     }
 
     // Sync data
@@ -97,24 +101,6 @@ public class Arena implements Serializable {
         }
     }
 
-    // After check whether surrounding empty or not when moving
-    // If not, check the type of unit
-    // Do damage if dragon
-    // Heal if player
-    public synchronized void actionUnit(Unit source, Unit target) {
-
-        if (target.getType().equals("Knight"))
-        {
-            // heal
-            healUnit(source,target);
-
-        } else { // Dragon
-            // do damage
-            attackUnit(source,target);
-        }
-
-    }
-
 	public synchronized void healUnit(Unit source, Unit target){
 		if ((Math.abs(source.getX() - target.getX()) <= 5) && (Math.abs(source.getY() - target.getY()) <= 6)){
 			if (target.getHitPoints() <= 0.5 * target.getMaxHitPoints() ){
@@ -126,6 +112,8 @@ public class Arena implements Serializable {
 	public synchronized void attackUnit(Unit source, Unit target){
 		if ((Math.abs(source.getX() - target.getX()) <= 1) && (Math.abs(source.getY() - target.getY()) <= 1)){
 			target.setHitPoints(target.getHitPoints() - source.getHitPoints());
+            unitCell[target.getX()][target.getY()] = target;
+
 			checkDead(target);
 		}
 	}
