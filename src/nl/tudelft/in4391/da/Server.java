@@ -17,6 +17,10 @@ public interface Server extends Remote {
 
     // Arena
     public Arena getArena() throws RemoteException;
+    public void setArena(Arena arena) throws RemoteException;
+
+    // Worker Job
+    public EventMessage fetchEvent() throws RemoteException;
 
     // Unit
     public void moveUnit(Unit unit, int x, int y) throws RemoteException;
