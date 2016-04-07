@@ -116,22 +116,30 @@ public class Arena implements Serializable {
     }
 
 	public synchronized void healUnit(Unit source, Unit target){
-		if ((Math.abs(source.getX() - target.getX()) <= 1) && (Math.abs(source.getY() - target.getY()) <= 1)){
-			target.setHitPoints(target.getHitPoints() + source.getHitPoints());
+		if ((Math.abs(source.getX() - target.getX()) <= 5) && (Math.abs(source.getY() - target.getY()) <= 6)){
+			if (target.getHitPoints() <= 0.5 * target.getMaxHitPoints() ){
+				target.setHitPoints(target.getHitPoints() + source.getHitPoints());
+			}
 		}
 	}
 
 	public synchronized void attackUnit(Unit source, Unit target){
 		if ((Math.abs(source.getX() - target.getX()) <= 1) && (Math.abs(source.getY() - target.getY()) <= 1)){
 			target.setHitPoints(target.getHitPoints() - source.getHitPoints());
+			checkDead(target);
 		}
 	}
 
-    public Boolean checkDead(Unit unit){
-        boolean dead = false;
-        if(unit.getHitPoints() <= 0) dead = true;
+    public void checkDead(Unit unit){
+        if(unit.getHitPoints() <= 0){
+	        unitCell[unit.getX()][unit.getY()] = null;
 
-        return dead;
+	        if(unit.getType().equals("Dragon")) dragons.remove(unit);
+	        else knights.remove(unit);
+
+	        units.remove(unit);
+        }
+
     }
 
     public void addUnit(Unit unit) {

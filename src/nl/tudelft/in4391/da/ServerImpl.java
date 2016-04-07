@@ -102,7 +102,7 @@ public class ServerImpl implements Server {
 
             @Override
             public void onHeal(Unit s, Unit t) {
-                System.out.println("[System] "+s.getFullName()+" heal "+ t.getFullName());
+                System.out.println("[System] " + s.getFullName() + " heal " + t.getFullName() + " to " + t.getHitPoints() + "/" + t.getMaxHitPoints());
             }
         };
 
@@ -283,6 +283,12 @@ public class ServerImpl implements Server {
     @Override
     public void healUnit(Unit source, Unit target) throws RemoteException {
         arena.healUnit(source, target);
+
+        ArrayList<Unit> units = new ArrayList<Unit>();
+        units.add(source);
+        units.add(target);
+        // Notify others
+        unitEvent.send(unitEvent.UNIT_HEAL, units);
     }
 
 }
