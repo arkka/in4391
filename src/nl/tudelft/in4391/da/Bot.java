@@ -186,7 +186,7 @@ public class Bot extends Thread {
                 if (unit instanceof Dragon) {
                     adjacentUnit = scanSurrounding(unit, arena);
 
-                    if (adjacentUnit != null ){
+                    if (adjacentUnit != null && adjacentUnit instanceof Knight ){
                         server.attackUnit(unit, adjacentUnit);
                     }
 
@@ -217,10 +217,12 @@ public class Bot extends Thread {
                     } else {
 	                    // Adjacent Unit detected
 	                    // Do action
-                        if (adjacentUnit instanceof Dragon){
+                        if (adjacentUnit instanceof Dragon && (  Math.abs(unit.getX() - adjacentUnit.getX()) <= 2 && Math.abs(unit.getY() - adjacentUnit.getY()) <= 2  )){
                             server.attackUnit(unit, adjacentUnit);
                         } else {
-                            server.healUnit(unit, adjacentUnit);
+                            if ( unit.getX() - adjacentUnit.getX() != 0 && unit.getY() - adjacentUnit.getY() != 0) {
+                                server.healUnit(unit, adjacentUnit);
+                            }
                         }
 
                     }

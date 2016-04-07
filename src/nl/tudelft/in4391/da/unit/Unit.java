@@ -56,11 +56,11 @@ public class Unit implements Serializable {
     }
 
     public void setHitPoints(int hitPoints) {
-        this.hitPoints = hitPoints;
-    }
-
-    public void setAttackPoints(int attackPoints) {
-        this.attackPoints = attackPoints;
+        if (hitPoints > this.getMaxHitPoints()) {
+            this.hitPoints = this.getMaxHitPoints();
+        } else {
+            this.hitPoints = hitPoints;
+        }
     }
 
     public int getHitPoints() {
@@ -84,44 +84,6 @@ public class Unit implements Serializable {
 
     public int getTurnDelay(){
         return timeBetweenTurns;
-    }
-
-    public synchronized void adjustHitPoints(int modifier){
-        if (hitPoints <= 0)
-            return;
-
-        this.hitPoints += modifier;
-
-        // Adjust hitPoints if exceed maximal
-        // Case of player heal
-//        if (hitPoints > maxHitPoints)
-//            hitPoints = maxHitPoints;
-
-        // Remove unit if dies
-        // Case of damage dealt
-//        if (hitPoints <= 0)
-//            deleteUnit(x, y);
-    }
-
-    public void healPlayer(Unit adjacentUnit) {
-        int hpAfterAttack = adjacentUnit.getHitPoints() + this.attackPoints;
-
-        // Set maximal HP after heal to the random max HP for each Knight
-        if (hpAfterAttack >= adjacentUnit.getMaxHitPoints()) hpAfterAttack = adjacentUnit.getMaxHitPoints();
-
-        adjacentUnit.setHitPoints(hpAfterAttack);
-    }
-
-    public void dealDamage(Unit adjacentUnit) {
-        int hpAfterAttack = adjacentUnit.getHitPoints() - this.attackPoints;
-
-    //        if (hpAfterAttack <= 0){
-    //
-    //        } else { // Dragon still survive
-    //            adjacentUnit.setHitPoints(hpAfterAttack);
-    //        }
-
-        adjacentUnit.setHitPoints(hpAfterAttack);
     }
 
     public String getType() {
