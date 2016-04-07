@@ -106,7 +106,8 @@ public class Arena implements Serializable {
         if (target.getType().equals("Knight"))
         {
             // heal
-            healUnit(source,target);
+//            healUnit(source,target);
+	        target.setHitPoints(target.getHitPoints() + source.getHitPoints());
 
         } else { // Dragon
             // do damage
