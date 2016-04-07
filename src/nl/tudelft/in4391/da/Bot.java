@@ -1,5 +1,6 @@
 package nl.tudelft.in4391.da;
 
+import nl.tudelft.in4391.da.unit.Dragon;
 import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
@@ -12,23 +13,19 @@ import java.util.Random;
  * Created by arkkadhiratara on 4/6/16.
  */
 public class Bot extends Thread {
-    private static Integer GAME_SPEED = 100; //ms
-    private static Integer TURN_DELAY = 1000;
+    private static final double GAME_SPEED = .1; //ms
+    private static Integer TURN_DELAY = 500;
 
     public ArrayList<Node> serverNodes;
-
-    public static final int MIN_PLAYER_COUNT = 2;
-    public static final int MAX_PLAYER_COUNT = 100;
-    public static final int DRAGON_COUNT = 20;
-
-    public static int playerCount;
 
     public Server server;
     public Arena arena;
     public Player player;
-    public Unit[][] unitCell;
+
+    public Unit adjacentUnit;
 
     public boolean gameRunning;
+	public boolean foundUnit;
 
     Random rand = new Random();
 
@@ -74,73 +71,6 @@ public class Bot extends Thread {
         return bestServer;
     }
 
-    // Up to total 2 distance
-    public Unit scanSurrounding(Unit unit) {
-        Unit adjacentUnit = unitCell[unit.getX()][unit.getY()];
-
-        scanUnit:
-        for (int i = 0 ; i < 11 ; i++){
-            // Get the nearby unit for at most 2 distance
-            switch (i) {
-                case 1:
-                    // Get unit on the right
-                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY()];
-                    break;
-                case 2:
-                    // Get unit on the left
-                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY()];
-                    break;
-                case 3:
-                    // Get unit on the top
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 1];
-                    break;
-                case 4:
-                    // Get unit on the bottom
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 1];
-                    break;
-                case 5:
-                    // Get unit on the diagonal top left
-                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() + 1];
-                    break;
-                case 6:
-                    // Get unit on the diagonal top right
-                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() + 1];
-                    break;
-                case 7:
-                    // Get unit on the diagonal bottom left
-                    adjacentUnit = unitCell[unit.getX() - 1][unit.getY() - 1];
-                    break;
-                case 8:
-                    // Get unit on the diagonal bottom right
-                    adjacentUnit = unitCell[unit.getX() + 1][unit.getY() - 1];
-                    break;
-                case 9:
-                    // Get unit on the right distance 2
-                    adjacentUnit = unitCell[unit.getX() + 2][unit.getY()];
-                    break;
-                case 10:
-                    // Get unit on the left distance 2
-                    adjacentUnit = unitCell[unit.getX() - 2][unit.getY()];
-                    break;
-                case 11:
-                    // Get unit on the top distance 2
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() + 2];
-                    break;
-                case 12:
-                    // Get unit on the bottom distance 2
-                    adjacentUnit = unitCell[unit.getX()][unit.getY() - 2];
-                    break;
-            }
-
-            if (adjacentUnit != null){
-                break scanUnit;
-            }
-
-        }
-
-        return adjacentUnit;
-    }
-
     public Bot(String username, String type) {
         serverNodes = new ArrayList<Node>();
         serverNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
@@ -158,13 +88,85 @@ public class Bot extends Thread {
         }
     }
 
+	// Up to total 2 distance
+	public Unit scanSurrounding(Unit unit, Arena arena) {
+		Unit adjacentUnit = null;
 
-    public void run() {
-        boolean run = true;
+		Integer sourceX = unit.getX();
+		Integer sourceY = unit.getY();
+
+		// Random surrounding
+		// Range (-1,1)
+		Integer x = rand.nextInt(3) - 1;
+		Integer y = rand.nextInt(3) - 1;
+
+		// Random surrounding 2 vertical horizontal
+		// Range (-2,2)
+		Integer x2 = rand.nextInt(4) - 2;
+		Integer y2 = rand.nextInt(4) - 2;
+
+		foundUnit = false;
+
+		try {
+			// Get adjacent unit
+			// When not pointing to itself
+			// When not out of bound
+			while (!foundUnit && (x != 0 && y != 0 ) && (sourceX + x < 25 || sourceX + x >= 0) && (sourceY + y < 25 || sourceY + y >= 0) ){
+				adjacentUnit = arena.unitCell[sourceX + x][sourceY + y];
+
+                if (adjacentUnit == null){ //Check horizontal and vertical 2 square
+                    Integer direction = rand.nextInt(2);
+                    switch(direction){
+                        case 0:
+                            //horizontal
+                            adjacentUnit = arena.unitCell[sourceX + x2][sourceY];
+                            break;
+                        case 1:
+                            //vertical
+                            adjacentUnit = arena.unitCell[sourceX][sourceY + y2];
+                            break;
+                    }
+
+                    if (adjacentUnit == null && unit instanceof Knight){
+                        // Random surrounding 2 vertical horizontal
+                        // Range (-2,2)
+                        Integer x5 = rand.nextInt(10) - 5;
+                        Integer y5 = rand.nextInt(10) - 5;
+
+                        Integer direction2 = rand.nextInt(2);
+                        switch(direction2){
+                            case 0:
+                                //horizontal
+                                adjacentUnit = arena.unitCell[sourceX + x5][sourceY];
+                                break;
+                            case 1:
+                                //vertical
+                                adjacentUnit = arena.unitCell[sourceX][sourceY + y5];
+                                break;
+                        }
+                    }
+
+                }
+				foundUnit = true;
+			}
+
+		} catch (ArrayIndexOutOfBoundsException e) {
+//			System.out.println("Array is out of Bounds"+e);
+//			System.out.println("Scan other direction");
+			x = rand.nextInt(3) - 1;
+			y = rand.nextInt(3) - 1;
+			foundUnit = false;
+		}
+
+		return adjacentUnit;
+
+	}
+
+
+	public void run() {
+        gameRunning = true;
         try {
-            while (run && GameState.getRunningState()){
-
-                Thread.sleep(GAME_SPEED + TURN_DELAY);
+            while (gameRunning && GameState.getRunningState()){
 
                 arena = server.getArena();
                 arena.syncUnits();
@@ -176,17 +178,55 @@ public class Bot extends Thread {
                 if (unit.getHitPoints() <= 0)
                     break;
 
-                // Get next movement
-                Integer x = rand.nextInt(1 + 1 + 1) - 1;
-                Integer y = rand.nextInt(1 + 1 + 1) - 1;
+	            // Random surrounding
+	            // Range (-1,1)
+	            Integer x = rand.nextInt(3) - 1;
+	            Integer y = rand.nextInt(3) - 1;
 
+                if (unit instanceof Dragon) {
+                    adjacentUnit = scanSurrounding(unit, arena);
 
+                    if (adjacentUnit != null ){
+                        server.attackUnit(unit, adjacentUnit);
+                    }
 
-                if (unit instanceof Knight) {
-                    server.moveUnit(player.getUnit(), player.getUnit().getX() + x, player.getUnit().getY() + y);
+                } else { // Knight
+                    adjacentUnit = scanSurrounding(unit, arena);
+
+                    if (adjacentUnit == null ){
+	                    // Check whether random 0 for both axis
+	                    // Move accordingly
+	                    if (x == 0 || y == 0) {
+		                    server.moveUnit(unit, unit.getX() + x , unit.getY() + y);
+	                    } else{
+		                    // Move horizontally or vertically 1 block
+		                    // When random value is not zero for x y
+		                    Integer direction = rand.nextInt(2);
+		                    switch(direction){
+			                    case 0:
+				                    //horizontal
+				                    server.moveUnit(unit, unit.getX() + x , unit.getY());
+				                    break;
+			                    case 1:
+				                    //vertical
+				                    server.moveUnit(unit, unit.getX(), unit.getY() + y);
+				                    break;
+		                    }
+	                    }
+
+                    } else {
+	                    // Adjacent Unit detected
+	                    // Do action
+                        if (adjacentUnit instanceof Dragon){
+                            server.attackUnit(unit, adjacentUnit);
+                        } else {
+                            server.healUnit(unit, adjacentUnit);
+                        }
+
+                    }
                 }
 
-
+	            Thread.currentThread().sleep((int)(unit.getTurnDelay() * GAME_SPEED * TURN_DELAY));
             }
         } catch (RemoteException e) {
             e.printStackTrace();

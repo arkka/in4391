@@ -8,6 +8,10 @@ import nl.tudelft.in4391.da.GameState;
 
 public class Dragon extends Unit {
 
+    // Minimum and maximum delay between turns
+    public static final int MIN_TIME_BETWEEN_TURNS = 2;
+    public static final int MAX_TIME_BETWEEN_TURNS = 7;
+
     // The minimum and maximum amount of hitpoints that a particular dragon starts with
     public static final int MIN_HITPOINTS = 50;
     public static final int MAX_HITPOINTS = 100;
@@ -24,6 +28,9 @@ public class Dragon extends Unit {
 
         // Assign max health for each Dragon
         this.maxHitPoints = this.hitPoints;
+
+        // Create a random delay for each Dragon
+        this.timeBetweenTurns = (int)(Math.random() * (MAX_TIME_BETWEEN_TURNS - MIN_TIME_BETWEEN_TURNS)) + MIN_TIME_BETWEEN_TURNS;
 
     }
 }

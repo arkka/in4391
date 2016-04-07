@@ -24,6 +24,7 @@ public class ServerImpl implements Server {
 
     private ArrayList<Player> players = new ArrayList<Player>();
     private PlayerEvent playerEvent;
+    private UnitEvent unitEvent;
 
     private Arena arena = new Arena();
 
@@ -81,6 +82,28 @@ public class ServerImpl implements Server {
                 deregisterPlayer(p);
                 System.out.println("[System] Player `" + p + "` has logged out.");
             }
+
+        };
+
+
+        /*
+         *  EVENT: UNIT
+         */
+        unitEvent = new UnitEvent(node) {
+            @Override
+            public void onMove(Unit u) {
+                System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
+            }
+
+            @Override
+            public void onAttack(Unit s, Unit t) {
+                System.out.println("[System] " + s.getFullName() + " attack " + t.getFullName() + " to " + t.getHitPoints() + "/" + t.getMaxHitPoints());
+            }
+
+            @Override
+            public void onHeal(Unit s, Unit t) {
+                System.out.println("[System] "+s.getFullName()+" heal "+ t.getFullName());
+            }
         };
 
         /*
@@ -135,8 +158,6 @@ public class ServerImpl implements Server {
     public ArrayList<Player> getPlayers() {
         return players;
     }
-
-
 
     public void initRegistry(){
         System.out.println("[System] Initialize remote registry.");
@@ -238,5 +259,30 @@ public class ServerImpl implements Server {
     public void moveUnit(Unit u, int x, int y) throws RemoteException {
         // Notify other masters
         arena.moveUnit(u, x, y);
+
+        unitEvent.send(unitEvent.UNIT_MOVE, u);
     }
+
+    @Override
+    public void actionUnit(Unit source, Unit target) throws RemoteException {
+        arena.actionUnit(source, target);
+    }
+
+    @Override
+    public void attackUnit(Unit source, Unit target) throws RemoteException {
+        arena.attackUnit(source, target);
+
+        ArrayList<Unit> units = new ArrayList<Unit>();
+        units.add(source);
+        units.add(target);
+        // Notify others
+        unitEvent.send(unitEvent.UNIT_ATTACK, units);
+
+    }
+
+    @Override
+    public void healUnit(Unit source, Unit target) throws RemoteException {
+        arena.healUnit(source, target);
+    }
+
 }

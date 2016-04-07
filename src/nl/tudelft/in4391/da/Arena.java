@@ -101,21 +101,31 @@ public class Arena implements Serializable {
     // If not, check the type of unit
     // Do damage if dragon
     // Heal if player
-    public Unit actionToSurroundingUnit(Unit unit, int x, int y) {
-        Unit adjacentUnit = unitCell[x][y];
+    public synchronized void actionUnit(Unit source, Unit target) {
 
-        if (adjacentUnit.getType().equals("Knight"))
+        if (target.getType().equals("Knight"))
         {
             // heal
-            unit.healPlayer(adjacentUnit);
+            healUnit(source,target);
 
         } else { // Dragon
             // do damage
-            unit.dealDamage(adjacentUnit);
+            attackUnit(source,target);
         }
 
-        return adjacentUnit;
     }
+
+	public synchronized void healUnit(Unit source, Unit target){
+		if ((Math.abs(source.getX() - target.getX()) <= 1) && (Math.abs(source.getY() - target.getY()) <= 1)){
+			target.setHitPoints(target.getHitPoints() + source.getHitPoints());
+		}
+	}
+
+	public synchronized void attackUnit(Unit source, Unit target){
+		if ((Math.abs(source.getX() - target.getX()) <= 1) && (Math.abs(source.getY() - target.getY()) <= 1)){
+			target.setHitPoints(target.getHitPoints() - source.getHitPoints());
+		}
+	}
 
     public Boolean checkDead(Unit unit){
         boolean dead = false;

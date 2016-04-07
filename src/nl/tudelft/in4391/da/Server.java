@@ -21,4 +21,10 @@ public interface Server extends Remote {
     // Unit
     public void moveUnit(Unit unit, int x, int y) throws RemoteException;
 
+    public void actionUnit(Unit source, Unit target) throws RemoteException;
+
+    public void attackUnit(Unit source, Unit target) throws RemoteException;
+
+    public void healUnit(Unit source, Unit target) throws RemoteException;
+
 }
