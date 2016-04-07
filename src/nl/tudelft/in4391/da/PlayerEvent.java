@@ -6,8 +6,9 @@ package nl.tudelft.in4391.da;
 public class PlayerEvent extends BaseEvent  {
     public static final Integer LOGGED_IN = 200;
     public static final Integer LOGGED_OUT = 201;
-    public static final Integer ATTACK = 202;
-    public static final Integer HEAL = 203;
+
+    public static final Integer UNIT_ATTACK = 400;
+    public static final Integer UNIT_HEAL = 401;
 
     public PlayerEvent(Node node) {
         super(node);
@@ -22,9 +23,9 @@ public class PlayerEvent extends BaseEvent  {
                 onLoggedIn(p);
             } else if (em.getCode() == LOGGED_OUT) {
                 onLoggedOut(p);
-            } else if (em.getCode() == ATTACK) {
+            } else if (em.getCode() == UNIT_ATTACK) {
                 onAttack(p);
-            } else if (em.getCode() == HEAL) {
+            } else if (em.getCode() == UNIT_HEAL) {
                 onHeal(p);
             }
         }

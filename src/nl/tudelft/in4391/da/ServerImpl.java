@@ -24,6 +24,7 @@ public class ServerImpl implements Server {
 
     private ArrayList<Player> players = new ArrayList<Player>();
     private PlayerEvent playerEvent;
+    private UnitEvent unitEvent;
 
     private Arena arena = new Arena();
 
@@ -78,6 +79,23 @@ public class ServerImpl implements Server {
             @Override
             public void onLoggedOut(Player p) {
                 deregisterPlayer(p);
+            }
+
+        };
+
+
+        /*
+         *  EVENT: UNIT
+         */
+        unitEvent = new UnitEvent(node) {
+            @Override
+            public void onAttack(Unit s, Unit t) {
+                System.out.println("[System] "+s.getFullName()+" attack "+ t.getFullName());
+            }
+
+            @Override
+            public void onHeal(Unit s, Unit t) {
+                System.out.println("[System] "+s.getFullName()+" heal "+ t.getFullName());
             }
         };
 
@@ -256,8 +274,14 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public void damageUnit(Unit source, Unit target) throws RemoteException {
-        arena.damageUnit(source, target);
+    public void attackUnit(Unit source, Unit target) throws RemoteException {
+        arena.attackUnit(source, target);
+        ArrayList<Unit> units = new ArrayList<Unit>();
+        units.add(source);
+        units.add(target);
+        // Notify others
+        unitEvent.send(unitEvent.UNIT_ATTACK, units);
+
     }
 
     @Override

@@ -157,7 +157,7 @@ public class Bot extends Thread {
 	                    // Move accordingly
 	                    if (x == 0 || y == 0) {
 		                    server.moveUnit(unit, unit.getX() + x , unit.getY() + y);
-		                    System.out.println("test 1");
+//		                    System.out.println("test 1");
 	                    } else{
 		                    // Move horizontally or vertically 1 block
 		                    // When random value is not zero for x y
@@ -166,12 +166,12 @@ public class Bot extends Thread {
 			                    case 0:
 				                    //horizontal
 				                    server.moveUnit(unit, unit.getX() + x , unit.getY());
-				                    System.out.println("horizontal");
+//				                    System.out.println("horizontal");
 				                    break;
 			                    case 1:
 				                    //vertical
 				                    server.moveUnit(unit, unit.getX(), unit.getY() + y);
-				                    System.out.println("vertical");
+//				                    System.out.println("vertical");
 				                    break;
 		                    }
 	                    }
@@ -179,8 +179,8 @@ public class Bot extends Thread {
                     } else {
 	                    // Adjacent Unit detected
 	                    // Do action
-                        server.actionUnit(unit, adjacentUnit);
-	                    System.out.println("ACTIONNNN");
+                        server.attackUnit(unit, adjacentUnit);
+//	                    System.out.println("ACTIONNNN");
                     }
                 }
 
