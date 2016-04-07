@@ -15,7 +15,7 @@ public class Unit implements Serializable {
     Integer y;
 
     protected Thread runnerThread;
-    protected boolean running;
+    public boolean running = true;
 
     // Turn delay
     protected int timeBetweenTurns;
@@ -42,6 +42,10 @@ public class Unit implements Serializable {
 
     public UUID getId() {
         return id;
+    }
+
+    public void setDead (){
+        this.running = false;
     }
 
     public String getName() {

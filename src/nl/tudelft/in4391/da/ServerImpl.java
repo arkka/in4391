@@ -96,12 +96,17 @@ public class ServerImpl implements Server {
         unitEvent = new UnitEvent(node) {
             @Override
             public void onMove(Unit u) {
-                System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
+//                System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
             }
 
             @Override
             public void onAttack(Unit s, Unit t) {
-                System.out.println("[System] " + s.getFullName() + " attack " + t.getFullName() + " to " + t.getHitPoints() + "/" + t.getMaxHitPoints());
+                Integer lastHp = t.getHitPoints();
+                if (t.getHitPoints() <=0){
+                    lastHp = 0;
+                }
+
+                System.out.println("[System] " + s.getFullName() + " attack " + t.getFullName() + " to " + lastHp + "/" + t.getMaxHitPoints());
             }
 
             @Override

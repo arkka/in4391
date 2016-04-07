@@ -165,6 +165,7 @@ public class Bot extends Thread {
 
 	public void run() {
         gameRunning = true;
+
         try {
             while (gameRunning && GameState.getRunningState()){
 
@@ -172,11 +173,11 @@ public class Bot extends Thread {
                 arena.syncUnits();
                 player.setUnit(arena.getMyUnit(player));
 
-                Unit unit = player.getUnit();
-
-                // Unit dead
-                if (unit.getHitPoints() <= 0)
+                if (player.getUnit() == null){
                     break;
+                }
+
+                Unit unit = player.getUnit();
 
 	            // Random surrounding
 	            // Range (-1,1)
@@ -198,7 +199,7 @@ public class Bot extends Thread {
 	                    // Move accordingly
 	                    if (x == 0 || y == 0) {
 		                    server.moveUnit(unit, unit.getX() + x , unit.getY() + y);
-	                    } else{
+	                    } else {
 		                    // Move horizontally or vertically 1 block
 		                    // When random value is not zero for x y
 		                    Integer direction = rand.nextInt(2);
@@ -214,19 +215,22 @@ public class Bot extends Thread {
 		                    }
 	                    }
 
-                    } else {
-	                    // Adjacent Unit detected
+                    } else { // Adjacent Unit exists
 	                    // Do action
                         if (adjacentUnit instanceof Dragon && (  Math.abs(unit.getX() - adjacentUnit.getX()) <= 2 && Math.abs(unit.getY() - adjacentUnit.getY()) <= 2  )){
                             server.attackUnit(unit, adjacentUnit);
                         } else {
                             if ( unit.getX() - adjacentUnit.getX() != 0 && unit.getY() - adjacentUnit.getY() != 0) {
-                                server.healUnit(unit, adjacentUnit);
+                                if (adjacentUnit.getHitPoints() <= 0.5 * adjacentUnit.getMaxHitPoints() ){
+                                    server.healUnit(unit, adjacentUnit);
+                                }
+
                             }
                         }
-
                     }
                 }
+
+                gameRunning = unit.running;
 
 	            Thread.currentThread().sleep((int)(unit.getTurnDelay() * GAME_SPEED * TURN_DELAY));
             }
