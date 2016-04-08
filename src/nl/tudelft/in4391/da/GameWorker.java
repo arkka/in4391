@@ -12,13 +12,6 @@ public class GameWorker {
 	public ArrayList<Node> masterNodes;
 
 	public GameWorker() {
-		// Get the best master nodes
-		masterNodes = new ArrayList<Node>();
-		masterNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
-		masterNodes.add(new Node(2, "127.0.0.1", 1101, 1201));
-
-		Server master = getMaster();
-
 
 	}
 

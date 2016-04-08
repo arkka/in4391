@@ -26,8 +26,10 @@ public class WorkerImpl implements Server {
 
 	private ArrayList<Player> players = new ArrayList<Player>();
 	public ArrayList<Node> masterNodes = new ArrayList<Node>();
+
 	private PlayerEvent playerEvent;
 	private UnitEvent unitEvent;
+	private WorkerEvent workerEvent;
 
 	private Arena arena = new Arena();
 
@@ -43,7 +45,7 @@ public class WorkerImpl implements Server {
         /*
          *  EVENT: NODE
          */
-		nodeEvent = new NodeEvent(node) {
+		workerEvent = new WorkerEvent(node) {
 			@Override
 			public void onConnected(Node n) {
 				registerNode(n);
@@ -66,7 +68,7 @@ public class WorkerImpl implements Server {
 		};
 
 		// Tell everyone this node is connected to cluster
-		nodeEvent.send(NodeEvent.CONNECTED,node);
+		workerEvent.send(NodeEvent.CONNECTED,node);
 
 
         /*
@@ -75,7 +77,7 @@ public class WorkerImpl implements Server {
 		unitEvent = new UnitEvent(node) {
 			@Override
 			public void onMove(Unit u) {
-//                System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
+                System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
 			}
 
 			@Override
@@ -248,38 +250,13 @@ public class WorkerImpl implements Server {
 	@Override
 	public Player login(String username, String password, String type) throws RemoteException {
 		Player player = new Player(username, password);
-		if(true) {
-			try {
-				player.setAuthenticated(true);
-				player.setHostAddress(RemoteServer.getClientHost());
-				System.out.println("[System] Player " + player + " has logged in.");
 
-				Unit unit = null;
-				if(type.equals("Dragon")) {
-					unit = new Dragon(player.getUsername());
-				} else unit = new Knight(player.getUsername());
-
-				arena.spawnUnit(unit);
-				player.setUnit(unit);
-				System.out.println("[System] "+unit.getFullName()+" spawned at coord (" + unit.getX() + "," + unit.getY() + ") of the arena.");
-
-				// Notify other masters
-				playerEvent.send(playerEvent.LOGGED_IN,player);
-
-			} catch (ServerNotActiveException e) {
-				e.printStackTrace();
-			}
-
-		} else {
-			System.out.println("[Error] Bad credentials.");
-		}
 		return player;
 	}
 
 	@Override
 	public void logout(Player p) throws RemoteException {
-		// Notify other masters
-		playerEvent.send(playerEvent.LOGGED_OUT, p);
+
 	}
 
 	@Override
