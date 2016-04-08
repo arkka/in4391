@@ -105,9 +105,6 @@ public class Arena implements Serializable {
 	public synchronized void healUnit(Unit source, Unit target){
 		if ((Math.abs(source.getX() - target.getX()) <= 5) && (Math.abs(source.getY() - target.getY()) <= 6)){
 			target.setHitPoints(target.getHitPoints() + source.getHitPoints());
-//			if (target.getHitPoints() <= 0.5 * target.getMaxHitPoints() ){
-//				target.setHitPoints(target.getHitPoints() + source.getHitPoints());
-//			}
 		}
 	}
 

@@ -285,9 +285,9 @@ public class ServerImpl implements Server {
     @Override
     public void moveUnit(Unit u, int x, int y) throws RemoteException {
         // Notify other masters
-        //arena.moveUnit(u, x, y);
+//        arena.moveUnit(u, x, y);
 
-        //unitEvent.send(unitEvent.UNIT_MOVE, u);
+        unitEvent.send(unitEvent.UNIT_MOVE, u);
 
         EventMessage em = new EventMessage(unitEvent.UNIT_MOVE, u);
         eventQueue.enqueue(em);
@@ -295,14 +295,14 @@ public class ServerImpl implements Server {
 
     @Override
     public void attackUnit(Unit source, Unit target) throws RemoteException {
-        //arena.attackUnit(source, target);
+//        arena.attackUnit(source, target);
 
         ArrayList<Unit> units = new ArrayList<Unit>();
         units.add(source);
         units.add(target);
 
         //// Notify others
-        //unitEvent.send(unitEvent.UNIT_ATTACK, units);
+        unitEvent.send(unitEvent.UNIT_ATTACK, units);
 
         EventMessage em = new EventMessage(unitEvent.UNIT_ATTACK, units);
         eventQueue.enqueue(em);
@@ -311,17 +311,17 @@ public class ServerImpl implements Server {
 
     @Override
     public void healUnit(Unit source, Unit target) throws RemoteException {
-        //arena.healUnit(source, target);
+        arena.healUnit(source, target);
 
         ArrayList<Unit> units = new ArrayList<Unit>();
         units.add(source);
         units.add(target);
 
         // Notify others
-        //unitEvent.send(unitEvent.UNIT_HEAL, units);
+        unitEvent.send(unitEvent.UNIT_HEAL, units);
 
-        EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
-        eventQueue.enqueue(em);
+//        EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
+//        eventQueue.enqueue(em);
     }
 
 }
