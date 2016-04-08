@@ -24,28 +24,12 @@ public class UnitEvent extends BaseEvent  {
 	@Override
 	public void onEvent(EventMessage em) {
 		if ( em.getObject() instanceof ArrayList ) {
-			ArrayList<Unit> us = (ArrayList<Unit>) em.getObject();
-			if (em.getCode() == UNIT_MOVE) {
-				onMove(us.get(0),  us.get(1));
-			} else if (em.getCode() == UNIT_ATTACK) {
-				onAttack(us.get(0),  us.get(1));
-			} else if (em.getCode() == UNIT_HEAL) {
-				onHeal(us.get(0),  us.get(1));
-			}
+			ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
+			onNewEvent(em.getCode(),units);
 		}
 	}
 
-	public void onMove(Unit u, Unit t){
+	public void onNewEvent(Integer code, ArrayList<Unit> units){
 
 	}
-
-	public void onAttack(Unit u, Unit t){
-
-	}
-
-	public void onHeal(Unit u, Unit t){
-
-	}
-
-
 }

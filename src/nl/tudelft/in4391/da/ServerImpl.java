@@ -33,12 +33,11 @@ public class ServerImpl implements Server {
 
     private EventQueue eventQueue = new EventQueue();
 
+    private boolean dispatcher = false;
+
 
     public ServerImpl(Node node) {
         this.currentNode = node;
-
-        // Initialize RMI Registry
-        initRegistry();
 
         /*
          *  EVENT: NODE
@@ -64,10 +63,6 @@ public class ServerImpl implements Server {
 
             }
         };
-
-        // Tell everyone this node is connected to cluster
-        nodeEvent.send(NodeEvent.CONNECTED,node);
-
 
         /*
          *  EVENT: PLAYER
@@ -97,48 +92,11 @@ public class ServerImpl implements Server {
          */
         unitEvent = new UnitEvent(node) {
             @Override
-            public void onMove(Unit s, Unit t) {
-                //System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
-
-                ArrayList<Unit> units = new ArrayList<Unit>();
-                units.add(s);
-                units.add(t);
-
-                EventMessage em = new EventMessage(unitEvent.UNIT_MOVE, units);
+            public void onNewEvent(Integer code, ArrayList<Unit> units) {
+                EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
-            }
-
-            @Override
-            public void onAttack(Unit s, Unit t) {
-                /*
-                Integer lastHp = t.getHitPoints();
-                if (t.getHitPoints() <=0){
-                    lastHp = 0;
-                }
-                */
-
-                //System.out.println("[System] " + s.getFullName() + " attack " + t.getFullName() + " to " + lastHp + "/" + t.getMaxHitPoints());
-
-                ArrayList<Unit> units = new ArrayList<Unit>();
-                units.add(s);
-                units.add(t);
-
-                EventMessage em = new EventMessage(unitEvent.UNIT_ATTACK, units);
-                eventQueue.enqueue(em);
-
-            }
-
-            @Override
-            public void onHeal(Unit s, Unit t) {
-                //System.out.println("[System] " + s.getFullName() + " heal " + t.getFullName() + " to " + t.getHitPoints() + "/" + t.getMaxHitPoints());
-
-                ArrayList<Unit> units = new ArrayList<Unit>();
-                units.add(s);
-                units.add(t);
-
-                EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
-                eventQueue.enqueue(em);
-
+                System.out.println("[Client] Receive event from "+units.get(0).getFullName()+". Queue: "+eventQueue.size());
+                eventDispatcher();
             }
         };
 
@@ -157,6 +115,29 @@ public class ServerImpl implements Server {
                 System.out.println("Bye!");
             }
         });
+
+        /*
+         *  MAIN SERVER BLOCK
+         *
+         */
+
+        // Initialize RMI Registry
+        initRegistry();
+
+
+        nodeEvent.listen();
+
+        // Tell everyone this node is connected to cluster
+        nodeEvent.send(NodeEvent.CONNECTED,node);
+
+        // If master.. you should dispatch a job
+        if(currentNode.getType().equals(Node.TYPE_MASTER)) {
+            playerEvent.listen();
+            unitEvent.listen();
+
+            dispatcher = true;
+            //eventDispatcher();
+        }
     }
 
     public void registerNode(Node node) {
@@ -164,7 +145,7 @@ public class ServerImpl implements Server {
             System.out.println("[System] "+node.getFullName()+" is connected.");
             this.nodes.add(node);
 
-            if(node.getType()==Node.TYPE_MASTER) this.masterNodes.add(node);
+            if(node.getType().equals(Node.TYPE_MASTER)) this.masterNodes.add(node);
             else this.workerNodes.add(node);
         }
     }
@@ -174,7 +155,7 @@ public class ServerImpl implements Server {
             System.out.println("[System] "+node.getFullName()+" is disconnected.");
             this.nodes.remove(node);
 
-            if(node.getType()==Node.TYPE_MASTER) this.masterNodes.remove(node);
+            if(node.getType().equals(Node.TYPE_MASTER)) this.masterNodes.remove(node);
             else this.workerNodes.remove(node);
         }
     }
@@ -225,42 +206,52 @@ public class ServerImpl implements Server {
     public synchronized EventMessage dequeue() { return (EventMessage) eventQueue.dequeue(); }
 
     public void eventDispatcher() {
+        /*
         new Thread(new Runnable() {
             @Override
             public void run() {
+                */
                 try {
 
-                    LinkedList<Node> bestNodes = new LinkedList<Node>();
+                    //while(dispatcher) {
+                        //System.out.println("[System] Dispatching job to workers.");
+                        if(!getEventQueue().isEmpty()) {
+                            LinkedList<Node> bestNodes = new LinkedList<Node>();
 
-                    // Initialized two nodes
-                    bestNodes.addLast(getWorkerNodes().get(0));
-                    if(getWorkerNodes().size()>1) bestNodes.addLast(getWorkerNodes().get(1));
+                            // Initialized two nodes
+                            bestNodes.addLast(getWorkerNodes().get(0));
+                            if(getWorkerNodes().size()>1) bestNodes.addLast(getWorkerNodes().get(1));
 
-                    // Find two best nodes based on its request num and status
-                    for (Node n : getWorkerNodes()) {
-                        if((n.getRequestNum() < bestNodes.getFirst().getRequestNum()) && (n.getStatus()==Node.STATUS_READY)) {
-                            bestNodes.remove();
-                            bestNodes.addLast(n);
+                            // Find two best nodes based on its request num and status
+                            for (Node n : getWorkerNodes()) {
+                                if((n.getRequestNum() < bestNodes.getFirst().getRequestNum()) && (n.getStatus()==Node.STATUS_READY)) {
+                                    bestNodes.remove();
+                                    bestNodes.addLast(n);
+                                }
+                            }
+
+                            // Dispatch the job to 2 (or 1) best nodes
+                            Server worker = null;
+
+                            for (Node n : bestNodes) {
+                                // Set target node as Busy
+                                n.setType(Node.STATUS_BUSY);
+                                updateWorkerNode(n);
+
+                                // Dispatch
+                                worker = fromRemoteNode(n);
+                                worker.executeEvent(currentNode, getArena(), dequeue());
+                            }
                         }
-                    }
+                    //}
 
-                    // Dispatch the job to 2 (or 1) best nodes
-                    Server worker = null;
-
-                    for (Node n : bestNodes) {
-                        // Set target node as Busy
-                        n.setType(Node.STATUS_BUSY);
-                        updateWorkerNode(n);
-
-                        // Dispatch
-                        worker = fromRemoteNode(n);
-                        worker.executeEvent(dequeue());
-                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
+                /*
             }
         }).start();
+        */
     }
 
 
@@ -354,27 +345,47 @@ public class ServerImpl implements Server {
         playerEvent.send(playerEvent.LOGGED_OUT,p);
     }
 
+    public void setArena(Arena arena) {
+        this.arena = arena;
+    }
     @Override
     public Arena getArena() throws RemoteException {
         return arena;
     }
 
-    @Override
-    public void setArena(Arena arena) throws RemoteException {
-        syncArena(arena);
-    }
-
     // EventQueue to Worker
     @Override
     public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException {
-        unitEvent.send(unitEvent.UNIT_HEAL, units);
+        unitEvent.send(code, units);
     }
 
     @Override
     public void executeEvent(Node n, Arena a, EventMessage em) throws RemoteException {
+        System.out.println("[System] Receiving job from Master "+n.getFullName()+".");
+        currentNode.increaseRequestNum();
         currentNode.setType(Node.STATUS_BUSY);
 
+        ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
+
+        if(em.getCode() == UnitEvent.UNIT_MOVE) {
+            a.moveUnit(units.get(0),units.get(1).getX(),units.get(1).getY());
+        } else if(em.getCode() == UnitEvent.UNIT_ATTACK) {
+            a.attackUnit(units.get(0),units.get(1));
+        } else if(em.getCode() == UnitEvent.UNIT_HEAL) {
+            a.healUnit(units.get(0),units.get(1));
+        }
+
+        currentNode.setType(Node.STATUS_READY);
+
+        Server server = ServerImpl.fromRemoteNode(n);
+        server.processedEvent(currentNode,a);
+
+        System.out.println("[System] Completed job from Master "+n.getFullName()+".");
     }
 
-
+    @Override
+    public void processedEvent(Node node, Arena a) throws RemoteException {
+        System.out.println("[System] Receiving completed job from "+ node.getFullName()+".");
+        syncArena(a);
+    }
 }

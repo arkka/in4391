@@ -33,9 +33,6 @@ public class BaseEvent extends Thread implements Event  {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // Run listener
-        this.start();
     }
 
     public void run() {
@@ -52,7 +49,12 @@ public class BaseEvent extends Thread implements Event  {
 
     }
 
-    public void send(int code, Object obj) {
+    public void listen() {
+        // Run listener
+        this.start();
+    }
+
+    public synchronized void send(int code, Object obj) {
         EventMessage message = new EventMessage(code,obj);
         DatagramPacket sendPacket = null;
         try {

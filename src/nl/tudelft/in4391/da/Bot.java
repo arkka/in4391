@@ -188,11 +188,9 @@ public class Bot extends Thread {
                     adjacentUnit = scanSurrounding(unit, arena);
 
                     if (adjacentUnit != null && adjacentUnit instanceof Knight ){
-                        server.attackUnit(unit, adjacentUnit);
-
                         ArrayList<Unit> units = new ArrayList<Unit>();
-                        units.add(player.getUnit());
-                        units.add(adjacentUnit);
+                        units.add(0, player.getUnit());
+                        units.add(1, adjacentUnit);
                         server.sendEvent(UnitEvent.UNIT_ATTACK, units);
                     }
 
@@ -209,8 +207,8 @@ public class Bot extends Thread {
                             targetUnit.setCoord(player.getUnit().getX() + x,player.getUnit().getY() + y);
 
                             ArrayList<Unit> units = new ArrayList<Unit>();
-                            units.add(player.getUnit());
-                            units.add(targetUnit);
+                            units.add(0, player.getUnit());
+                            units.add(1, targetUnit);
                             server.sendEvent(UnitEvent.UNIT_MOVE, units);
 	                    } else {
 		                    // Move horizontally or vertically 1 block
@@ -223,8 +221,8 @@ public class Bot extends Thread {
                                     targetUnit.setCoord(player.getUnit().getX() + x,player.getUnit().getY());
 
                                     units = new ArrayList<Unit>();
-                                    units.add(player.getUnit());
-                                    units.add(targetUnit);
+                                    units.add(0, player.getUnit());
+                                    units.add(1, targetUnit);
                                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 				                    break;
 			                    case 1:
@@ -232,8 +230,8 @@ public class Bot extends Thread {
                                     targetUnit.setCoord(player.getUnit().getX(), player.getUnit().getY() + y);
 
                                     units = new ArrayList<Unit>();
-                                    units.add(player.getUnit());
-                                    units.add(targetUnit);
+                                    units.add(0, player.getUnit());
+                                    units.add(1, targetUnit);
                                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 				                    break;
 		                    }
@@ -244,16 +242,16 @@ public class Bot extends Thread {
                         if (adjacentUnit instanceof Dragon && (  Math.abs(unit.getX() - adjacentUnit.getX()) <= 2 && Math.abs(unit.getY() - adjacentUnit.getY()) <= 2  )){
 
                             ArrayList<Unit> units = new ArrayList<Unit>();
-                            units.add(unit);
-                            units.add(adjacentUnit);
+                            units.add(0, unit);
+                            units.add(1, adjacentUnit);
                             server.sendEvent(UnitEvent.UNIT_ATTACK, units);
 
                         } else {
                             if ( unit.getX() - adjacentUnit.getX() != 0 && unit.getY() - adjacentUnit.getY() != 0) {
                                 if (adjacentUnit.getHitPoints() <= 0.5 * adjacentUnit.getMaxHitPoints() ){
                                     ArrayList<Unit> units = new ArrayList<Unit>();
-                                    units.add(unit);
-                                    units.add(adjacentUnit);
+                                    units.add(0, unit);
+                                    units.add(0, adjacentUnit);
                                     server.sendEvent(UnitEvent.UNIT_HEAL, units);
                                 }
 

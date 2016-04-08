@@ -109,16 +109,6 @@ public class Node implements Serializable {
         return multicastGroupAddress;
     }
 
-    public boolean equals(Object c) {
-        if(!(c instanceof Node)) {
-            return false;
-        }
-
-        Node that = (Node) c;
-        return this.getId().equals(that.getId());
-    }
-
-
     public long getLatency() {
         return latency;
     }
@@ -150,4 +140,16 @@ public class Node implements Serializable {
     public int getStatus() {
         return status;
     }
+
+    public boolean equals(Object c) {
+        if(!(c instanceof Node)) {
+            return false;
+        }
+
+        Node that = (Node) c;
+        return this.getName().equals(that.getName());
+    }
+
+
+
 }
