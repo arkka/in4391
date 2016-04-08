@@ -14,8 +14,14 @@ public class Node implements Serializable {
     static Integer DEFAULT_CALLBACK_PORT = 1200;
     static Integer DEFAULT_SOCKET_PORT = 1300;
     static String DEFAULT_MULTICAST_GROUP = "239.255.1.113";
+
     static Integer TYPE_MASTER = 10;
     static Integer TYPE_WORKER = 20;
+
+    static Integer STATUS_DEAD = 10;
+    static Integer STATUS_BUSY = 20;
+    static Integer STATUS_READY = 30;
+
 
     // Node Attribute
 
@@ -28,7 +34,12 @@ public class Node implements Serializable {
     private String multicastGroup;
     private InetAddress multicastGroupAddress;
     private Integer type;
+
+    // Scheduler attributes
     private long latency;
+    private long request_num = 0;
+    private int status = STATUS_READY;
+
 
     public Node(Integer id, Integer registryPort, Integer callbackPort){
         this(id, DEFAULT_NODE_NAME, "127.0.0.1", registryPort, callbackPort, DEFAULT_SOCKET_PORT, DEFAULT_MULTICAST_GROUP);

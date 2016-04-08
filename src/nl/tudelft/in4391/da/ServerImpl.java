@@ -95,23 +95,48 @@ public class ServerImpl implements Server {
          */
         unitEvent = new UnitEvent(node) {
             @Override
-            public void onMove(Unit u) {
-//                System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
+            public void onMove(Unit s, Unit t) {
+                //System.out.println("[System] " + u.getFullName() + " move to (" + u.getX() + "," + u.getY() + ")");
+
+                ArrayList<Unit> units = new ArrayList<Unit>();
+                units.add(s);
+                units.add(t);
+
+                EventMessage em = new EventMessage(unitEvent.UNIT_MOVE, units);
+                eventQueue.enqueue(em);
             }
 
             @Override
             public void onAttack(Unit s, Unit t) {
+                /*
                 Integer lastHp = t.getHitPoints();
                 if (t.getHitPoints() <=0){
                     lastHp = 0;
                 }
+                */
 
-                System.out.println("[System] " + s.getFullName() + " attack " + t.getFullName() + " to " + lastHp + "/" + t.getMaxHitPoints());
+                //System.out.println("[System] " + s.getFullName() + " attack " + t.getFullName() + " to " + lastHp + "/" + t.getMaxHitPoints());
+
+                ArrayList<Unit> units = new ArrayList<Unit>();
+                units.add(s);
+                units.add(t);
+
+                EventMessage em = new EventMessage(unitEvent.UNIT_ATTACK, units);
+                eventQueue.enqueue(em);
+
             }
 
             @Override
             public void onHeal(Unit s, Unit t) {
-                System.out.println("[System] " + s.getFullName() + " heal " + t.getFullName() + " to " + t.getHitPoints() + "/" + t.getMaxHitPoints());
+                //System.out.println("[System] " + s.getFullName() + " heal " + t.getFullName() + " to " + t.getHitPoints() + "/" + t.getMaxHitPoints());
+
+                ArrayList<Unit> units = new ArrayList<Unit>();
+                units.add(s);
+                units.add(t);
+
+                EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
+                eventQueue.enqueue(em);
+
             }
         };
 
@@ -275,22 +300,21 @@ public class ServerImpl implements Server {
         syncArena(arena);
     }
 
-    @Override
-    public EventMessage fetchEvent() throws RemoteException {
-        return dequeue();
-    }
-
     // EventQueue to Worker
 
     @Override
-    public void moveUnit(Unit u, int x, int y) throws RemoteException {
+    public void moveUnit(Unit s, Unit t) throws RemoteException {
         // Notify other masters
         //arena.moveUnit(u, x, y);
 
-        //unitEvent.send(unitEvent.UNIT_MOVE, u);
+        ArrayList<Unit> units = new ArrayList<Unit>();
+        units.add(s);
+        units.add(t);
 
-        EventMessage em = new EventMessage(unitEvent.UNIT_MOVE, u);
-        eventQueue.enqueue(em);
+        unitEvent.send(unitEvent.UNIT_MOVE, units);
+
+        //EventMessage em = new EventMessage(unitEvent.UNIT_MOVE, u);
+        //eventQueue.enqueue(em);
     }
 
     @Override
@@ -302,10 +326,10 @@ public class ServerImpl implements Server {
         units.add(target);
 
         //// Notify others
-        //unitEvent.send(unitEvent.UNIT_ATTACK, units);
+        unitEvent.send(unitEvent.UNIT_ATTACK, units);
 
-        EventMessage em = new EventMessage(unitEvent.UNIT_ATTACK, units);
-        eventQueue.enqueue(em);
+        //EventMessage em = new EventMessage(unitEvent.UNIT_ATTACK, units);
+        //eventQueue.enqueue(em);
 
     }
 
@@ -318,10 +342,10 @@ public class ServerImpl implements Server {
         units.add(target);
 
         // Notify others
-        //unitEvent.send(unitEvent.UNIT_HEAL, units);
+        unitEvent.send(unitEvent.UNIT_HEAL, units);
 
-        EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
-        eventQueue.enqueue(em);
+        //EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
+        //eventQueue.enqueue(em);
     }
 
 }

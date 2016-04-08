@@ -64,7 +64,9 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    server.moveUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() + 1);
+                    Unit targetUnit = player.getUnit();
+                    targetUnit.setCoord(player.getUnit().getX(),player.getUnit().getY() + 1);
+                    server.moveUnit(player.getUnit(), targetUnit);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }
@@ -75,7 +77,9 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    server.moveUnit(player.getUnit(), player.getUnit().getX(), player.getUnit().getY() - 1);
+                    Unit targetUnit = player.getUnit();
+                    targetUnit.setCoord(player.getUnit().getX(),player.getUnit().getY() - 1);
+                    server.moveUnit(player.getUnit(), targetUnit);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }
@@ -86,7 +90,9 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    server.moveUnit(player.getUnit(), player.getUnit().getX() + 1, player.getUnit().getY());
+                    Unit targetUnit = player.getUnit();
+                    targetUnit.setCoord(player.getUnit().getX() + 1,player.getUnit().getY());
+                    server.moveUnit(player.getUnit(), targetUnit);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }
@@ -97,7 +103,9 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    server.moveUnit(player.getUnit(), player.getUnit().getX() - 1, player.getUnit().getY());
+                    Unit targetUnit = player.getUnit();
+                    targetUnit.setCoord(player.getUnit().getX() - 1,player.getUnit().getY());
+                    server.moveUnit(player.getUnit(), targetUnit);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }

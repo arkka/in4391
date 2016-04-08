@@ -19,6 +19,7 @@ import static java.rmi.server.RemoteServer.getClientHost;
  */
 public class WorkerImpl implements Server {
     private Node currentNode;
+    private ArrayList<Node> serverNodes = new ArrayList<Node>();
     private ArrayList<Node> nodes = new ArrayList<Node>();
     private NodeEvent nodeEvent;
 
@@ -92,7 +93,7 @@ public class WorkerImpl implements Server {
             e.printStackTrace();
         }
 
-        System.out.println("[System] Register server to the remote registry");
+        System.out.println("[System] Register server to the remote master registry");
         Registry registry = null;
         Server stub = null;
         try {
@@ -108,6 +109,9 @@ public class WorkerImpl implements Server {
         if (!nodes.contains(node)) {
             System.out.println("[System] "+node.getFullName()+" is connected.");
             this.nodes.add(node);
+
+            if(node.getType()==10) this.serverNodes.add(node);
+
         }
     }
 
@@ -115,12 +119,15 @@ public class WorkerImpl implements Server {
         if (nodes.contains(node)) {
             System.out.println("[System] "+node.getFullName()+" is disconnected.");
             this.nodes.remove(node);
+
+            if(node.getType()==10) this.serverNodes.remove(node);
         }
     }
 
     public ArrayList<Node> getNodes() {
         return nodes;
     }
+
     public EventQueue getEventQueue() { return eventQueue; }
 
     // Static method
@@ -173,15 +180,10 @@ public class WorkerImpl implements Server {
 
     }
 
-    @Override
-    public EventMessage fetchEvent() throws RemoteException {
-        return null;
-    }
-
     // EventQueue to Worker
 
     @Override
-    public void moveUnit(Unit u, int x, int y) throws RemoteException {
+    public void moveUnit(Unit unit, Unit target) throws RemoteException {
         // not aplicable for worker
     }
 

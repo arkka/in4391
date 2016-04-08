@@ -23,14 +23,11 @@ public class UnitEvent extends BaseEvent  {
 	// Event splitter
 	@Override
 	public void onEvent(EventMessage em) {
-		if(em.getObject() instanceof Unit) {
-			Unit u = (Unit) em.getObject();
-			if (em.getCode() == UNIT_MOVE) {
-				onMove(u);
-			}
-		} else if ( em.getObject() instanceof ArrayList ) {
+		if ( em.getObject() instanceof ArrayList ) {
 			ArrayList<Unit> us = (ArrayList<Unit>) em.getObject();
-			if (em.getCode() == UNIT_ATTACK) {
+			if (em.getCode() == UNIT_MOVE) {
+				onMove(us.get(0),  us.get(1));
+			} else if (em.getCode() == UNIT_ATTACK) {
 				onAttack(us.get(0),  us.get(1));
 			} else if (em.getCode() == UNIT_HEAL) {
 				onHeal(us.get(0),  us.get(1));
@@ -38,7 +35,7 @@ public class UnitEvent extends BaseEvent  {
 		}
 	}
 
-	public void onMove(Unit u){
+	public void onMove(Unit u, Unit t){
 
 	}
 

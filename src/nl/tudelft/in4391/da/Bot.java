@@ -197,8 +197,12 @@ public class Bot extends Thread {
                     if (adjacentUnit == null ){
 	                    // Check whether random 0 for both axis
 	                    // Move accordingly
+
+                        Unit targetUnit = player.getUnit();
+
 	                    if (x == 0 || y == 0) {
-		                    server.moveUnit(unit, unit.getX() + x , unit.getY() + y);
+                            targetUnit.setCoord(player.getUnit().getX() + x,player.getUnit().getY() + y);
+                            server.moveUnit(player.getUnit(), targetUnit);
 	                    } else {
 		                    // Move horizontally or vertically 1 block
 		                    // When random value is not zero for x y
@@ -206,11 +210,13 @@ public class Bot extends Thread {
 		                    switch(direction){
 			                    case 0:
 				                    //horizontal
-				                    server.moveUnit(unit, unit.getX() + x , unit.getY());
+                                    targetUnit.setCoord(player.getUnit().getX() + x,player.getUnit().getY());
+                                    server.moveUnit(player.getUnit(), targetUnit);
 				                    break;
 			                    case 1:
 				                    //vertical
-				                    server.moveUnit(unit, unit.getX(), unit.getY() + y);
+                                    targetUnit.setCoord(player.getUnit().getX(), player.getUnit().getY() + y);
+                                    server.moveUnit(player.getUnit(), targetUnit);
 				                    break;
 		                    }
 	                    }
