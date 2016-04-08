@@ -35,14 +35,14 @@ public class GameServer {
                 case "nodes":
                     //System.out.println("\n[Master Nodes: " + server.getNodes().size() + "]");
                     System.out.println("\n[Master Nodes: ]");
-                    for (Node n : server.getNodes()) {
-                        if(n.getType() == 10) System.out.println("- " + n.getFullName());
+                    for (Node n : server.getMasterNodes()) {
+                        System.out.println("- " + n.getFullName());
                     }
 
                     //System.out.println("\n[Worker Nodes: " + server.getNodes().size() + "]");
                     System.out.println("\n[Worker Nodes: ]");
-                    for (Node n : server.getNodes()) {
-                        if(n.getType() == 20) System.out.println("- " + n.getFullName());
+                    for (Node n : server.getWorkerNodes()) {
+                        System.out.println("- " + n.getFullName());
                     }
                     break;
 

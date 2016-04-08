@@ -1,15 +1,18 @@
 package nl.tudelft.in4391.da;
 
 import java.io.*;
+import java.util.UUID;
 
 /**
  * Created by arkkadhiratara on 4/5/16.
  */
 public class EventMessage implements Serializable {
+    private UUID id;
     private int code;
     private Object object;
 
     public EventMessage(int code, Object object) {
+        this.id = UUID.randomUUID();
         this.code = code;
         this.object = object;
     }
@@ -40,5 +43,22 @@ public class EventMessage implements Serializable {
 
     public void setObject(Object object) {
         this.object = object;
+    }
+
+    public boolean equals(Object c) {
+        if(!(c instanceof EventMessage)) {
+            return false;
+        }
+
+        EventMessage that = (EventMessage) c;
+        return this.getId().equals(that.getId());
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }

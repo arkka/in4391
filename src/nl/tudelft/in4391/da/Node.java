@@ -37,7 +37,7 @@ public class Node implements Serializable {
 
     // Scheduler attributes
     private long latency;
-    private long request_num = 0;
+    private long requestNum = 0;
     private int status = STATUS_READY;
 
 
@@ -133,5 +133,21 @@ public class Node implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public long getRequestNum() {
+        return requestNum;
+    }
+
+    public void setRequestNum(long requestNum) {
+        this.requestNum = requestNum;
+    }
+
+    public void increaseRequestNum() {
+        this.requestNum++;
+    }
+
+    public int getStatus() {
+        return status;
     }
 }

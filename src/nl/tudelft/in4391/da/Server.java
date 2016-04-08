@@ -5,6 +5,7 @@ import nl.tudelft.in4391.da.unit.Unit;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  * Created by arkkadhiratara on 4/5/16.
@@ -19,11 +20,8 @@ public interface Server extends Remote {
     public Arena getArena() throws RemoteException;
     public void setArena(Arena arena) throws RemoteException;
 
-    // Unit
-    public void moveUnit(Unit unit, Unit target) throws RemoteException;
-
-    public void attackUnit(Unit source, Unit target) throws RemoteException;
-
-    public void healUnit(Unit source, Unit target) throws RemoteException;
+    // Event
+    public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException;
+    public void executeEvent(Node node, Arena a, EventMessage em) throws RemoteException;
 
 }

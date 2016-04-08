@@ -1,6 +1,5 @@
 package nl.tudelft.in4391.da;
 
-import java.rmi.RemoteException;
 import java.util.Scanner;
 
 /**

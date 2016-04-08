@@ -21,6 +21,8 @@ import static java.rmi.server.RemoteServer.getClientHost;
 public class ServerImpl implements Server {
     private Node currentNode;
     private ArrayList<Node> nodes = new ArrayList<Node>();
+    private ArrayList<Node> masterNodes = new ArrayList<Node>();
+    private ArrayList<Node> workerNodes = new ArrayList<Node>();
     private NodeEvent nodeEvent;
 
     private ArrayList<Player> players = new ArrayList<Player>();
@@ -161,6 +163,9 @@ public class ServerImpl implements Server {
         if (!nodes.contains(node)) {
             System.out.println("[System] "+node.getFullName()+" is connected.");
             this.nodes.add(node);
+
+            if(node.getType()==Node.TYPE_MASTER) this.masterNodes.add(node);
+            else this.workerNodes.add(node);
         }
     }
 
@@ -168,11 +173,28 @@ public class ServerImpl implements Server {
         if (nodes.contains(node)) {
             System.out.println("[System] "+node.getFullName()+" is disconnected.");
             this.nodes.remove(node);
+
+            if(node.getType()==Node.TYPE_MASTER) this.masterNodes.remove(node);
+            else this.workerNodes.remove(node);
         }
     }
 
     public ArrayList<Node> getNodes() {
         return nodes;
+    }
+    public ArrayList<Node> getMasterNodes() {
+        return masterNodes;
+    }
+    public ArrayList<Node> getWorkerNodes() {
+        return workerNodes;
+    }
+    public synchronized void updateWorkerNode(Node node) {
+        for (int i=0;i<workerNodes.size();i++) {
+            if(workerNodes.get(i).equals(node)) {
+                workerNodes.remove(i);
+                workerNodes.add(node);
+            }
+        }
     }
 
     public void registerPlayer(Player player) {
@@ -197,9 +219,51 @@ public class ServerImpl implements Server {
         return players;
     }
 
+    // EVENT
     public EventQueue getEventQueue() { return eventQueue; }
     public synchronized void enqueue(EventMessage em) { eventQueue.enqueue(em); }
     public synchronized EventMessage dequeue() { return (EventMessage) eventQueue.dequeue(); }
+
+    public void eventDispatcher() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+                    LinkedList<Node> bestNodes = new LinkedList<Node>();
+
+                    // Initialized two nodes
+                    bestNodes.addLast(getWorkerNodes().get(0));
+                    if(getWorkerNodes().size()>1) bestNodes.addLast(getWorkerNodes().get(1));
+
+                    // Find two best nodes based on its request num and status
+                    for (Node n : getWorkerNodes()) {
+                        if((n.getRequestNum() < bestNodes.getFirst().getRequestNum()) && (n.getStatus()==Node.STATUS_READY)) {
+                            bestNodes.remove();
+                            bestNodes.addLast(n);
+                        }
+                    }
+
+                    // Dispatch the job to 2 (or 1) best nodes
+                    Server worker = null;
+
+                    for (Node n : bestNodes) {
+                        // Set target node as Busy
+                        n.setType(Node.STATUS_BUSY);
+                        updateWorkerNode(n);
+
+                        // Dispatch
+                        worker = fromRemoteNode(n);
+                        worker.executeEvent(dequeue());
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+
 
     public void initRegistry(){
         System.out.println("[System] Initialize remote registry.");
@@ -301,51 +365,16 @@ public class ServerImpl implements Server {
     }
 
     // EventQueue to Worker
-
     @Override
-    public void moveUnit(Unit s, Unit t) throws RemoteException {
-        // Notify other masters
-        //arena.moveUnit(u, x, y);
-
-        ArrayList<Unit> units = new ArrayList<Unit>();
-        units.add(s);
-        units.add(t);
-
-        unitEvent.send(unitEvent.UNIT_MOVE, units);
-
-        //EventMessage em = new EventMessage(unitEvent.UNIT_MOVE, u);
-        //eventQueue.enqueue(em);
-    }
-
-    @Override
-    public void attackUnit(Unit source, Unit target) throws RemoteException {
-        //arena.attackUnit(source, target);
-
-        ArrayList<Unit> units = new ArrayList<Unit>();
-        units.add(source);
-        units.add(target);
-
-        //// Notify others
-        unitEvent.send(unitEvent.UNIT_ATTACK, units);
-
-        //EventMessage em = new EventMessage(unitEvent.UNIT_ATTACK, units);
-        //eventQueue.enqueue(em);
-
-    }
-
-    @Override
-    public void healUnit(Unit source, Unit target) throws RemoteException {
-        //arena.healUnit(source, target);
-
-        ArrayList<Unit> units = new ArrayList<Unit>();
-        units.add(source);
-        units.add(target);
-
-        // Notify others
+    public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException {
         unitEvent.send(unitEvent.UNIT_HEAL, units);
-
-        //EventMessage em = new EventMessage(unitEvent.UNIT_HEAL, units);
-        //eventQueue.enqueue(em);
     }
+
+    @Override
+    public void executeEvent(Node n, Arena a, EventMessage em) throws RemoteException {
+        currentNode.setType(Node.STATUS_BUSY);
+
+    }
+
 
 }
