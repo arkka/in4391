@@ -13,9 +13,11 @@ public class GameServer {
         final Integer registry_port = (args.length < 2) ? Node.DEFAULT_REGISTRY_PORT : Integer.parseInt(args[1]);
         final Integer callback_port = (args.length < 3) ? Node.DEFAULT_CALLBACK_PORT : Integer.parseInt(args[2]);
         final Integer socket_port = (args.length < 4) ? Node.DEFAULT_SOCKET_PORT : Integer.parseInt(args[3]);
+        final Integer type = (args.length < 5) ? Node.TYPE_MASTER : Integer.parseInt(args[4]);
 
         // Initialize Current Node
         Node currentNode = new Node(nodeId,registry_port,callback_port,socket_port);
+        currentNode.setType(type);
 
         // Initialize server object
         ServerImpl server = new ServerImpl(currentNode);
