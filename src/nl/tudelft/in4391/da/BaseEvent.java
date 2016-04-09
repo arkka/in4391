@@ -36,17 +36,19 @@ public class BaseEvent extends Thread implements Event  {
     }
 
     public void run() {
-        try {
-            byte[] receiveData = new byte[DEFAULT_EVENT_DATA_LENGTH];
-            DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
-            while (listen) {
+        while (listen) {
+            try {
+                byte[] receiveData = new byte[DEFAULT_EVENT_DATA_LENGTH];
+                DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
+
                 this.socket.receive(packet);
                 onReceiveData(receiveData,packet.getLength());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
+            } catch (Exception e) {
+                e.printStackTrace();
+//                System.out.println("Errorrrrrrrrr");
+            }
+        }
     }
 
     public void listen() {
@@ -54,7 +56,7 @@ public class BaseEvent extends Thread implements Event  {
         this.start();
     }
 
-    public synchronized void send(int code, Object obj) {
+    public void send(int code, Object obj) {
         EventMessage message = new EventMessage(code,obj);
         DatagramPacket sendPacket = null;
         try {

@@ -136,7 +136,7 @@ public class ServerImpl implements Server {
             unitEvent.listen();
 
             dispatcher = true;
-            eventDispatcher();
+//            eventDispatcher();
         }
     }
 
@@ -238,6 +238,7 @@ public class ServerImpl implements Server {
                     worker.executeEvent(currentNode, getArena(), em);
                 } catch (RemoteException e) {
                     e.printStackTrace();
+//                    System.out.println("Error on node:" + currentNode + " from request of " + n.getFullName() + "on " + em.getCode() );
                 }
             }
         }
