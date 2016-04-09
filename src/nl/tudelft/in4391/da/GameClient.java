@@ -66,7 +66,7 @@ public class GameClient {
             public void actionPerformed(ActionEvent e) {
                 try {
 
-                    Unit source = arena.getMyUnit(player);
+                    Unit source = player.getUnit();
                     Unit target = source.clone();
 
                     target.setCoord(target.getX(), target.getY() + 1);
@@ -86,7 +86,7 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit source = arena.getMyUnit(player);
+                    Unit source = player.getUnit();
                     Unit target = source.clone();
 
                     target.setCoord(target.getX(), target.getY() - 1);
@@ -106,7 +106,7 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit source = arena.getMyUnit(player);
+                    Unit source = player.getUnit();
                     Unit target = source.clone();
 
                     target.setCoord(target.getX() + 1, target.getY());
@@ -125,7 +125,7 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit source = arena.getMyUnit(player);
+                    Unit source = player.getUnit();
                     Unit target = source.clone();
 
                     target.setCoord(target.getX() - 1, target.getY());
@@ -234,8 +234,8 @@ public class GameClient {
                     while(server!=null) {
                         //consoleLog("[System] Sync arena map.");
                         arena = server.getArena();
-                        //arena.syncUnits();
-                        //player.setUnit(arena.getMyUnit(player));
+                        arena.syncUnits();
+                        player.setUnit(arena.getMyUnit(player));
 
                         renderArena();
                         Thread.sleep(GAME_SPEED);

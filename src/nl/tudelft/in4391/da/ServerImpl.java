@@ -96,6 +96,7 @@ public class ServerImpl implements Server {
                 EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from "+units.get(0).getFullName()+". Queue: "+eventQueue.size());
+                eventDispatcher();
             }
         };
 
@@ -135,7 +136,7 @@ public class ServerImpl implements Server {
             unitEvent.listen();
 
             dispatcher = true;
-            eventDispatcher();
+            //eventDispatcher();
         }
     }
 
@@ -205,11 +206,13 @@ public class ServerImpl implements Server {
     public synchronized EventMessage dequeue() { return (EventMessage) eventQueue.dequeue(); }
 
     public void eventDispatcher() {
+        /*
         new Thread(new Runnable() {
             @Override
             public void run() {
+            */
                 try {
-                    while(dispatcher) {
+                    //while(dispatcher) {
                         //System.out.println("[System] Dispatching job to workers.");
                         if(!getEventQueue().isEmpty()) {
                             LinkedList<Node> bestNodes = new LinkedList<Node>();
@@ -240,16 +243,16 @@ public class ServerImpl implements Server {
                                 worker = fromRemoteNode(n);
                                 worker.executeEvent(currentNode, getArena(), em);
                             }
-                        }
+                        //}
                     }
 
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-
+/*
             }
         }).start();
-
+*/
     }
 
 
