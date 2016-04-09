@@ -96,7 +96,7 @@ public class ServerImpl implements Server {
                 EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from "+units.get(0).getFullName()+". Queue: "+eventQueue.size());
-                //eventDispatcher();
+                eventDispatcher();
             }
         };
 
@@ -136,7 +136,7 @@ public class ServerImpl implements Server {
             unitEvent.listen();
 
             dispatcher = true;
-            //eventDispatcher();
+            eventDispatcher();
         }
     }
 

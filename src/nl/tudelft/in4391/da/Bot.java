@@ -213,14 +213,15 @@ public class Bot extends Thread {
 	                    // Check whether random 0 for both axis
 	                    // Move accordingly
 
-                        Unit targetUnit = player.getUnit();
+                        Unit source = player.getUnit();
+                        Unit target = source.clone();
 
 	                    if (x == 0 || y == 0) {
-                            targetUnit.setCoord(player.getUnit().getX() + x,player.getUnit().getY() + y);
+                            target.setCoord(player.getUnit().getX() + x,player.getUnit().getY() + y);
 
                             ArrayList<Unit> units = new ArrayList<Unit>();
                             units.add(0, player.getUnit());
-                            units.add(1, targetUnit);
+                            units.add(1, target);
                             server.sendEvent(UnitEvent.UNIT_MOVE, units);
 	                    } else {
 		                    // Move horizontally or vertically 1 block
@@ -230,20 +231,20 @@ public class Bot extends Thread {
 		                    switch(direction){
 			                    case 0:
 				                    //horizontal
-                                    targetUnit.setCoord(player.getUnit().getX() + x,player.getUnit().getY());
+                                    target.setCoord(player.getUnit().getX() + x,player.getUnit().getY());
 
                                     units = new ArrayList<Unit>();
                                     units.add(0, player.getUnit());
-                                    units.add(1, targetUnit);
+                                    units.add(1, target);
                                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 				                    break;
 			                    case 1:
 				                    //vertical
-                                    targetUnit.setCoord(player.getUnit().getX(), player.getUnit().getY() + y);
+                                    target.setCoord(player.getUnit().getX(), player.getUnit().getY() + y);
 
                                     units = new ArrayList<Unit>();
                                     units.add(0, player.getUnit());
-                                    units.add(1, targetUnit);
+                                    units.add(1, target);
                                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 				                    break;
 		                    }
