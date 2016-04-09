@@ -191,66 +191,33 @@ public class Bot extends Thread {
 
                 Unit unit = player.getUnit();
 
-	            // Random surrounding
-	            // Range (-1,1)
-	            Integer x = rand.nextInt(3) - 1;
-	            Integer y = rand.nextInt(3) - 1;
+                // Random movement. Range (-1,1)
+	            ArrayList<Integer> moves = new ArrayList<Integer>();
+                moves.add(UnitEvent.UNIT_MOVE_UP);
+                moves.add(UnitEvent.UNIT_MOVE_DOWN);
+                moves.add(UnitEvent.UNIT_MOVE_RIGHT);
+                moves.add(UnitEvent.UNIT_MOVE_LEFT);
 
                 if (unit instanceof Dragon) {
                     adjacentUnit = scanSurrounding(unit, arena);
 
                     if (adjacentUnit != null && adjacentUnit instanceof Knight ){
+                        /*
                         ArrayList<Unit> units = new ArrayList<Unit>();
                         units.add(0, player.getUnit());
                         units.add(1, adjacentUnit);
                         server.sendEvent(UnitEvent.UNIT_ATTACK, units);
+                        */
                     }
 
                 } else { // Knight
                     adjacentUnit = scanSurrounding(unit, arena);
 
-                    if (adjacentUnit == null ){
-	                    // Check whether random 0 for both axis
-	                    // Move accordingly
-
-                        Unit source = player.getUnit();
-                        Unit target = source.clone();
-
-	                    if (x == 0 || y == 0) {
-                            target.setCoord(player.getUnit().getX() + x,player.getUnit().getY() + y);
-
-                            ArrayList<Unit> units = new ArrayList<Unit>();
-                            units.add(0, player.getUnit());
-                            units.add(1, target);
-                            server.sendEvent(UnitEvent.UNIT_MOVE, units);
-	                    } else {
-		                    // Move horizontally or vertically 1 block
-		                    // When random value is not zero for x y
-		                    Integer direction = rand.nextInt(2);
-                            ArrayList<Unit> units = new ArrayList<Unit>();
-		                    switch(direction){
-			                    case 0:
-				                    //horizontal
-                                    target.setCoord(player.getUnit().getX() + x,player.getUnit().getY());
-
-                                    units = new ArrayList<Unit>();
-                                    units.add(0, player.getUnit());
-                                    units.add(1, target);
-                                    server.sendEvent(UnitEvent.UNIT_MOVE, units);
-				                    break;
-			                    case 1:
-				                    //vertical
-                                    target.setCoord(player.getUnit().getX(), player.getUnit().getY() + y);
-
-                                    units = new ArrayList<Unit>();
-                                    units.add(0, player.getUnit());
-                                    units.add(1, target);
-                                    server.sendEvent(UnitEvent.UNIT_MOVE, units);
-				                    break;
-		                    }
-	                    }
-
+                    if (adjacentUnit == null ){ // If no adjacent, lets take a walk
+                        Integer moveIndex = rand.nextInt(4);
+                        server.sendEvent(moves.get(moveIndex), player.getUnit());
                     } else { // Adjacent Unit exists
+                        /*
 	                    // Do action
                         if (adjacentUnit instanceof Dragon && (  Math.abs(unit.getX() - adjacentUnit.getX()) <= 2 && Math.abs(unit.getY() - adjacentUnit.getY()) <= 2  )){
 
@@ -270,6 +237,7 @@ public class Bot extends Thread {
 
                             }
                         }
+                        */
                     }
                 }
 

@@ -92,10 +92,10 @@ public class ServerImpl implements Server {
          */
         unitEvent = new UnitEvent(node) {
             @Override
-            public void onNewEvent(Integer code, ArrayList<Unit> units) {
-                EventMessage em = new EventMessage(code, units);
+            public void onNewEvent(Integer code, Unit unit) {
+                EventMessage em = new EventMessage(code, unit);
                 eventQueue.enqueue(em);
-                System.out.println("[Client] Receive event from "+units.get(0).getFullName()+". Queue: "+eventQueue.size());
+                System.out.println("[Client] Receive new event from "+unit.getFullName()+". Queue: "+eventQueue.size());
                 eventDispatcher();
             }
         };
@@ -342,9 +342,9 @@ public class ServerImpl implements Server {
 
     // EventQueue to Worker
     @Override
-    public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException {
-        System.out.println("[System] Receiving new event for unit movement "+units.get(0).getFullName()+" from "+units.get(0).getCoord()+" to "+units.get(1).getCoord());
-        unitEvent.send(code, units);
+    public void sendEvent(Integer code, Unit unit) throws RemoteException {
+        System.out.println("[System] Receiving new unit movement from "+unit.getFullName()+".");
+        unitEvent.send(code, unit);
     }
 
     @Override
@@ -354,17 +354,24 @@ public class ServerImpl implements Server {
         currentNode.increaseRequestNum();
         currentNode.setType(Node.STATUS_BUSY);
 
-        ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
+        Unit unit = (Unit) em.getObject();
 
-        System.out.println("[System] Calculate moving unit "+units.get(0).getFullName()+" from "+units.get(0).getCoord()+" to "+units.get(1).getCoord());
+        System.out.println("[System] Calculate moving unit "+unit.getFullName()+". " + em.getCode());
 
-        if(em.getCode() == UnitEvent.UNIT_MOVE) {
-            a.moveUnit(units.get(0),units.get(1).getX(),units.get(1).getY());
-        } else if(em.getCode() == UnitEvent.UNIT_ATTACK) {
+        if(em.getCode() == UnitEvent.UNIT_MOVE_UP) {
+            a.moveUnit(unit, unit.getX(), unit.getY() + 1);
+        } else if(em.getCode() == UnitEvent.UNIT_MOVE_DOWN) {
+            a.moveUnit(unit, unit.getX(), unit.getY() - 1);
+        } else if(em.getCode() == UnitEvent.UNIT_MOVE_RIGHT) {
+            a.moveUnit(unit, unit.getX() + 1, unit.getY());
+        } else if(em.getCode() == UnitEvent.UNIT_MOVE_LEFT) {
+            a.moveUnit(unit, unit.getX() - 1, unit.getY());
+        } /*else if(em.getCode() == UnitEvent.UNIT_ATTACK) {
             a.attackUnit(units.get(0),units.get(1));
         } else if(em.getCode() == UnitEvent.UNIT_HEAL) {
             a.healUnit(units.get(0),units.get(1));
         }
+        */
 
         currentNode.setType(Node.STATUS_READY);
 

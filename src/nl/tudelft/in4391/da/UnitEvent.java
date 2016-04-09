@@ -13,8 +13,14 @@ import java.util.ArrayList;
 public class UnitEvent extends BaseEvent  {
 
 	public static final Integer UNIT_MOVE = 400;
-	public static final Integer UNIT_ATTACK = 401;
-	public static final Integer UNIT_HEAL = 402;
+	public static final Integer UNIT_MOVE_UP = 401;
+	public static final Integer UNIT_MOVE_DOWN = 402;
+	public static final Integer UNIT_MOVE_RIGHT = 403;
+	public static final Integer UNIT_MOVE_LEFT = 404;
+
+
+	public static final Integer UNIT_ATTACK = 500;
+	public static final Integer UNIT_HEAL = 600;
 
 	public UnitEvent(Node node) {
 		super(node);
@@ -23,13 +29,13 @@ public class UnitEvent extends BaseEvent  {
 	// Event splitter
 	@Override
 	public void onEvent(EventMessage em) {
-		if ( em.getObject() instanceof ArrayList ) {
-			ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
-			onNewEvent(em.getCode(),units);
+		if ( em.getObject() instanceof Unit ) {
+			Unit unit = (Unit) em.getObject();
+			onNewEvent(em.getCode(),unit);
 		}
 	}
 
-	public void onNewEvent(Integer code, ArrayList<Unit> units){
+	public void onNewEvent(Integer code, Unit unit){
 
 	}
 }

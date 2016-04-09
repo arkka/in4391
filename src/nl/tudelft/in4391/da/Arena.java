@@ -95,24 +95,6 @@ public class Arena implements Serializable {
         }
     }
 
-    // After check whether surrounding empty or not when moving
-    // If not, check the type of unit
-    // Do damage if dragon
-    // Heal if player
-    public synchronized void actionUnit(Unit source, Unit target) {
-
-        if (target.getType().equals("Knight"))
-        {
-            // heal
-            healUnit(source,target);
-
-        } else { // Dragon
-            // do damage
-            attackUnit(source,target);
-        }
-
-    }
-
 	public synchronized void healUnit(Unit source, Unit target){
 		if ((Math.abs(source.getX() - target.getX()) <= 5) && (Math.abs(source.getY() - target.getY()) <= 6)){
 			target.setHitPoints(target.getHitPoints() + source.getHitPoints());

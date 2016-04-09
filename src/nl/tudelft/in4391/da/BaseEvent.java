@@ -13,7 +13,7 @@ public class BaseEvent extends Thread implements Event  {
     public static final Integer CONNECTED = 100;
     public static final Integer DISCONNECTED = 101;
 
-    public static Integer DEFAULT_EVENT_DATA_LENGTH = 1024;
+    public static Integer DEFAULT_EVENT_DATA_LENGTH = 2048;
 
     private Node node;
     private MulticastSocket socket;

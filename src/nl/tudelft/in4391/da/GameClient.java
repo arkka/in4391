@@ -66,15 +66,8 @@ public class GameClient {
             public void actionPerformed(ActionEvent e) {
                 try {
 
-                    Unit source = player.getUnit();
-                    Unit target = source.clone();
-
-                    target.setCoord(target.getX(), target.getY() + 1);
-                    ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, source);
-                    units.add(1, target);
-
-                    server.sendEvent(UnitEvent.UNIT_MOVE, units);
+                    Unit unit = player.getUnit();
+                    server.sendEvent(UnitEvent.UNIT_MOVE_UP, unit);
 
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
@@ -86,15 +79,9 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit source = player.getUnit();
-                    Unit target = source.clone();
 
-                    target.setCoord(target.getX(), target.getY() - 1);
-                    ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, source);
-                    units.add(1, target);
-
-                    server.sendEvent(UnitEvent.UNIT_MOVE, units);
+                    Unit unit = player.getUnit();
+                    server.sendEvent(UnitEvent.UNIT_MOVE_DOWN, unit);
 
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
@@ -106,15 +93,10 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit source = player.getUnit();
-                    Unit target = source.clone();
 
-                    target.setCoord(target.getX() + 1, target.getY());
-                    ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, source);
-                    units.add(1, target);
+                    Unit unit = player.getUnit();
+                    server.sendEvent(UnitEvent.UNIT_MOVE_RIGHT, unit);
 
-                    server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }
@@ -125,15 +107,10 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit source = player.getUnit();
-                    Unit target = source.clone();
 
-                    target.setCoord(target.getX() - 1, target.getY());
-                    ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, source);
-                    units.add(1, target);
+                    Unit unit = player.getUnit();
+                    server.sendEvent(UnitEvent.UNIT_MOVE_LEFT, unit);
 
-                    server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }
