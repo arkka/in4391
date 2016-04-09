@@ -56,11 +56,7 @@ public class GameServer {
 
                 case "show arena":
                 case "arena":
-                    try {
-                        server.getArena().show();
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
+                    server.getArena().show();
                     break;
 
                 case "event":
@@ -71,6 +67,9 @@ public class GameServer {
                         EventMessage em = (EventMessage) o;
                         System.out.println("- " + em.getCode());
                     }
+                    break;
+                case "dispatch":
+                    server.eventDispatcher();
                     break;
                 case "exit":
                     System.exit(-1);

@@ -96,7 +96,7 @@ public class ServerImpl implements Server {
                 EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from "+units.get(0).getFullName()+". Queue: "+eventQueue.size());
-                eventDispatcher();
+                //eventDispatcher();
             }
         };
 
@@ -206,53 +206,41 @@ public class ServerImpl implements Server {
     public synchronized EventMessage dequeue() { return (EventMessage) eventQueue.dequeue(); }
 
     public void eventDispatcher() {
-        /*
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-            */
+        //System.out.println("[System] Dispatching job to workers.");
+        if(!getEventQueue().isEmpty()) {
+            LinkedList<Node> bestNodes = new LinkedList<Node>();
+
+            // Initialized two nodes
+            bestNodes.addLast(getWorkerNodes().get(0));
+            if(getWorkerNodes().size()>1) bestNodes.addLast(getWorkerNodes().get(1));
+
+            // Find two best nodes based on its request num and status
+            for (Node n : getWorkerNodes()) {
+                if((n.getRequestNum() < bestNodes.getFirst().getRequestNum()) && (n.getStatus()==Node.STATUS_READY)) {
+                    bestNodes.remove();
+                    bestNodes.addLast(n);
+                }
+            }
+
+            // Dispatch the job to 2 (or 1) best nodes
+            Server worker = null;
+
+            EventMessage em = dequeue();
+
+            for (Node n : bestNodes) {
+                // Set target node as Busy
+                n.setType(Node.STATUS_BUSY);
+                updateWorkerNode(n);
+
+                // Dispatch
+                worker = fromRemoteNode(n);
                 try {
-                    //while(dispatcher) {
-                        //System.out.println("[System] Dispatching job to workers.");
-                        if(!getEventQueue().isEmpty()) {
-                            LinkedList<Node> bestNodes = new LinkedList<Node>();
-
-                            // Initialized two nodes
-                            bestNodes.addLast(getWorkerNodes().get(0));
-                            if(getWorkerNodes().size()>1) bestNodes.addLast(getWorkerNodes().get(1));
-
-                            // Find two best nodes based on its request num and status
-                            for (Node n : getWorkerNodes()) {
-                                if((n.getRequestNum() < bestNodes.getFirst().getRequestNum()) && (n.getStatus()==Node.STATUS_READY)) {
-                                    bestNodes.remove();
-                                    bestNodes.addLast(n);
-                                }
-                            }
-
-                            // Dispatch the job to 2 (or 1) best nodes
-                            Server worker = null;
-
-                            EventMessage em = dequeue();
-
-                            for (Node n : bestNodes) {
-                                // Set target node as Busy
-                                n.setType(Node.STATUS_BUSY);
-                                updateWorkerNode(n);
-
-                                // Dispatch
-                                worker = fromRemoteNode(n);
-                                worker.executeEvent(currentNode, getArena(), em);
-                            }
-                        //}
-                    }
-
+                    worker.executeEvent(currentNode, getArena(), em);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-/*
             }
-        }).start();
-*/
+        }
     }
 
 
@@ -349,10 +337,7 @@ public class ServerImpl implements Server {
     public void setArena(Arena arena) {
         this.arena = arena;
     }
-    @Override
-    public Arena getArena() throws RemoteException {
-        return arena;
-    }
+    public Arena getArena() { return arena; }
 
     // EventQueue to Worker
     @Override
