@@ -96,7 +96,6 @@ public class ServerImpl implements Server {
                 EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from "+units.get(0).getFullName()+". Queue: "+eventQueue.size());
-                eventDispatcher();
             }
         };
 
@@ -136,7 +135,7 @@ public class ServerImpl implements Server {
             unitEvent.listen();
 
             dispatcher = true;
-            //eventDispatcher();
+            eventDispatcher();
         }
     }
 
@@ -206,14 +205,11 @@ public class ServerImpl implements Server {
     public synchronized EventMessage dequeue() { return (EventMessage) eventQueue.dequeue(); }
 
     public void eventDispatcher() {
-        /*
         new Thread(new Runnable() {
             @Override
             public void run() {
-                */
                 try {
-
-                    //while(dispatcher) {
+                    while(dispatcher) {
                         //System.out.println("[System] Dispatching job to workers.");
                         if(!getEventQueue().isEmpty()) {
                             LinkedList<Node> bestNodes = new LinkedList<Node>();
@@ -233,6 +229,8 @@ public class ServerImpl implements Server {
                             // Dispatch the job to 2 (or 1) best nodes
                             Server worker = null;
 
+                            EventMessage em = dequeue();
+
                             for (Node n : bestNodes) {
                                 // Set target node as Busy
                                 n.setType(Node.STATUS_BUSY);
@@ -240,18 +238,18 @@ public class ServerImpl implements Server {
 
                                 // Dispatch
                                 worker = fromRemoteNode(n);
-                                worker.executeEvent(currentNode, getArena(), dequeue());
+                                worker.executeEvent(currentNode, getArena(), em);
                             }
                         }
-                    //}
+                    }
 
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-                /*
+
             }
         }).start();
-        */
+
     }
 
 
@@ -356,16 +354,20 @@ public class ServerImpl implements Server {
     // EventQueue to Worker
     @Override
     public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException {
+        System.out.println("[System] Receiving new event for unit movement "+units.get(0).getFullName()+" from "+units.get(0).getCoord()+" to "+units.get(1).getCoord());
         unitEvent.send(code, units);
     }
 
     @Override
     public void executeEvent(Node n, Arena a, EventMessage em) throws RemoteException {
         System.out.println("[System] Receiving job from Master "+n.getFullName()+".");
+
         currentNode.increaseRequestNum();
         currentNode.setType(Node.STATUS_BUSY);
 
         ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
+
+        System.out.println("[System] Calculate moving unit "+units.get(0).getFullName()+" from "+units.get(0).getCoord()+" to "+units.get(1).getCoord());
 
         if(em.getCode() == UnitEvent.UNIT_MOVE) {
             a.moveUnit(units.get(0),units.get(1).getX(),units.get(1).getY());
@@ -386,6 +388,7 @@ public class ServerImpl implements Server {
     @Override
     public void processedEvent(Node node, Arena a) throws RemoteException {
         System.out.println("[System] Receiving completed job from "+ node.getFullName()+".");
+
         syncArena(a);
     }
 }

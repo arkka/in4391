@@ -28,15 +28,20 @@ public class Unit implements Serializable {
     protected Integer attackPoints;
 
     public Unit(String name) {
-        this.name = name;
+        this(UUID.randomUUID(), name, null, null, null);
     }
 
     public Unit(String name, String type) {
+        this(UUID.randomUUID(), name, type, null, null);
+
+    }
+
+    public Unit(UUID id, String name, String type, Integer x, Integer y) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.type = type;
-        this.x = null;
-        this.y = null;
+        this.x = x;
+        this.y = y;
 
     }
 
@@ -57,6 +62,10 @@ public class Unit implements Serializable {
     public void setCoord(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public String getCoord() {
+        return "( "+this.x+", "+this.y+" )";
     }
 
     public void setHitPoints(int hitPoints) {
@@ -101,5 +110,10 @@ public class Unit implements Serializable {
 
         Unit that = (Unit) c;
         return this.getId().equals(that.getId());
+    }
+
+    @Override
+    public Unit clone() {
+        return new Unit(id, name, type, x, y);
     }
 }

@@ -4,6 +4,7 @@ package nl.tudelft.in4391.da;
  * Created by arkkadhiratara on 3/2/16.
  */
 
+import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
 import javax.swing.*;
@@ -64,12 +65,17 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit targetUnit = player.getUnit();
-                    targetUnit.setCoord(player.getUnit().getX(),player.getUnit().getY() + 1);
+
+                    Unit source = arena.getMyUnit(player);
+                    Unit target = source.clone();
+
+                    target.setCoord(target.getX(), target.getY() + 1);
                     ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, player.getUnit());
-                    units.add(1, targetUnit);
+                    units.add(0, source);
+                    units.add(1, target);
+
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
+
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
                 }
@@ -80,12 +86,14 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit targetUnit = player.getUnit();
-                    targetUnit.setCoord(player.getUnit().getX(),player.getUnit().getY() - 1);
+                    Unit source = arena.getMyUnit(player);
+                    Unit target = source.clone();
 
+                    target.setCoord(target.getX(), target.getY() - 1);
                     ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, player.getUnit());
-                    units.add(1, targetUnit);
+                    units.add(0, source);
+                    units.add(1, target);
+
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 
                 } catch (RemoteException e1) {
@@ -98,12 +106,14 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit targetUnit = player.getUnit();
-                    targetUnit.setCoord(player.getUnit().getX() + 1,player.getUnit().getY());
+                    Unit source = arena.getMyUnit(player);
+                    Unit target = source.clone();
 
+                    target.setCoord(target.getX() + 1, target.getY());
                     ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, player.getUnit());
-                    units.add(1, targetUnit);
+                    units.add(0, source);
+                    units.add(1, target);
+
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
@@ -115,12 +125,14 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Unit targetUnit = player.getUnit();
-                    targetUnit.setCoord(player.getUnit().getX() - 1,player.getUnit().getY());
+                    Unit source = arena.getMyUnit(player);
+                    Unit target = source.clone();
 
+                    target.setCoord(target.getX() - 1, target.getY());
                     ArrayList<Unit> units = new ArrayList<Unit>();
-                    units.add(0, player.getUnit());
-                    units.add(1, targetUnit);
+                    units.add(0, source);
+                    units.add(1, target);
+
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
                     e1.printStackTrace();
@@ -222,8 +234,8 @@ public class GameClient {
                     while(server!=null) {
                         //consoleLog("[System] Sync arena map.");
                         arena = server.getArena();
-                        arena.syncUnits();
-                        player.setUnit(arena.getMyUnit(player));
+                        //arena.syncUnits();
+                        //player.setUnit(arena.getMyUnit(player));
 
                         renderArena();
                         Thread.sleep(GAME_SPEED);

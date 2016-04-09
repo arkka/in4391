@@ -86,6 +86,18 @@ public class Bot extends Thread {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                System.out.println("[System] Logout and disconnect from server...");
+                try {
+                    server.logout(player);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Bye!");
+            }
+        });
     }
 
 	// Up to total 2 distance
