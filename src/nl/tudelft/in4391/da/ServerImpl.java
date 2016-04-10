@@ -85,6 +85,7 @@ public class ServerImpl implements Server {
             @Override
             public void onLoggedOut(Player p) {
                 arena.removeUnit(p.getUnit());
+                arena.syncUnits();
                 deregisterPlayer(p);
                 System.out.println("[System] Player `" + p + "` has logged out.");
             }
@@ -475,59 +476,62 @@ public class ServerImpl implements Server {
     public void processedEvent(Node node, Arena a, EventMessage em ) throws RemoteException {
         System.out.println("[System] Receive processed event job from Worker "+ node.getFullName()+".");
 
-        if(em.getRequestNum()>getReceiveNum()) {
-            boolean is_head = em.equals(updateQueue.peek());
+        ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
+        if(this.arena.units.contains(units.get(0))) {
+            if(em.getRequestNum()>getReceiveNum()) {
+                boolean is_head = em.equals(updateQueue.peek());
 
-            if (is_head) {
-                System.out.println("[System] Updating Arena provided provided by " + node.getFullName());
-                increaseReceiveNum();
-                updateQueue.dequeue();
-                setArena(a);
+                if (is_head) {
+                    System.out.println("[System] Updating Arena provided provided by " + node.getFullName());
+                    increaseReceiveNum();
+                    updateQueue.dequeue();
+                    setArena(a);
 
-                Server s = null;
-                for(Node n: masterNodes) {
-                    if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
-                        try {
-                            s = fromRemoteNode(n);
-                            s.processedEvent(currentNode, a, em);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-            } else {
-                System.out.println("[System] Waiting for another Worker to complete.");
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean retry = true;
-                        boolean is_head = false;
-                        while (retry) { // this EventMessage is already in the head, update
-                            is_head = em.equals(updateQueue.peek());
-                            if (is_head) {
-                                increaseReceiveNum();
-                                updateQueue.dequeue();
-                                setArena(a);
-
-                                //System.out.println("Send sync to other master nodes");
-                                Server s = null;
-                                for(Node n: masterNodes) {
-                                    if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
-                                        try {
-                                            s = fromRemoteNode(n);
-                                            s.processedEvent(currentNode, a, em);
-                                        } catch (RemoteException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-                                retry = false;
+                    Server s = null;
+                    for(Node n: masterNodes) {
+                        if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
+                            try {
+                                s = fromRemoteNode(n);
+                                s.processedEvent(currentNode, a, em);
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
                             }
                         }
                     }
-                }).start();
+
+                } else {
+                    System.out.println("[System] Waiting for another Worker to complete.");
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean retry = true;
+                            boolean is_head = false;
+                            while (retry) { // this EventMessage is already in the head, update
+                                is_head = em.equals(updateQueue.peek());
+                                if (is_head) {
+                                    increaseReceiveNum();
+                                    updateQueue.dequeue();
+                                    setArena(a);
+
+                                    //System.out.println("Send sync to other master nodes");
+                                    Server s = null;
+                                    for(Node n: masterNodes) {
+                                        if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
+                                            try {
+                                                s = fromRemoteNode(n);
+                                                s.processedEvent(currentNode, a, em);
+                                            } catch (RemoteException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                    retry = false;
+                                }
+                            }
+                        }
+                    }).start();
+                }
             }
         }
     }
