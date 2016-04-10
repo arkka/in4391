@@ -210,11 +210,11 @@ public class ServerImpl implements Server {
     public void syncData() {
         System.out.println("[System] Sync data with active master node.");
         for(Node n: masterNodes){
-            if(n!=currentNode) {
+            if(!n.equals(currentNode)) {
                 Server remoteServer = fromRemoteNode(n);
                 try {
                     this.players = remoteServer.getPlayers();
-                    this.arena = remoteServer.getArena();
+                    this.arena = remoteServer.getRemoteArena();
                     this.eventQueue = remoteServer.syncEventQueue();
                     break;
                 } catch (RemoteException e) {
@@ -428,6 +428,8 @@ public class ServerImpl implements Server {
     }
 
     public Arena getArena() { return arena; }
+
+    public Arena getRemoteArena() { return this.arena; }
 
     // EventQueue to Worker
     @Override

@@ -22,6 +22,7 @@ public interface Server extends Remote {
 
     // Arena
     public Arena getArena() throws RemoteException;
+    public Arena getRemoteArena() throws RemoteException;
 
     // Events
     public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException;
