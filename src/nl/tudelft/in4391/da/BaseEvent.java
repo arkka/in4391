@@ -13,7 +13,7 @@ public class BaseEvent extends Thread implements Event  {
     public static final Integer CONNECTED = 100;
     public static final Integer DISCONNECTED = 101;
 
-    public static Integer DEFAULT_EVENT_DATA_LENGTH = 1024;
+    public static Integer DEFAULT_EVENT_DATA_LENGTH = 2048;
 
     private Node node;
     private MulticastSocket socket;
@@ -37,7 +37,6 @@ public class BaseEvent extends Thread implements Event  {
 
     public void run() {
         try {
-
                 byte[] receiveData = new byte[DEFAULT_EVENT_DATA_LENGTH];
                 DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
             while (listen) {

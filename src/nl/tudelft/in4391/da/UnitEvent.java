@@ -23,13 +23,12 @@ public class UnitEvent extends BaseEvent  {
 	// Event splitter
 	@Override
 	public void onEvent(EventMessage em) {
-		if ( em.getObject() instanceof ArrayList ) {
-			ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
-			onNewEvent(em.getCode(),units);
+		if(em.getCode() == UNIT_MOVE || em.getCode() == UNIT_ATTACK || em.getCode() == UNIT_HEAL ) {
+			onNewEvent(em);
 		}
 	}
 
-	public void onNewEvent(Integer code, ArrayList<Unit> units){
+	public void onNewEvent(EventMessage em){
 
 	}
 }

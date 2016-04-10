@@ -18,6 +18,8 @@ public interface Server extends Remote {
 
     public ArrayList<Player> getPlayers() throws RemoteException;
 
+    public EventQueue syncEventQueue() throws RemoteException;
+
     // Arena
     public Arena getArena() throws RemoteException;
 

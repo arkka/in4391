@@ -3,6 +3,7 @@ package nl.tudelft.in4391.da;
 /**
  * Created by arkkadhiratara on 4/7/16.
  */
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -25,7 +26,7 @@ import java.util.NoSuchElementException;
  *  @author Robert Sedgewick
  *  @author Kevin Wayne
  */
-public class EventQueue<EventMessage> implements Iterable<EventMessage> {
+public class EventQueue<EventMessage> implements Serializable, Iterable<EventMessage> {
     private int N;         // number of elements on queue
     private Node first;    // beginning of queue
     private Node last;     // end of queue

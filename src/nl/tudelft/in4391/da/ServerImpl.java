@@ -96,8 +96,8 @@ public class ServerImpl implements Server {
          */
         unitEvent = new UnitEvent(node) {
             @Override
-            public void onNewEvent(Integer code, ArrayList<Unit> units) {
-                EventMessage em = new EventMessage(code, units);
+            public void onNewEvent(EventMessage em) {
+                ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from " + units.get(0).getFullName() + ". Queue: " + eventQueue.size());
             }
@@ -113,7 +113,7 @@ public class ServerImpl implements Server {
                 System.out.println("Node terminating...");
 
                 // Tell everyone this node is disconnected from cluster
-                nodeEvent.send(NodeEvent.DISCONNECTED,node);
+                nodeEvent.send(NodeEvent.DISCONNECTED, node);
 
                 System.out.println("Bye!");
             }
@@ -131,7 +131,17 @@ public class ServerImpl implements Server {
         nodeEvent.listen();
 
         // Tell everyone this node is connected to cluster
-        nodeEvent.send(NodeEvent.CONNECTED,node);
+        nodeEvent.send(NodeEvent.CONNECTED, node);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if(masterNodes.size() > 1 && currentNode.getType().equals(Node.TYPE_MASTER) ) { // If this is the first master node alive
+            syncData();
+        }
 
         // If master.. you should dispatch a job
         if(currentNode.getType().equals(Node.TYPE_MASTER)) {
@@ -196,6 +206,24 @@ public class ServerImpl implements Server {
         }
     }
 
+
+    public void syncData() {
+        System.out.println("[System] Sync data with active master node.");
+        for(Node n: masterNodes){
+            if(n!=currentNode) {
+                Server remoteServer = fromRemoteNode(n);
+                try {
+                    this.players = remoteServer.getPlayers();
+                    this.arena = remoteServer.getArena();
+                    this.eventQueue = remoteServer.syncEventQueue();
+                    break;
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public void registerPlayer(Player player) {
         if (!players.contains(player)) {
             System.out.println("[System] "+player.getUsername()+" is logged in.");
@@ -222,6 +250,11 @@ public class ServerImpl implements Server {
 
     // EVENT
     public EventQueue getEventQueue() { return eventQueue; }
+
+    public EventQueue syncEventQueue() throws RemoteException{
+        return this.eventQueue;
+    }
+
     public EventQueue getUpdateQueue() { return updateQueue; }
 
     public synchronized void enqueue(EventMessage em) { eventQueue.enqueue(em); }
