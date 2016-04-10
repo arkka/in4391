@@ -46,7 +46,6 @@ public class BaseEvent extends Thread implements Event  {
 
             } catch (Exception e) {
                 e.printStackTrace();
-//                System.out.println("Errorrrrrrrrr");
             }
         }
     }

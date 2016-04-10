@@ -95,8 +95,8 @@ public class ServerImpl implements Server {
             public void onNewEvent(Integer code, ArrayList<Unit> units) {
                 EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
-                System.out.println("[Client] Receive event from "+units.get(0).getFullName()+". Queue: "+eventQueue.size());
-                eventDispatcher();
+                System.out.println("[Client] Receive event from " + units.get(0).getFullName() + ". Queue: " + eventQueue.size());
+                //eventDispatcher();
             }
         };
 
@@ -136,7 +136,23 @@ public class ServerImpl implements Server {
             unitEvent.listen();
 
             dispatcher = true;
-//            eventDispatcher();
+            new Thread ( new Runnable() {
+
+                @Override
+                public void run() {
+                    while(dispatcher){
+//                        System.out.println("dispatch");
+                        try {
+                            Thread.sleep(10);
+                            eventDispatcher();
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }).start();
+
         }
     }
 
@@ -208,6 +224,7 @@ public class ServerImpl implements Server {
     public void eventDispatcher() {
         //System.out.println("[System] Dispatching job to workers.");
         if(!getEventQueue().isEmpty()) {
+            System.out.println("event available in queue");
             LinkedList<Node> bestNodes = new LinkedList<Node>();
 
             // Initialized two nodes
@@ -227,6 +244,8 @@ public class ServerImpl implements Server {
 
             EventMessage em = dequeue();
 
+            System.out.println(em.getCode() );
+
             for (Node n : bestNodes) {
                 // Set target node as Busy
                 n.setType(Node.STATUS_BUSY);
@@ -241,6 +260,8 @@ public class ServerImpl implements Server {
 //                    System.out.println("Error on node:" + currentNode + " from request of " + n.getFullName() + "on " + em.getCode() );
                 }
             }
+        } else {
+//            System.out.println("no job available");
         }
     }
 
