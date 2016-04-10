@@ -141,7 +141,6 @@ public class ServerImpl implements Server {
                 @Override
                 public void run() {
                     while(dispatcher){
-//                        System.out.println("dispatch");
                         try {
                             Thread.sleep(10);
                             eventDispatcher();
@@ -213,7 +212,7 @@ public class ServerImpl implements Server {
     }
 
     public ArrayList<Player> getPlayers() {
-        return players;
+        return this.players;
     }
 
     // EVENT
@@ -257,7 +256,6 @@ public class ServerImpl implements Server {
                     worker.executeEvent(currentNode, getArena(), em);
                 } catch (RemoteException e) {
                     e.printStackTrace();
-//                    System.out.println("Error on node:" + currentNode + " from request of " + n.getFullName() + "on " + em.getCode() );
                 }
             }
         } else {
@@ -265,7 +263,44 @@ public class ServerImpl implements Server {
         }
     }
 
+    public void syncData() {
+        System.out.println("[System] Sync data with active master node.");
+        for(Node n: masterNodes){
+            if(n!=currentNode) {
+                Server remoteServer = fromRemoteNode(n);
+                try {
+                    this.players = remoteServer.getPlayers();
+                    this.arena = remoteServer.getArena();
+                    break;
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
+    // PLAYERS
+
+//    public ArrayList<Player> getActivePlayers() {
+//        return this.players;
+//    }
+//
+//    public void addActivePlayer(Player player) {
+//        if(!players.contains(player)) {
+//            this.players.add(player);
+//        }
+//    }
+//
+//    public void removeActivePlayer(Player player) {
+//        if(players.contains(player)) {
+//            this.getActivePlayers().remove(players.indexOf(player));
+//        }
+//    }
+
+//    @Override
+//    public ArrayList<Player> getPlayers() throws RemoteException {
+//        return this.activePlayers;
+//    }
 
     public void initRegistry(){
         System.out.println("[System] Initialize remote registry.");
@@ -302,6 +337,8 @@ public class ServerImpl implements Server {
         }
         return remoteServer;
     }
+
+
 
     // Remote
     @Override
