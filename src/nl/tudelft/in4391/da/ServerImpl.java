@@ -24,6 +24,7 @@ public class ServerImpl implements Server {
     private ArrayList<Node> masterNodes = new ArrayList<Node>();
     private ArrayList<Node> workerNodes = new ArrayList<Node>();
     private NodeEvent nodeEvent;
+    private ArenaEvent arenaEvent;
 
     private ArrayList<Player> players = new ArrayList<Player>();
     private PlayerEvent playerEvent;
@@ -65,6 +66,16 @@ public class ServerImpl implements Server {
             public void onDisconnected(Node n) {
                 deregisterNode(n);
 
+            }
+        };
+
+        /*
+         *  EVENT: ARENA
+         */
+        arenaEvent = new ArenaEvent(node) {
+            @Override
+            public void onUpdated(EventMessage em) {
+                setArena((Arena) em.getObject());
             }
         };
 
@@ -127,7 +138,6 @@ public class ServerImpl implements Server {
         // Initialize RMI Registry
         initRegistry();
 
-
         nodeEvent.listen();
 
         // Tell everyone this node is connected to cluster
@@ -145,6 +155,7 @@ public class ServerImpl implements Server {
 
         // If master.. you should dispatch a job
         if(currentNode.getType().equals(Node.TYPE_MASTER)) {
+            arenaEvent.listen();
             playerEvent.listen();
             unitEvent.listen();
 
@@ -474,7 +485,7 @@ public class ServerImpl implements Server {
     public void processedEvent(Node node, Arena a, EventMessage em ) throws RemoteException {
         System.out.println("[System] Receive processed event job from Worker "+ node.getFullName()+".");
 
-        if(em.getRequestNum()>getReceiveNum()) {
+        if(em.getRequestNum()>getReceiveNum()) { // TODO: musti diliat
             boolean is_head = em.equals(updateQueue.peek());
 
             if (is_head) {
@@ -496,7 +507,7 @@ public class ServerImpl implements Server {
                             if (is_head) {
                                 increaseReceiveNum();
                                 updateQueue.dequeue();
-                                setArena(a);
+                                arenaEvent.send(new EventMessage(ArenaEvent.UPDATE,a));
                                 retry = false;
                             }
                         }
