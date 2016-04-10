@@ -19,8 +19,11 @@ public class Bot extends Thread {
     public ArrayList<Node> serverNodes;
 
     public Server server;
+
+    public Arena oldArena;
     public Arena arena;
     public Player player;
+    public Unit unit;
 
     public Unit adjacentUnit;
 
@@ -83,6 +86,9 @@ public class Bot extends Thread {
 
         try {
             player = server.login(username,"",type);
+            arena = server.getArena();
+            arena.syncUnits();
+            unit = player.getUnit();
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -180,16 +186,24 @@ public class Bot extends Thread {
 
         try {
             while (gameRunning && GameState.getRunningState()){
-
+                oldArena = arena;
                 arena = server.getArena();
                 arena.syncUnits();
-                player.setUnit(arena.getMyUnit(player));
+                unit = arena.getMyUnit(player);
 
-                if (player.getUnit() == null){
-                    break;
+                if (unit == null) {
+                    Thread.currentThread().interrupt();//preserve the message
+                    return;
                 }
 
-                Unit unit = player.getUnit();
+                player.setUnit(unit);
+
+                if (player.getUnit() == null) {
+                    Thread.currentThread().interrupt();//preserve the message
+                    return;
+                }
+
+                unit = player.getUnit();
 
 	            // Random surrounding
 	            // Range (-1,1)
@@ -277,10 +291,9 @@ public class Bot extends Thread {
 
 	            Thread.currentThread().sleep((int)(unit.getTurnDelay() * GAME_SPEED * TURN_DELAY));
             }
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();//preserve the message
+            return;
         }
     }
 }
