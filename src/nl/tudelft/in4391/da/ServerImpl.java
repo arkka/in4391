@@ -100,7 +100,6 @@ public class ServerImpl implements Server {
                 EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from " + units.get(0).getFullName() + ". Queue: " + eventQueue.size());
-                //eventDispatcher();
             }
         };
 
@@ -235,50 +234,53 @@ public class ServerImpl implements Server {
     public void eventDispatcher() {
         //System.out.println("[System] Dispatching job to workers.");
         if(!getEventQueue().isEmpty()) {
-            //System.out.println("event available in queue");
-            LinkedList<Node> bestNodes = new LinkedList<Node>();
-
-            // Initialized two nodes
-            bestNodes.addLast(getWorkerNodes().get(0));
-            if(getWorkerNodes().size()>1) bestNodes.addLast(getWorkerNodes().get(1));
-
-            // Find two best nodes based on its request num and status
-            for (Node n : getWorkerNodes()) {
-                if((n.getRequestNum() < bestNodes.getFirst().getRequestNum()) && (n.getStatus()==Node.STATUS_READY)) {
-                    bestNodes.remove();
-                    bestNodes.addLast(n);
-                }
-            }
-
-            // Dispatch the job to 2 (or 1) best nodes
-            Server worker = null;
-
             EventMessage em = dequeue();
+            if (em.getMaster().equals(currentNode)){
+                //System.out.println("event available in queue");
+                LinkedList<Node> bestNodes = new LinkedList<Node>();
 
-            // increase current node request number clock
-            increaseRequestNum();
+                // Initialized two nodes
+                bestNodes.addLast(getWorkerNodes().get(0));
+                if(getWorkerNodes().size()>1) bestNodes.addLast(getWorkerNodes().get(1));
 
-            // assign this node request number
-            em.setRequestNum(getRequestNum());
+                // Find two best nodes based on its request num and status
+                for (Node n : getWorkerNodes()) {
+                    if((n.getRequestNum() < bestNodes.getFirst().getRequestNum()) && (n.getStatus()==Node.STATUS_READY)) {
+                        bestNodes.remove();
+                        bestNodes.addLast(n);
+                    }
+                }
 
+                // Dispatch the job to 2 (or 1) best nodes
+                Server worker = null;
 
+                // increase current node request number clock
+                increaseRequestNum();
 
-            //System.out.println(em.getCode() );
+                // assign this node request number
+                em.setRequestNum(getRequestNum());
 
-            for (Node n : bestNodes) {
-                // Set target node as Busy
-                n.setType(Node.STATUS_BUSY);
-                updateWorkerNode(n);
+                //System.out.println(em.getCode() );
 
-                // Dispatch
-                worker = fromRemoteNode(n);
-                try {
-                    System.out.println("[System] Dispatch event "+em.getId()+" to Worker "+n.getFullName()+" [Queue: "+eventQueue.size()+"]");
-                    worker.executeEvent(currentNode, getArena(), em);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
+                for (Node n : bestNodes) {
+                    // Set target node as Busy
+                    n.setType(Node.STATUS_BUSY);
+                    updateWorkerNode(n);
+
+                    // Dispatch
+                    worker = fromRemoteNode(n);
+                    try {
+                        System.out.println("[System] Dispatch event "+em.getId()+" to Worker "+n.getFullName()+" [Queue: "+eventQueue.size()+"]");
+                        worker.executeEvent(currentNode, getArena(), em);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        System.out.println(em.getId());
+                        e.printStackTrace();
+                    }
                 }
             }
+
         } else {
 //            System.out.println("no job available");
         }
@@ -299,7 +301,7 @@ public class ServerImpl implements Server {
     public long getReceiveNum(){
         return this.receiveNum;
     }
-    
+
 
     public void initRegistry(){
         System.out.println("[System] Initialize remote registry.");
@@ -397,8 +399,10 @@ public class ServerImpl implements Server {
     // EventQueue to Worker
     @Override
     public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException {
-        System.out.println("[System] Receive new client unit movement for "+units.get(0).getFullName()+" from "+units.get(0).getCoord()+" to "+units.get(1).getCoord());
-        unitEvent.send(code, units);
+        System.out.println("[System] Receive new client unit movement for " + units.get(0).getFullName() + " from " + units.get(0).getCoord() + " to " + units.get(1).getCoord());
+        EventMessage em = new EventMessage(code, units);
+        em.setMaster(currentNode);
+        unitEvent.send(em);
     }
 
     @Override

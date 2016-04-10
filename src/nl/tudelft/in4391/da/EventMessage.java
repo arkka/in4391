@@ -11,6 +11,7 @@ public class EventMessage implements Serializable {
     private int code;
     private Object object;
     private long requestNum;
+    private Node master;
 
     public EventMessage(int code, Object object) {
         this.id = UUID.randomUUID();
@@ -69,4 +70,12 @@ public class EventMessage implements Serializable {
     public long getRequestNum() { return this.requestNum; }
 
     public void increaseRequestNum() { this.requestNum++; }
+
+    public Node getMaster() {
+        return master;
+    }
+
+    public void setMaster(Node master) {
+        this.master = master;
+    }
 }
