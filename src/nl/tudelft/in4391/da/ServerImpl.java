@@ -486,8 +486,9 @@ public class ServerImpl implements Server {
 
                 Server s = null;
                 for(Node n: masterNodes) {
-                    if(!n.equals(currentNode)||!n.equals(node)) { // Not current node or the one who send it
+                    if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
                         try {
+                            s = fromRemoteNode(n);
                             s.processedEvent(currentNode, a, em);
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -513,8 +514,9 @@ public class ServerImpl implements Server {
                                 //System.out.println("Send sync to other master nodes");
                                 Server s = null;
                                 for(Node n: masterNodes) {
-                                    if(!n.equals(currentNode)||!n.equals(node)) { // Not current node or the one who send it
+                                    if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
                                         try {
+                                            s = fromRemoteNode(n);
                                             s.processedEvent(currentNode, a, em);
                                         } catch (RemoteException e) {
                                             e.printStackTrace();
