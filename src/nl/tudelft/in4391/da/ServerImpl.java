@@ -224,6 +224,8 @@ public class ServerImpl implements Server {
 
     // EVENT
     public EventQueue getEventQueue() { return eventQueue; }
+    public EventQueue getUpdateQueue() { return updateQueue; }
+
     public synchronized void enqueue(EventMessage em) { eventQueue.enqueue(em); }
     public synchronized EventMessage dequeue() {
         EventMessage em = (EventMessage) eventQueue.dequeue();
