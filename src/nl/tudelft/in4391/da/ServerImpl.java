@@ -4,6 +4,7 @@ import nl.tudelft.in4391.da.unit.Dragon;
 import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -24,7 +25,6 @@ public class ServerImpl implements Server {
     private ArrayList<Node> masterNodes = new ArrayList<Node>();
     private ArrayList<Node> workerNodes = new ArrayList<Node>();
     private NodeEvent nodeEvent;
-    private ArenaEvent arenaEvent;
 
     private ArrayList<Player> players = new ArrayList<Player>();
     private PlayerEvent playerEvent;
@@ -66,16 +66,6 @@ public class ServerImpl implements Server {
             public void onDisconnected(Node n) {
                 deregisterNode(n);
 
-            }
-        };
-
-        /*
-         *  EVENT: ARENA
-         */
-        arenaEvent = new ArenaEvent(node) {
-            @Override
-            public void onUpdated(EventMessage em) {
-                setArena((Arena) em.getObject());
             }
         };
 
@@ -138,6 +128,7 @@ public class ServerImpl implements Server {
         // Initialize RMI Registry
         initRegistry();
 
+
         nodeEvent.listen();
 
         // Tell everyone this node is connected to cluster
@@ -155,7 +146,6 @@ public class ServerImpl implements Server {
 
         // If master.. you should dispatch a job
         if(currentNode.getType().equals(Node.TYPE_MASTER)) {
-            arenaEvent.listen();
             playerEvent.listen();
             unitEvent.listen();
 
@@ -170,7 +160,7 @@ public class ServerImpl implements Server {
                             eventDispatcher();
 
                         } catch (InterruptedException e) {
-                          //  e.printStackTrace();
+                            //  e.printStackTrace();
                         }
                     }
                 }
@@ -485,7 +475,7 @@ public class ServerImpl implements Server {
     public void processedEvent(Node node, Arena a, EventMessage em ) throws RemoteException {
         System.out.println("[System] Receive processed event job from Worker "+ node.getFullName()+".");
 
-        if(em.getRequestNum()>getReceiveNum()) { // TODO: musti diliat
+        if(em.getRequestNum()>getReceiveNum()) {
             boolean is_head = em.equals(updateQueue.peek());
 
             if (is_head) {
@@ -493,6 +483,17 @@ public class ServerImpl implements Server {
                 increaseReceiveNum();
                 updateQueue.dequeue();
                 setArena(a);
+
+                Server s = null;
+                for(Node n: masterNodes) {
+                    if(!n.equals(currentNode)||!n.equals(node)) { // Not current node or the one who send it
+                        try {
+                            s.processedEvent(currentNode, a, em);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
 
             } else {
                 System.out.println("[System] Waiting for another Worker to complete.");
@@ -507,7 +508,19 @@ public class ServerImpl implements Server {
                             if (is_head) {
                                 increaseReceiveNum();
                                 updateQueue.dequeue();
-                                arenaEvent.send(new EventMessage(ArenaEvent.UPDATE,a));
+                                setArena(a);
+
+                                //System.out.println("Send sync to other master nodes");
+                                Server s = null;
+                                for(Node n: masterNodes) {
+                                    if(!n.equals(currentNode)||!n.equals(node)) { // Not current node or the one who send it
+                                        try {
+                                            s.processedEvent(currentNode, a, em);
+                                        } catch (RemoteException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
                                 retry = false;
                             }
                         }
