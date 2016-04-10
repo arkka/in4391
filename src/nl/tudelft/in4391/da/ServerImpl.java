@@ -31,7 +31,11 @@ public class ServerImpl implements Server {
 
     private Arena arena = new Arena();
 
+    private long requestNum = 0;
+    private long receiveNum = 0;
+
     private EventQueue eventQueue = new EventQueue();
+    private EventQueue updateQueue = new EventQueue();
 
     private boolean dispatcher = false;
 
@@ -143,11 +147,11 @@ public class ServerImpl implements Server {
                     while(dispatcher){
 //                        System.out.println("dispatch");
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(1);
                             eventDispatcher();
 
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                          //  e.printStackTrace();
                         }
                     }
                 }
@@ -209,6 +213,8 @@ public class ServerImpl implements Server {
     }
 
     public synchronized void syncArena(Arena arena) {
+        // We need to check the order to update
+
         this.arena = arena;
     }
 
@@ -219,12 +225,16 @@ public class ServerImpl implements Server {
     // EVENT
     public EventQueue getEventQueue() { return eventQueue; }
     public synchronized void enqueue(EventMessage em) { eventQueue.enqueue(em); }
-    public synchronized EventMessage dequeue() { return (EventMessage) eventQueue.dequeue(); }
+    public synchronized EventMessage dequeue() {
+        EventMessage em = (EventMessage) eventQueue.dequeue();
+        updateQueue.enqueue(em);
+        return em;
+    }
 
     public void eventDispatcher() {
         //System.out.println("[System] Dispatching job to workers.");
         if(!getEventQueue().isEmpty()) {
-            System.out.println("event available in queue");
+            //System.out.println("event available in queue");
             LinkedList<Node> bestNodes = new LinkedList<Node>();
 
             // Initialized two nodes
@@ -244,7 +254,15 @@ public class ServerImpl implements Server {
 
             EventMessage em = dequeue();
 
-            System.out.println(em.getCode() );
+            // increase current node request number clock
+            increaseRequestNum();
+
+            // assign this node request number
+            em.setRequestNum(getRequestNum());
+
+
+
+            //System.out.println(em.getCode() );
 
             for (Node n : bestNodes) {
                 // Set target node as Busy
@@ -254,6 +272,7 @@ public class ServerImpl implements Server {
                 // Dispatch
                 worker = fromRemoteNode(n);
                 try {
+                    System.out.println("[System] Dispatch event "+em.getId()+" to Worker "+n.getFullName()+" [Queue: "+eventQueue.size()+"]");
                     worker.executeEvent(currentNode, getArena(), em);
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -263,6 +282,22 @@ public class ServerImpl implements Server {
         } else {
 //            System.out.println("no job available");
         }
+    }
+
+    public void increaseRequestNum() {
+        this.requestNum++;
+    }
+
+    public long getRequestNum(){
+        return this.requestNum;
+    }
+
+    public void increaseReceiveNum() {
+        this.receiveNum++;
+    }
+
+    public long getReceiveNum(){
+        return this.receiveNum;
     }
 
 
@@ -356,21 +391,18 @@ public class ServerImpl implements Server {
         playerEvent.send(playerEvent.LOGGED_OUT,p);
     }
 
-    public void setArena(Arena arena) {
-        this.arena = arena;
-    }
     public Arena getArena() { return arena; }
 
     // EventQueue to Worker
     @Override
     public void sendEvent(Integer code, ArrayList<Unit> units) throws RemoteException {
-        System.out.println("[System] Receiving new event for unit movement "+units.get(0).getFullName()+" from "+units.get(0).getCoord()+" to "+units.get(1).getCoord());
+        System.out.println("[System] Receive new client unit movement for "+units.get(0).getFullName()+" from "+units.get(0).getCoord()+" to "+units.get(1).getCoord());
         unitEvent.send(code, units);
     }
 
     @Override
     public void executeEvent(Node n, Arena a, EventMessage em) throws RemoteException {
-        System.out.println("[System] Receiving job from Master "+n.getFullName()+".");
+        System.out.println("[System] Receive new event "+em.getId()+" job from Master "+n.getFullName()+".");
 
         currentNode.increaseRequestNum();
         currentNode.setType(Node.STATUS_BUSY);
@@ -390,15 +422,47 @@ public class ServerImpl implements Server {
         currentNode.setType(Node.STATUS_READY);
 
         Server server = ServerImpl.fromRemoteNode(n);
-        server.processedEvent(currentNode,a);
+        server.processedEvent(currentNode, a, em);
 
         System.out.println("[System] Completed job from Master "+n.getFullName()+".");
     }
 
+    public synchronized void setArena(Arena a) {
+        this.arena = a;
+    }
     @Override
-    public void processedEvent(Node node, Arena a) throws RemoteException {
-        System.out.println("[System] Receiving completed job from "+ node.getFullName()+".");
+    public void processedEvent(Node node, Arena a, EventMessage em ) throws RemoteException {
+        System.out.println("[System] Receive processed event job from Worker "+ node.getFullName()+".");
 
-        syncArena(a);
+        if(em.getRequestNum()>getReceiveNum()) {
+            boolean is_head = em.equals(updateQueue.peek());
+
+            if (is_head) {
+                System.out.println("[System] Updating Arena provided provided by " + node.getFullName());
+                increaseReceiveNum();
+                updateQueue.dequeue();
+                setArena(a);
+
+            } else {
+                System.out.println("[System] Waiting for another Worker to complete.");
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean retry = true;
+                        boolean is_head = false;
+                        while (retry) { // this EventMessage is already in the head, update
+                            is_head = em.equals(updateQueue.peek());
+                            if (is_head) {
+                                increaseReceiveNum();
+                                updateQueue.dequeue();
+                                setArena(a);
+                                retry = false;
+                            }
+                        }
+                    }
+                }).start();
+            }
+        }
     }
 }
