@@ -62,11 +62,20 @@ public class GameServer {
                 case "event":
                 case "events":
                 case "queue":
+                    System.out.println("\nRequest #: " + server.getRequestNum());
                     System.out.println("\n[Event Queue: " + server.getEventQueue().size() + "]");
                     for (Object o : server.getEventQueue()) {
                         EventMessage em = (EventMessage) o;
                         System.out.println("- " + em.getCode());
                     }
+
+                    System.out.println("\nReceive #: " + server.getReceiveNum());
+                    System.out.println("\n[Update Queue: " + server.getUpdateQueue().size() + "]");
+                    for (Object o : server.getUpdateQueue()) {
+                        EventMessage em = (EventMessage) o;
+                        System.out.println("- " + em.getCode());
+                    }
+
                     break;
                 case "dispatch":
                     server.eventDispatcher();
