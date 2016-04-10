@@ -34,7 +34,7 @@ public class ServerImpl implements Server {
     private EventQueue eventQueue = new EventQueue();
 
     private boolean dispatcher = false;
-
+    private boolean sync = false;
 
     public ServerImpl(Node node) {
         this.currentNode = node;
@@ -96,7 +96,6 @@ public class ServerImpl implements Server {
                 EventMessage em = new EventMessage(code, units);
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from " + units.get(0).getFullName() + ". Queue: " + eventQueue.size());
-                //eventDispatcher();
             }
         };
 
@@ -129,6 +128,30 @@ public class ServerImpl implements Server {
 
         // Tell everyone this node is connected to cluster
         nodeEvent.send(NodeEvent.CONNECTED,node);
+
+        // Wait Node registry propagate across cluster
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+//        if ( masterNodes.size() > 1 && currentNode.getType().equals(Node.TYPE_MASTER)) { // If this is not the first master node alive
+//
+//            sync = true;
+//            new Thread ( new Runnable() {
+//                @Override
+//                public void run() {
+//                    while(sync && masterNodes.size() > 1){
+//                        try {
+//                            Thread.sleep(5000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }).start();
+//        }
 
         // If master.. you should dispatch a job
         if(currentNode.getType().equals(Node.TYPE_MASTER)) {
@@ -270,7 +293,8 @@ public class ServerImpl implements Server {
                 Server remoteServer = fromRemoteNode(n);
                 try {
                     this.players = remoteServer.getPlayers();
-                    this.arena = remoteServer.getArena();
+                    setArena(remoteServer.getArena());
+//                    this.arena = remoteServer.getArena();
                     break;
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -396,7 +420,7 @@ public class ServerImpl implements Server {
     public void setArena(Arena arena) {
         this.arena = arena;
     }
-    public Arena getArena() { return arena; }
+    public Arena getArena() { return this.arena; }
 
     // EventQueue to Worker
     @Override

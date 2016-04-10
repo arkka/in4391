@@ -10,11 +10,14 @@ public class EventMessage implements Serializable {
     private UUID id;
     private int code;
     private Object object;
+    private Node executeServer;
 
     public EventMessage(int code, Object object) {
         this.id = UUID.randomUUID();
         this.code = code;
         this.object = object;
+
+        this.executeServer = null;
     }
 
     public byte[] getBytes() throws IOException {
@@ -60,5 +63,13 @@ public class EventMessage implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public Node getExecuteServer() {
+        return executeServer;
+    }
+
+    public void setExecuteServer(Node executeServer) {
+        this.executeServer = executeServer;
     }
 }

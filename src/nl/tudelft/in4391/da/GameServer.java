@@ -66,6 +66,7 @@ public class GameServer {
                     for (Object o : server.getEventQueue()) {
                         EventMessage em = (EventMessage) o;
                         System.out.println("- " + em.getCode());
+                        System.out.println("- " + em.getExecuteServer());
                     }
                     break;
                 case "dispatch":

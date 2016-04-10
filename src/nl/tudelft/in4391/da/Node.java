@@ -13,7 +13,7 @@ public class Node implements Serializable {
     static Integer DEFAULT_REGISTRY_PORT = 1100;
     static Integer DEFAULT_CALLBACK_PORT = 1200;
     static Integer DEFAULT_SOCKET_PORT = 1300;
-    static String DEFAULT_MULTICAST_GROUP = "239.255.1.113";
+    static String DEFAULT_MULTICAST_GROUP = "239.255.2.113";
 
     static Integer TYPE_MASTER = 10;
     static Integer TYPE_WORKER = 20;
