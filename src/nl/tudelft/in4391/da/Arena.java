@@ -22,8 +22,7 @@ public class Arena implements Serializable {
 	    try {
 		    u = units.get(i);
 	    } catch(Exception e) {
-            //e.printStackTrace();
-            return null;
+
 	    }
         return u;
     }
