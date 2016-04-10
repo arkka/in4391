@@ -37,8 +37,8 @@ public class GameClient {
     public GameClient() {
         // Server Nodes
         serverNodes = new ArrayList<Node>();
-        serverNodes.add(new Node(1, "127.0.0.1", 1100, 1200));
-        serverNodes.add(new Node(2, "127.0.0.1", 1101, 1201));
+        serverNodes.add(new Node(1, Node.DEFAULT_HOST_ADDRESS, 1100, 1200));
+        serverNodes.add(new Node(2, Node.DEFAULT_HOST_ADDRESS, 1101, 1201));
 
         // Server object based on latency
         server = findServer();
