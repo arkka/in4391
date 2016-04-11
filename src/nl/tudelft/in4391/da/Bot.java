@@ -42,32 +42,12 @@ public class Bot extends Thread {
         // Ping all server and find the best latency
         for (Node n : serverNodes) {
             Server s = ServerImpl.fromRemoteNode(n);
-            if(s!=null) {
-                t = System.currentTimeMillis();
+            if (s != null) {
+                bestServer = s;
 
-                try {
-                    if (s.ping()) {
-                        latency = System.currentTimeMillis() - t;
-                        System.out.println("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)");
-                    }
-                } catch (RemoteException e) {
-                    //e.printStackTrace();
-                    latency = maxLatency;
-                    System.out.println("[System] Game server " + n.getFullName() + " is down.");
-                }
-                n.setLatency(latency);
-
-                if (latency < bestLatency) {
-                    bestLatency = latency;
-                    bestServer = s;
-                    bestNode = n;
-                }
+                break;
             }
         }
-        if(bestServer!=null)
-            System.out.println("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)");
-        else
-            System.out.println("[System] No available game server. Please try again later.");
 
         return bestServer;
     }
@@ -84,8 +64,15 @@ public class Bot extends Thread {
 
         try {
             player = server.login(username,"",type);
+
+            arena = server.getArena();
+            arena.syncUnits();
+            unit = player.getUnit();
+
         } catch (RemoteException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            return;
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -177,6 +164,10 @@ public class Bot extends Thread {
 
 
 	public void run() {
+        runBot();
+    }
+
+    public void runBot(){
         gameRunning = true;
 
         try {
@@ -201,12 +192,12 @@ public class Bot extends Thread {
 //                    break;
                 }
 
-                Unit unit = player.getUnit();
+                unit = player.getUnit();
 
-	            // Random surrounding
-	            // Range (-1,1)
-	            Integer x = rand.nextInt(3) - 1;
-	            Integer y = rand.nextInt(3) - 1;
+                // Random surrounding
+                // Range (-1,1)
+                Integer x = rand.nextInt(3) - 1;
+                Integer y = rand.nextInt(3) - 1;
 
                 if (unit instanceof Dragon) {
                     adjacentUnit = scanSurrounding(unit, arena);
@@ -222,48 +213,48 @@ public class Bot extends Thread {
                     adjacentUnit = scanSurrounding(unit, arena);
 
                     if (adjacentUnit == null ){
-	                    // Check whether random 0 for both axis
-	                    // Move accordingly
+                        // Check whether random 0 for both axis
+                        // Move accordingly
 
                         Unit source = player.getUnit();
                         Unit target = source.clone();
 
-	                    if (x == 0 || y == 0) {
+                        if (x == 0 || y == 0) {
                             target.setCoord(player.getUnit().getX() + x,player.getUnit().getY() + y);
 
                             ArrayList<Unit> units = new ArrayList<Unit>();
                             units.add(0, player.getUnit());
                             units.add(1, target);
                             server.sendEvent(UnitEvent.UNIT_MOVE, units);
-	                    } else {
-		                    // Move horizontally or vertically 1 block
-		                    // When random value is not zero for x y
-		                    Integer direction = rand.nextInt(2);
+                        } else {
+                            // Move horizontally or vertically 1 block
+                            // When random value is not zero for x y
+                            Integer direction = rand.nextInt(2);
                             ArrayList<Unit> units = new ArrayList<Unit>();
-		                    switch(direction){
-			                    case 0:
-				                    //horizontal
+                            switch(direction){
+                                case 0:
+                                    //horizontal
                                     target.setCoord(player.getUnit().getX() + x,player.getUnit().getY());
 
                                     units = new ArrayList<Unit>();
                                     units.add(0, player.getUnit());
                                     units.add(1, target);
                                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
-				                    break;
-			                    case 1:
-				                    //vertical
+                                    break;
+                                case 1:
+                                    //vertical
                                     target.setCoord(player.getUnit().getX(), player.getUnit().getY() + y);
 
                                     units = new ArrayList<Unit>();
                                     units.add(0, player.getUnit());
                                     units.add(1, target);
                                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
-				                    break;
-		                    }
-	                    }
+                                    break;
+                            }
+                        }
 
                     } else { // Adjacent Unit exists
-	                    // Do action
+                        // Do action
                         if (adjacentUnit instanceof Dragon && (  Math.abs(unit.getX() - adjacentUnit.getX()) <= 2 && Math.abs(unit.getY() - adjacentUnit.getY()) <= 2  )){
 
                             ArrayList<Unit> units = new ArrayList<Unit>();
@@ -289,10 +280,13 @@ public class Bot extends Thread {
 
                 Thread.currentThread().sleep((int) (unit.getTurnDelay() * GAME_SPEED * TURN_DELAY));
             }
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+//            e.printStackTrace();
+            server = findServer();
+            runBot();
         }
+//        catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 }

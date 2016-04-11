@@ -78,7 +78,8 @@ public class GameClient {
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+//                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -98,7 +99,8 @@ public class GameClient {
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+//                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -117,7 +119,8 @@ public class GameClient {
 
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+//                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -136,7 +139,8 @@ public class GameClient {
 
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+//                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -267,9 +271,13 @@ public class GameClient {
                         Thread.sleep(GAME_SPEED);
                     }
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
+                    server = findServer();
+                    updateArena();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
+                    server = findServer();
+                    updateArena();
                 }
             }
         }).start();
