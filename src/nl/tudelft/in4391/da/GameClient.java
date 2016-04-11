@@ -157,43 +157,15 @@ public class GameClient {
 
     public Server findServer() {
         Server bestServer = null;
-        Node bestNode = null;
-
-        long t = 0;
-        long latency = 0;
-        long maxLatency = 10000; // 10 seconds
-        long bestLatency = maxLatency;
 
         // Ping all server and find the best latency
         for (Node n : serverNodes) {
             Server s = ServerImpl.fromRemoteNode(n);
             if(s!=null) {
-                t = System.currentTimeMillis();
-
-                try {
-                    if (s.ping()) {
-                        latency = System.currentTimeMillis() - t;
-                        consoleLog("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)");
-                    }
-                } catch (RemoteException e) {
-                    //e.printStackTrace();
-                    latency = maxLatency;
-                    consoleLog("[System] Game server " + n.getFullName() + " is down.");
-                }
-                n.setLatency(latency);
-
-                if (latency < bestLatency) {
-                    bestLatency = latency;
-                    bestServer = s;
-                    bestNode = n;
-                }
+                bestServer = s;
+                break;
             }
         }
-
-        if(bestServer!=null)
-            consoleLog("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)");
-        else
-            consoleLog("[System] No available game server. Please try again later.");
 
         return bestServer;
     }

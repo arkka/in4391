@@ -141,9 +141,16 @@ public class ServerImpl implements Server {
             e.printStackTrace();
         }
 
-        if(masterNodes.size() > 1 && currentNode.getType().equals(Node.TYPE_MASTER) ) { // If this is the first master node alive
+        if(masterNodes.size() > 1 && currentNode.getType().equals(Node.TYPE_MASTER) ) { // If this is not the first master node alive
             syncData();
         }
+        /*
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        */
 
         // If master.. you should dispatch a job
         if(currentNode.getType().equals(Node.TYPE_MASTER)) {
