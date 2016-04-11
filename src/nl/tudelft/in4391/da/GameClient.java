@@ -65,7 +65,6 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-
                     Unit source = player.getUnit();
                     Unit target = source.clone();
 
@@ -77,7 +76,7 @@ public class GameClient {
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -97,7 +96,7 @@ public class GameClient {
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
 
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -116,7 +115,7 @@ public class GameClient {
 
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -125,6 +124,7 @@ public class GameClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+
                     Unit source = player.getUnit();
                     Unit target = source.clone();
 
@@ -135,7 +135,7 @@ public class GameClient {
 
                     server.sendEvent(UnitEvent.UNIT_MOVE, units);
                 } catch (RemoteException e1) {
-                    e1.printStackTrace();
+                    server = findServer();
                 }
             }
         });
@@ -189,6 +189,7 @@ public class GameClient {
                 }
             }
         }
+
         if(bestServer!=null)
             consoleLog("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)");
         else
@@ -231,7 +232,8 @@ public class GameClient {
             @Override
             public void run() {
                 try {
-                    while(server!=null) {
+                    while(true) {
+
                         //consoleLog("[System] Sync arena map.");
                         arena = server.getArena();
                         arena.syncUnits();
@@ -241,9 +243,12 @@ public class GameClient {
                         Thread.sleep(GAME_SPEED);
                     }
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    server = findServer();
+                    updateArena();
+
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    server = findServer();
+                    updateArena();
                 }
             }
         }).start();

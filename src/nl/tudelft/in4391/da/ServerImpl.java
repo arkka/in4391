@@ -379,11 +379,13 @@ public class ServerImpl implements Server {
     // Remote
     @Override
     public boolean ping() throws RemoteException {
+        /*
         try {
             System.out.println("[System] Incoming ping from "+getClientHost());
         } catch (ServerNotActiveException e) {
             e.printStackTrace();
         }
+        */
         return true;
     }
 
