@@ -13,7 +13,7 @@ import java.util.Random;
  * Created by arkkadhiratara on 4/6/16.
  */
 public class Bot extends Thread {
-    private static final double GAME_SPEED = .5; //ms
+    private static final double GAME_SPEED = .1; //ms
     private static Integer TURN_DELAY = 500;
 
     public ArrayList<Node> serverNodes;

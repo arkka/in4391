@@ -7,8 +7,8 @@ import java.util.Scanner;
  */
 
 public class GameBot {
-	private static Integer MAX_KNIGHT = 5;
-	private static Integer MAX_DRAGON = 2;
+	private static Integer MAX_KNIGHT = 100;
+	private static Integer MAX_DRAGON = 20;
 
 	public GameBot() {
 
