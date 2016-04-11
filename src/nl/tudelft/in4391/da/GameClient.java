@@ -22,6 +22,7 @@ public class GameClient {
     public Server server;
     public Player player;
     public Arena arena;
+    public Unit unit;
 
     public JPanel panel;
     public JTextField username;
@@ -168,31 +169,35 @@ public class GameClient {
         for (Node n : serverNodes) {
             Server s = ServerImpl.fromRemoteNode(n);
             if(s!=null) {
-                t = System.currentTimeMillis();
 
-                try {
-                    if (s.ping()) {
-                        latency = System.currentTimeMillis() - t;
-                        consoleLog("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)");
-                    }
-                } catch (RemoteException e) {
-                    //e.printStackTrace();
-                    latency = maxLatency;
-                    consoleLog("[System] Game server " + n.getFullName() + " is down.");
-                }
-                n.setLatency(latency);
+                bestServer = s;
 
-                if (latency < bestLatency) {
-                    bestLatency = latency;
-                    bestServer = s;
-                    bestNode = n;
-                }
+                break;
+//                t = System.currentTimeMillis();
+//
+//                try {
+//                    if (s.ping()) {
+//                        latency = System.currentTimeMillis() - t;
+//                        consoleLog("[System] Game server " + n.getFullName() + " is available. ("+ latency +"ms)");
+//                    }
+//                } catch (RemoteException e) {
+//                    //e.printStackTrace();
+//                    latency = maxLatency;
+//                    consoleLog("[System] Game server " + n.getFullName() + " is down.");
+//                }
+//                n.setLatency(latency);
+//
+//                if (latency < bestLatency) {
+//                    bestLatency = latency;
+//                    bestServer = s;
+//                    bestNode = n;
+//                }
             }
         }
-        if(bestServer!=null)
-            consoleLog("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)");
-        else
-            consoleLog("[System] No available game server. Please try again later.");
+//        if(bestServer!=null)
+//            consoleLog("[System] Connected to Game Server " + bestNode.getFullName() + ". ("+ bestLatency +"ms)");
+//        else
+//            consoleLog("[System] No available game server. Please try again later.");
 
         return bestServer;
     }
@@ -234,9 +239,30 @@ public class GameClient {
                     while(server!=null) {
                         //consoleLog("[System] Sync arena map.");
                         arena = server.getArena();
-                        arena.syncUnits();
-                        player.setUnit(arena.getMyUnit(player));
 
+                        if (arena == null) {
+                            Thread.currentThread().interrupt();//preserve the message
+                            return;
+//                    break;
+                        }
+
+                        arena.syncUnits();
+
+                        unit = arena.getMyUnit(player);
+
+                        if (unit == null) {
+                            Thread.currentThread().interrupt();//preserve the message
+                            return;
+//                    break;
+                        }
+
+                        player.setUnit(unit);
+
+                        if (player.getUnit() == null){
+                            Thread.currentThread().interrupt();//preserve the message
+                            return;
+//                    break;
+                        }
                         renderArena();
                         Thread.sleep(GAME_SPEED);
                     }

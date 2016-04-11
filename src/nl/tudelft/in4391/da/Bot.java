@@ -21,6 +21,7 @@ public class Bot extends Thread {
     public Server server;
     public Arena arena;
     public Player player;
+    public Unit unit;
 
     public Unit adjacentUnit;
 
@@ -183,10 +184,21 @@ public class Bot extends Thread {
 
                 arena = server.getArena();
                 arena.syncUnits();
-                player.setUnit(arena.getMyUnit(player));
+
+                unit = arena.getMyUnit(player);
+
+                if (unit == null) {
+                    Thread.currentThread().interrupt();//preserve the message
+                    return;
+//                    break;
+                }
+
+                player.setUnit(unit);
 
                 if (player.getUnit() == null){
-                    break;
+                    Thread.currentThread().interrupt();//preserve the message
+                    return;
+//                    break;
                 }
 
                 Unit unit = player.getUnit();
@@ -275,7 +287,7 @@ public class Bot extends Thread {
 
                 gameRunning = unit.running;
 
-	            Thread.currentThread().sleep((int)(unit.getTurnDelay() * GAME_SPEED * TURN_DELAY));
+                Thread.currentThread().sleep((int) (unit.getTurnDelay() * GAME_SPEED * TURN_DELAY));
             }
         } catch (RemoteException e) {
             e.printStackTrace();

@@ -39,6 +39,7 @@ public class ServerImpl implements Server {
     private EventQueue updateQueue = new EventQueue();
 
     private boolean dispatcher = false;
+    private boolean backup = false;
 
 
     public ServerImpl(Node node) {
@@ -141,14 +142,34 @@ public class ServerImpl implements Server {
             e.printStackTrace();
         }
 
-        if(masterNodes.size() > 1 && currentNode.getType().equals(Node.TYPE_MASTER) ) { // If this is the first master node alive
-            syncData();
-        }
+//        if(masterNodes.size() > 1 && currentNode.getType().equals(Node.TYPE_MASTER) ) { // If this is the first master node alive
+//            syncData();
+//        }
 
         // If master.. you should dispatch a job
         if(currentNode.getType().equals(Node.TYPE_MASTER)) {
             playerEvent.listen();
             unitEvent.listen();
+
+            if(masterNodes.size() > 1 ) { // If this is the first master node alive
+                backup = true;
+
+                new Thread ( new Runnable() {
+
+                    @Override
+                    public void run() {
+                        while(backup){
+                            try {
+                                Thread.sleep(1);
+                                syncData();
+                            } catch (InterruptedException e) {
+                                //  e.printStackTrace();
+                            }
+                        }
+                    }
+                }).start();
+            }
+
 
             dispatcher = true;
             new Thread ( new Runnable() {
@@ -210,7 +231,7 @@ public class ServerImpl implements Server {
 
 
     public void syncData() {
-        System.out.println("[System] Sync data with active master node.");
+//        System.out.println("[System] Sync data with active master node.");
         for(Node n: masterNodes){
             if(!n.equals(currentNode)) {
                 Server remoteServer = fromRemoteNode(n);
@@ -472,6 +493,7 @@ public class ServerImpl implements Server {
     public synchronized void setArena(Arena a) {
         this.arena = a;
     }
+
     @Override
     public void processedEvent(Node node, Arena a, EventMessage em ) throws RemoteException {
         System.out.println("[System] Receive processed event job from Worker "+ node.getFullName()+".");
@@ -487,17 +509,17 @@ public class ServerImpl implements Server {
                     updateQueue.dequeue();
                     setArena(a);
 
-                    Server s = null;
-                    for(Node n: masterNodes) {
-                        if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
-                            try {
-                                s = fromRemoteNode(n);
-                                s.processedEvent(currentNode, a, em);
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
+//                    Server s = null;
+//                    for(Node n: masterNodes) {
+//                        if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
+//                            try {
+//                                s = fromRemoteNode(n);
+//                                s.processedEvent(currentNode, a, em);
+//                            } catch (RemoteException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
 
                 } else {
                     System.out.println("[System] Waiting for another Worker to complete.");
@@ -515,17 +537,17 @@ public class ServerImpl implements Server {
                                     setArena(a);
 
                                     //System.out.println("Send sync to other master nodes");
-                                    Server s = null;
-                                    for(Node n: masterNodes) {
-                                        if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
-                                            try {
-                                                s = fromRemoteNode(n);
-                                                s.processedEvent(currentNode, a, em);
-                                            } catch (RemoteException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }
+//                                    Server s = null;
+//                                    for(Node n: masterNodes) {
+//                                        if(!n.equals(currentNode)&&(!n.equals(node))) { // Not current node or the one who send it
+//                                            try {
+//                                                s = fromRemoteNode(n);
+//                                                s.processedEvent(currentNode, a, em);
+//                                            } catch (RemoteException e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                        }
+//                                    }
                                     retry = false;
                                 }
                             }
