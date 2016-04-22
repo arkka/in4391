@@ -14,7 +14,7 @@ import java.util.Random;
  */
 public class Bot extends Thread {
     private static final double GAME_SPEED = .1; //ms
-    private static Integer TURN_DELAY = 500;
+    private static Integer TURN_DELAY = 1000;
 
     public ArrayList<Node> serverNodes;
 

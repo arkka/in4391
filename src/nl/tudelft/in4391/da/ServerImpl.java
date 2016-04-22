@@ -4,7 +4,7 @@ import nl.tudelft.in4391.da.unit.Dragon;
 import nl.tudelft.in4391.da.unit.Knight;
 import nl.tudelft.in4391.da.unit.Unit;
 
-import java.io.Serializable;
+import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -12,6 +12,7 @@ import java.rmi.server.RemoteServer;
 import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 
 import static java.rmi.server.RemoteServer.getClientHost;
@@ -43,6 +44,7 @@ public class ServerImpl implements Server {
 
 
     public ServerImpl(Node node) {
+
         this.currentNode = node;
 
         /*
@@ -103,6 +105,7 @@ public class ServerImpl implements Server {
                 ArrayList<Unit> units = (ArrayList<Unit>) em.getObject();
                 eventQueue.enqueue(em);
                 System.out.println("[Client] Receive event from " + units.get(0).getFullName() + ". Queue: " + eventQueue.size());
+
             }
         };
 
@@ -280,7 +283,9 @@ public class ServerImpl implements Server {
 
     public EventQueue getUpdateQueue() { return updateQueue; }
 
-    public synchronized void enqueue(EventMessage em) { eventQueue.enqueue(em); }
+    public synchronized void enqueue(EventMessage em) {
+        eventQueue.enqueue(em);
+    }
     public synchronized EventMessage dequeue() {
         EventMessage em = (EventMessage) eventQueue.dequeue();
         updateQueue.enqueue(em);
@@ -328,6 +333,7 @@ public class ServerImpl implements Server {
                     try {
                         System.out.println("[System] Dispatch event "+em.getId()+" to Worker "+n.getFullName()+" [Queue: "+eventQueue.size()+"]");
                         worker.executeEvent(currentNode, getArena(), em);
+
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     } catch (Exception e) {
@@ -461,6 +467,18 @@ public class ServerImpl implements Server {
         EventMessage em = new EventMessage(code, units);
         em.setMaster(currentNode);
         unitEvent.send(em);
+
+        // Benchmark
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("benchmark.csv", true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(new Date().getTime()/1000+";"+em.getId()+";RECEIVE;"+currentNode.getId()+";");
+            bw.newLine();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -488,6 +506,20 @@ public class ServerImpl implements Server {
         server.processedEvent(currentNode, a, em);
 
         System.out.println("[System] Completed job from Master "+n.getFullName()+".");
+
+
+
+        // Benchmark
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("benchmark.csv", true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(new Date().getTime()/1000+";"+em.getId()+";DISPATCH;"+currentNode.getId()+";");
+            bw.newLine();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized void setArena(Arena a) {
@@ -555,6 +587,21 @@ public class ServerImpl implements Server {
                     }).start();
                 }
             }
+        }
+
+
+
+
+        // Benchmark
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("benchmark.csv", true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(new Date().getTime()/1000+";"+em.getId()+";PROCESSED;"+node.getId()+";");
+            bw.newLine();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
